@@ -1,0 +1,24 @@
+{
+  "name": "resource-strategy-game",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon -w game/*  --exec \"npm start\"",
+    "start": "npm run build && node ./bin/www",
+    "build": "browserify *.js -o public/game/game.js"
+  },
+  "dependencies": {
+    "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.2.0",
+    "express": "~4.14.0",
+    "hbs": "~4.0.1",
+    "morgan": "~1.7.0",
+    "serve-favicon": "~2.3.0",
+    "three": "^0.83.0",
+    "three-orbit-controls": "^82.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}
