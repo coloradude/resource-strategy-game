@@ -1,14 +1,7 @@
-body, html {
-  padding: 0;
+html, body {
   margin: 0;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  box-sizing: border-box;
-}
-
-* {
-  box-sizing: inherit;
-}
-
-a {
-  color: #00B7FF;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
