@@ -112,7 +112,7 @@ class Game{
 
       cube.setName(name);
       cube.setScene(this.scene);
-      cube.setObject(this.scene.getObjectByName(name));
+      cube.setSceneObject(this.scene.getObjectByName(name));
 
       // console.log(`added cube to scene at position (${cube.position.x}, ${cube.position.y}, ${cube.position.z}) using coordinates (${coordinates.x}, ${coordinates.y}, ${coordinates.z})`);
     }
@@ -132,7 +132,7 @@ class Game{
 
       resourceNode.setName(name);
       resourceNode.setScene(this.scene);
-      resourceNode.setObject(this.scene.getObjectByName(name));
+      resourceNode.setSceneObject(this.scene.getObjectByName(name));
     }
 
 
@@ -172,8 +172,11 @@ class Game{
       coordinates = new THREE.Vector3(400, 300, 25);
       this.addCube(coordinates, size, 'soldier4');
 
-      // add resource node
+      // add resource nodes
       coordinates = new THREE.Vector3(1000, 300, 25);
+      this.addResourceNode(coordinates, size);
+
+      coordinates = new THREE.Vector3(2000, 1200, 25);
       this.addResourceNode(coordinates, size);
     }
 
@@ -428,6 +431,24 @@ class Game{
 
       this.camera.updateMatrix();
     }
+
+    groundMouseIntersect() {
+      // calculate objects intersecting the picking ray
+      let intersects = this.raycaster.intersectObjects(this.scene.children);
+
+      let mouseWorldCoordinatesX = 0;
+      let mouseWorldCoordinatesY = 0;
+      let mouseWorldCoordinatesZ = 0;
+
+      for(let i in intersects) {
+        if(intersects[i].object.name == "ground") {
+          mouseWorldCoordinatesX = intersects[i].point.x;
+          mouseWorldCoordinatesY = intersects[i].point.y;
+          mouseWorldCoordinatesZ = intersects[i].point.z;
+          break;
+        }
+      }
+    }
 }
 
 module.exports = Game;
@@ -435,6 +456,63 @@ module.exports = Game;
 class SceneObject extends THREE.Mesh {
   constructor(geometry, material) {
     super(geometry, material);
+
+    // movement options
+    this.speed = 0;
+    this.velocity = new THREE.Vector3(0, 0, 0);
+
+    // rendering options
+    this.castShadow = true;
+    this.receiveShadow = true;
+
+    this.boundingBox = null;
+    this.sceneObject = null;
+    this.destination = null;
+  }
+
+  update() {
+    if(this.sceneObject !== null) {
+      this.moveTowardDestination(this.destination);
+    }
+  }
+
+  moveTowardDestination(destination = null) {
+
+    if(destination !== null) {
+      let difX = this.sceneObject.position.x - destination.x;
+      let difY = this.sceneObject.position.y - destination.y;
+      let difZ = this.sceneObject.position.z - destination.z;
+
+      if(Math.abs(difX) > this.size.x) {
+        this.velocity.x = this.speed * -Math.sign(difX);
+      } else {
+        this.velocity.x = 0;
+      }
+
+      if(Math.abs(difY) > this.size.y) {
+        this.velocity.y = this.speed * -Math.sign(difY);
+      } else {
+        this.velocity.y = 0;
+      }
+
+      if(Math.abs(difZ) > this.size.z) {
+        this.velocity.z = this.speed * -Math.sign(difZ);
+      } else {
+        this.velocity.z = 0;
+      }
+
+      if(this.velocity.x !== 0 || this.velocity.y !== 0 || this.velocity.z !== 0) {
+        // update position
+        this.sceneObject.position.x += this.velocity.x;
+        this.sceneObject.position.y += this.velocity.y;
+        this.sceneObject.position.z += this.velocity.z;
+
+        // store local position
+        this.position.x = this.sceneObject.position.x;
+        this.position.y = this.sceneObject.position.y;
+        this.position.z = this.sceneObject.position.z;
+      }
+    }
   }
 
   setName(name) {
@@ -445,8 +523,14 @@ class SceneObject extends THREE.Mesh {
     return this.name;
   }
 
-  setObject(sceneObject) {
+  setSceneObject(sceneObject) {
     this.sceneObject = sceneObject;
+    this.boundingBox = new THREE.Box3().setFromObject(this.sceneObject);
+    this.size = this.getSize();
+  }
+
+  getSize() {
+    return new THREE.Vector3(this.boundingBox.max.x - this.boundingBox.min.x, this.boundingBox.max.y - this.boundingBox.min.y, this.boundingBox.max.z - this.boundingBox.min.z);
   }
 
   getObject() {
@@ -460,6 +544,15 @@ class SceneObject extends THREE.Mesh {
   getScene() {
     return this.scene;
   }
+
+  getDistanceFrom(sceneObject) {
+    // 3-dimensional pythagorean formula
+    return Math.sqrt(
+      Math.pow(this.position.x - sceneObject.position.x, 2) +
+      Math.pow(this.position.y - sceneObject.position.y, 2) +
+      Math.pow(this.position.z - sceneObject.position.z, 2)
+    );
+  }
 }
 
 class Ground extends SceneObject {
@@ -469,25 +562,20 @@ class Ground extends SceneObject {
       emissive: 0xFFFFFF
     });
     super(geometry, material);
-
-    this.receiveShadow = true;
-    this.sceneObject = null;
   }
 }
 
 class Cube extends SceneObject {
   constructor(size) {
     let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-    let material = new THREE.MeshLambertMaterial({color: 0xCC0000});
+    let material = new THREE.MeshLambertMaterial({
+      color: 0xCC0000
+    });
 
     super(geometry, material);
     this.type = "Cube";
 
-    this.castShadow = true;
-    this.receiveShadow = true;
-
-    this.velocity = new THREE.Vector3(0, 0, 0);
-    this.speed = 15;
+    this.speed = 10;
   }
 
   update() {
@@ -524,54 +612,29 @@ class Cube extends SceneObject {
         }
       }
 
-      // move towards last click point
-      let worldX = window.game.raycaster.setFromCamera(window.game.mouse, window.game.camera);
+      // find all resource nodes
+      let resourceNodes = window.game.resourceNodes.map((sceneObject) => {
+        sceneObject.distance = this.getDistanceFrom(sceneObject);
+        return sceneObject;
+      });
 
-      // calculate objects intersecting the picking ray
-      let intersects = window.game.raycaster.intersectObjects(this.scene.children);
-
-      let mouseWorldCoordinatesX = 0;
-      let mouseWorldCoordinatesY = 0;
-      let mouseWorldCoordinatesZ = 0;
-
-      for(let i in intersects) {
-        if(intersects[i].object.name == "ground") {
-          mouseWorldCoordinatesX = intersects[i].point.x;
-          mouseWorldCoordinatesY = intersects[i].point.y;
-          mouseWorldCoordinatesZ = intersects[i].point.z;
-          break;
+      // move toward closest resource node
+      if(resourceNodes.length > 0) {
+        let minDistanceNode = resourceNodes[0];
+        for(let i in resourceNodes) {
+          if(resourceNodes[i].distance < minDistanceNode.distance) {
+            minDistanceNode = resourceNodes[i];
+          }
         }
+        this.destination = minDistanceNode.position;
       }
-
-      let mouseDifX = this.sceneObject.position.x - mouseWorldCoordinatesX;
-      let mouseDifY = this.sceneObject.position.y - mouseWorldCoordinatesY;
-      let mouseDifZ = this.sceneObject.position.y - mouseWorldCoordinatesZ;
-
-      if(Math.abs(mouseDifX) > 10) {
-        this.velocity.x = this.speed * -Math.sign(mouseDifX);
-      } else {
-        this.velocity.x = 0;
-      }
-      if(Math.abs(mouseDifY) > 10) {
-        this.velocity.y = this.speed * -Math.sign(mouseDifY);
-      } else {
-        this.velocity.y = 0;
-      }
-      if(Math.abs(mouseDifZ) > 10) {
-        this.velocity.z = this.speed * -Math.sign(mouseDifZ);
-      } else {
-        this.velocity.z = 0;
-      }
-
-      // update position
-      this.sceneObject.position.x += this.velocity.x;
-      this.sceneObject.position.y += this.velocity.y;
     }
+    super.update();
   }
 }
 
 class ResourceNode extends SceneObject {
-  constructor(type = "metal") {
+  constructor() {
     let size = 50;
     let widthSegments = 5;
     let heightSegments = 5;
@@ -582,12 +645,8 @@ class ResourceNode extends SceneObject {
 
     super(geometry, material);
 
-    this.type = type;
-    this.castShadow = true;
-    this.receiveShadow = true;
-
-    this.velocity = new THREE.Vector3(0, 0, 0);
-    this.speed = 0;
+    this.type = "resourceNode";
+    this.resourceType = "metal";
   }
 }
 
