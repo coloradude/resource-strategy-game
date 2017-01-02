@@ -15,6 +15,9 @@ browserify build/intermediates/init.js -o build/intermediates/init-b.js
 # Move the browserified file to the output directory
 mv build/intermediates/init-b.js build/output/init.js
 
+# compile SASS files
+gulp css
+
 # Move index.html and assets directory from game to output directory
 cp -r game/assets build/output
 
