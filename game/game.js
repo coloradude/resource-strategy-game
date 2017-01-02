@@ -9,19 +9,23 @@ const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE);
 const SCREEN_WIDTH = window.innerWidth;
 const SCREEN_HEIGHT = window.innerHeight;
+const ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
+
+/* Game Settings */
+const MAPWIDTH = 5000;
+const MAPLENGTH = MAPWIDTH / ASPECT;
 
 /* Camera Settings */
 const FOV = 90;
-const ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
+
 const NEARFRUSTRAM = 0.1;
 const FAFRUSTRAM = 10000;
-
-/* Game Settings */
-const mapWidth = 1000;
-const mapLength = 1000;
+const CAMERA_START_X = MAPWIDTH / 2;
+const CAMERA_START_Y = MAPLENGTH / 2;
+const CAMERA_START_Z = 2000;
 
 /* Interface Settings */
-const MAXZOOM = 550;
+const MAXZOOM = 3000;
 const MINZOOM = 100;
 
 class Game{
@@ -29,28 +33,32 @@ class Game{
       this.initializeRenderer();
       this.initializeScene();
       this.initializeCamera();
+      this.initializeLight();
       this.initializeMouse();
+      this.initializeContainer();
 
-      this.windowHalfX = SCREEN_WIDTH / 2;
-      this.windowHalfY = SCREEN_HEIGHT / 2;
       this.radius = 10;
       this.theta = 45;
       this.phi = 60;
 
-      // this.addCube();
-      this.addCubes();
-      this.addGround();
-      // this.drawRaycaster();
+      this.cubes = [];
 
-      // this.listObjectsInScene();
+      // this.addCubes();
+      this.addGround();
 
       this.watchEvents();
     }
 
     update() {
-        // this.ground.rotation.x += 0.01;
-        // this.ground.rotation.y += 0.01;
-        // this.ground.rotation.z += 0.01;
+        // this.scene.traverse((object) => {
+        //   if(object.type == "Cube") {
+        //     object.update();
+        //   }
+        // });
+
+        for(let i = 0; i< this.cubes.length; i++) {
+          this.cubes[i].update();
+        }
     }
 
     render() {
@@ -83,71 +91,49 @@ class Game{
       });
     }
 
-    Cube(size) {
-      let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-      let material = new THREE.MeshPhongMaterial({
-        color: 0x2194ce,
-        emissive: 0x2194ce,
-        specular: 0x2194ce,
-        shininess: 5,
-        shading: THREE.SmoothShading
-      });
-      return new THREE.Mesh(geometry, material);
-    }
-
-    Ground() {
-      let geometry = new THREE.PlaneBufferGeometry(mapWidth, mapLength, 1, 1);
-      let material = new THREE.MeshPhongMaterial({
-        emissive: 0xffff00
-      });
-      return new THREE.Mesh(geometry, material);
-    }
-
     /*
     @coordinates: (x, y, z) vector
     @size: (x, y, z) vector
     */
-    addCube(coordinates = new THREE.Vector3(0, 0, 0), size = new THREE.Vector3(100, 100, 100), name = "") {
-      // let cube = new this.Cube(new THREE.Vector3(100, 100, 100));
-      // cube.position.set(coordinates);
-      // cube.name = "cube" + Math.random() * 1000;
-      // this.scene.add(cube);
+    addCube(coordinates = new THREE.Vector3(0, 0, 0), size = new THREE.Vector3(100, 100, 100), name = `cube${Math.floor(Math.random()) * 100}`) {
+      let cube = new Cube(size);
 
-      console.log('coordinates:');
-      console.log(coordinates);
-
-      let cube = new this.Cube(size);
       cube.name = name;
       cube.position.set(coordinates.x, coordinates.y, coordinates.z);
+
       this.scene.add(cube);
+      this.cubes.push(cube);
 
-      console.log(`added cube to scene at position (${cube.position.x}, ${cube.position.y}, ${cube.position.z}) using coordinates (${coordinates.x}, ${coordinates.y}, ${coordinates.z})`);
-
-      // this.listObjectsInScene();
+      cube.setName(name);
+      console.log(this.scene);
+      console.log(this.scene.getObjectByName(name));
+      cube.setObject(this.scene.getObjectByName(name));
+      // console.log(`added cube to scene at position (${cube.position.x}, ${cube.position.y}, ${cube.position.z}) using coordinates (${coordinates.x}, ${coordinates.y}, ${coordinates.z})`);
     }
 
     /*
       Adds 100 randomly sized cubes in random places
     */
-    addCubes(coordinates = new THREE.Vector3(0, 0, 0), number = 100) {
+    addCubes(coordinates = new THREE.Vector3(0, 0, 0), number = 1000) {
       for(let i = 0; i < number; i++) {
         let random = Math.random();
-        let size = new THREE.Vector3(random * 100, random * 100, random * 100);
-        coordinates = new THREE.Vector3(random * mapWidth, random * mapLength, 0);
-        let name = `randomCube${i}`;
-        this.addCube(coordinates, size, name);
+        let width = random * 100;
+        let length = random * 100;
+        let height = 100;
+        let size = new THREE.Vector3(width, length, height);
 
-        // let cube = new this.Cube(size);
-        // cube.name = "cube" + i;
-        // cube.position.set(Math.random() * 1000, Math.random() * 1000, 0);
-        // this.scene.add(cube);
+        coordinates = new THREE.Vector3(Math.random() * MAPWIDTH, Math.random() * MAPLENGTH, random * 50);
+
+        let name = `cube${this.cubes.length}`;
+
+        this.addCube(coordinates, size, name);
       }
     }
 
     addGround() {
-      let ground = this.Ground();
+      let ground = new Ground();
       ground.name = "ground";
-      ground.position.set(mapWidth/2, mapLength/2, 0);
+      ground.position.set(MAPWIDTH/2, MAPLENGTH/2, 0);
       this.scene.add(ground);
     }
 
@@ -176,6 +162,20 @@ class Game{
       this.renderer.setClearColor(0x000000);
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+      // enable shadows
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = THREE.PCFShadowMap;
+      this.renderer.shadowMapSoft = true;
+
+      this.renderer.shadowCameraNear = 3;
+      this.renderer.shadowCameraFar = 10000;
+      this.renderer.shadowCameraFov = 50;
+
+      this.renderer.shadowMapBias = 0.0039;
+      this.renderer.shadowMapDarkness = 0.5;
+      this.renderer.shadowMapWidth = MAPWIDTH;
+      this.renderer.shadowMapHeight = MAPLENGTH;
     }
 
     initializeScene() {
@@ -184,9 +184,18 @@ class Game{
 
     initializeCamera() {
       this.camera = new THREE.PerspectiveCamera(FOV, ASPECT, NEARFRUSTRAM, FAFRUSTRAM);
-      this.camera.position.x = mapWidth/2;
-      this.camera.position.y = mapLength/2;
-      this.camera.position.z = 500;
+      this.camera.position.x = CAMERA_START_X;
+      this.camera.position.y = CAMERA_START_Y;
+      this.camera.position.z = CAMERA_START_Z;
+
+      this.cameraHelper = new THREE.CameraHelper(this.camera);
+    }
+
+    initializeLight() {
+      let light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(0, MAPLENGTH, 500);
+      light.castShadow = true;
+      this.scene.add(light);
     }
 
     initializeMouse() {
@@ -194,6 +203,11 @@ class Game{
       this.isMouseDown = false;
       this.mouseDownPosition = {x: 0, y: 0};
       this.raycaster = new THREE.Raycaster();
+    }
+
+    initializeContainer() {
+      this.windowHalfX = SCREEN_WIDTH / 2;
+      this.windowHalfY = SCREEN_HEIGHT / 2;
     }
 
     onWindowResize() {
@@ -243,7 +257,6 @@ class Game{
           this.shiftIsDown = true;
           break;
         default:
-          console.log(this.camera.position);
           break;
       }
     }
@@ -254,12 +267,12 @@ class Game{
 
       this.isMouseDown = false;
 
-      console.log(`mouseup detected; \nold position: ${this.mouseDownPosition.x}, ${this.mouseDownPosition.y}`);
+      // console.log(`mouseup detected; \nold position: ${this.mouseDownPosition.x}, ${this.mouseDownPosition.y}`);
 
       this.mouseDownPosition.x = event.clientX;
       this.mouseDownPosition.y = event.clientY;
 
-      console.log(`new position: ${this.mouseDownPosition.x}, ${this.mouseDownPosition.y}`);
+      // console.log(`new position: ${this.mouseDownPosition.x}, ${this.mouseDownPosition.y}`);
     }
 
     onDocumentMouseDown(event) {
@@ -271,7 +284,7 @@ class Game{
       this.mouseDownPosition.x = event.clientX;
       this.mouseDownPosition.y = event.clientY;
 
-      if(this.shiftIsDown) {
+      if(!this.shiftIsDown) {
         // get intersecting point with ground & add a cube there
 
       	// update the picking ray with the camera and mouse position
@@ -280,15 +293,16 @@ class Game{
       	// calculate objects intersecting the picking ray
       	let intersects = this.raycaster.intersectObjects(this.scene.children);
 
+        // loop through intersecting objects
       	for(let intersect of intersects) {
-          // console.log(`detected collision with ${intersect.object.name}`);
-          // console.log(intersect.object);
-
-          if(intersect.object.name == "ground") {
-            // console.log(`intersected ground at:`);
-            // console.log(intersect.point);
-
-            this.addCube(intersect.point, new THREE.Vector3(100, 100, 100), "manually added cube");
+          if(intersect.object.type == "Cube") {
+            console.log('cube collision detected');
+            this.scene.remove(intersect.object);
+            break;
+          }
+          // add cube on ground where user clicks
+          else if(intersect.object.name == "ground") {
+            this.addCube(new THREE.Vector3(intersect.point.x, intersect.point.y, 0), new THREE.Vector3(50, 50, 10), `cube${this.cubes.length}`);
           }
       	}
       }
@@ -307,14 +321,8 @@ class Game{
         this.mouseDownPosition.x = event.clientX;
         this.mouseDownPosition.y = event.clientY;
 
-        // move camera if shift not held
+        // move camera along X-Y axis if shift held
         if(this.shiftIsDown) {
-
-          // this.camera.position.x += this.mouseDownPosition.x - this.mouse.x;
-          // this.camera.position.y += this.mouseDownPosition.y - this.mouse.y;
-          this.camera.updateMatrix();
-        } else {
-          // move camera along X-Y axis if shift not held
           let deltaX = this.mouseDownPosition.x - oldX,
               deltaY = this.mouseDownPosition.y - oldY;
 
@@ -325,6 +333,8 @@ class Game{
           this.camera.position.x -= deltaX;
           this.camera.position.y += deltaY;
         }
+
+        this.camera.updateMatrix();
       }
 
       this.raycaster.setFromCamera(this.mouse, this.camera);
@@ -354,3 +364,51 @@ class Game{
 }
 
 module.exports = Game;
+
+class Ground extends THREE.Mesh {
+  constructor() {
+    let geometry = new THREE.PlaneBufferGeometry(MAPWIDTH, MAPLENGTH, 1, 1);
+    let material = new THREE.MeshPhongMaterial({
+      emissive: 0xFFFFFF
+    });
+    super(geometry, material);
+
+    this.receiveShadow = true;
+  }
+}
+
+class Cube extends THREE.Mesh {
+  constructor(size) {
+    let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+    let material = new THREE.MeshLambertMaterial({color: 0xCC0000});
+
+    super(geometry, material);
+    this.type = "Cube";
+
+    this.castShadow = true;
+    this.receiveShadow = true;
+  }
+
+  update() {
+    // this.mesh = this.scene
+    // console.log(this.name + ' checking in');
+  }
+
+  setName(name) {
+    this.name = name;
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  setObject(sceneObject) {
+    this.sceneObject = sceneObject;
+    console.log('object set, id: ' + this.sceneObject.id);
+  }
+
+  getMesh() {
+
+  }
+
+}
