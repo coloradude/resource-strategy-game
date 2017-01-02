@@ -14,6 +14,7 @@ const ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
 /* Game Settings */
 const MAPWIDTH = 5000;
 const MAPLENGTH = MAPWIDTH / ASPECT;
+const MAPHEIGHT = 1000;
 
 /* Camera Settings */
 const FOV = 90;
@@ -43,7 +44,7 @@ class Game{
 
       this.cubes = [];
 
-      // this.addCubes();
+      this.addCubes();
       this.addGround();
 
       this.watchEvents();
@@ -105,8 +106,7 @@ class Game{
       this.cubes.push(cube);
 
       cube.setName(name);
-      console.log(this.scene);
-      console.log(this.scene.getObjectByName(name));
+      cube.setScene(this.scene);
       cube.setObject(this.scene.getObjectByName(name));
       // console.log(`added cube to scene at position (${cube.position.x}, ${cube.position.y}, ${cube.position.z}) using coordinates (${coordinates.x}, ${coordinates.y}, ${coordinates.z})`);
     }
@@ -296,7 +296,6 @@ class Game{
         // loop through intersecting objects
       	for(let intersect of intersects) {
           if(intersect.object.type == "Cube") {
-            console.log('cube collision detected');
             this.scene.remove(intersect.object);
             break;
           }
@@ -374,6 +373,7 @@ class Ground extends THREE.Mesh {
     super(geometry, material);
 
     this.receiveShadow = true;
+    this.sceneObject = null;
   }
 }
 
@@ -387,11 +387,48 @@ class Cube extends THREE.Mesh {
 
     this.castShadow = true;
     this.receiveShadow = true;
+
+    this.velocity = new THREE.Vector3(5, 5, 0);
   }
 
   update() {
-    // this.mesh = this.scene
-    // console.log(this.name + ' checking in');
+    if(this.sceneObject !== null) {
+      // check for wall collision
+      if(this.sceneObject.position.x >= MAPWIDTH || this.sceneObject.position.x <= 0) {
+        this.velocity.x = -this.velocity.x;
+      }
+      if (this.sceneObject.position.y >= MAPLENGTH || this.sceneObject.position.y <= 0) {
+        this.velocity.y = -this.velocity.y;
+      }
+      if (this.sceneObject.position.z >= MAPHEIGHT || this.sceneObject.position.z <= 0) {
+        this.velocity.z = -this.velocity.z;
+      }
+
+      const xTolerance = 1;
+      const yTolerance = 1;
+      const zTolerance = 1;
+
+      // check for other cube collision
+      for(let i = 0; i < this.scene.children.length; i++) {
+        let obj = this.scene.children[i];
+
+        if(obj != this.sceneObject && obj.type == "Cube") {
+          if(Math.abs(obj.position.x - this.sceneObject.position.x) < xTolerance) {
+            this.velocity.x = -this.velocity.x;
+          }
+          if(Math.abs(obj.position.y - this.sceneObject.position.y) < yTolerance) {
+            this.velocity.y = -this.velocity.y;
+          }
+          if(Math.abs(obj.position.z - this.sceneObject.position.z) < zTolerance) {
+            this.velocity.z = -this.velocity.z;
+          }
+        }
+      }
+
+      // update position
+      this.sceneObject.position.x += this.velocity.x;
+      this.sceneObject.position.y += this.velocity.y;
+    }
   }
 
   setName(name) {
@@ -404,11 +441,18 @@ class Cube extends THREE.Mesh {
 
   setObject(sceneObject) {
     this.sceneObject = sceneObject;
-    console.log('object set, id: ' + this.sceneObject.id);
   }
 
-  getMesh() {
+  getObject() {
+    return this.sceneObject;
+  }
 
+  setScene(scene) {
+    this.scene = scene;
+  }
+
+  getScene() {
+    return this.scene;
   }
 
 }
