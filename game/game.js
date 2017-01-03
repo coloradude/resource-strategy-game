@@ -430,7 +430,10 @@ class Game{
 
       this.scene.remove(this.selectionBox);
 
-      // create bounding box to determine which objects were selected
+      /*
+        create bounding box to determine which objects were selected
+        boundingBox = ((minX, minY), (maxX, maxY))
+      */
       let boundingBox = new THREE.Vector2(
         new THREE.Vector2(
           Math.min(this.worldMouseCoordinatesStart.x, this.worldMouseCoordinatesEnd.x),
@@ -441,6 +444,11 @@ class Game{
           Math.max(this.worldMouseCoordinatesStart.y, this.worldMouseCoordinatesEnd.y)
         )
       );
+
+      // deselect all units
+      for(let i in this.selectedObjects) {
+        this.selectedObjects[i].select(false);
+      }
 
       this.selectedObjects = [];
 
@@ -564,6 +572,9 @@ class Game{
           return intersects[i].point;
         }
       }
+
+      // if mouse ray doesn't intersect ground, return mouse starting point (nothing should be selected)
+      return this.worldMouseCoordinatesStart;
     }
 
     resetScore() {
