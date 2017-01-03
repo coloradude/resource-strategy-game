@@ -1,5 +1,10 @@
-<canvas id="game"></canvas>
-<div id="menu">
-  <a class="button" href="#" onclick="game.addUnit();">New Unit</a>
+<div id="container">
+  <canvas id="game"></canvas>
+  <div id="menu">
+    <a class="button" href="#" onclick="window.game.addUnit()">Add Unit</a>
+    <a class="button" href="#" onclick="window.game.addRandomCubes()">Add Random Cubes</a>
+    <a class="button" href="#" onclick="window.game.removeAllCubes()">Remove All Cubes</a>
+    <a class="button" href="#" onclick="window.game.listAllCubes()">List All Cubes</a>
+  </div>
 </div>
 <script src="build/output/init.js"></script>

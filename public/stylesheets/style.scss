@@ -5,16 +5,22 @@ html, body {
   width: 100%;
   overflow: hidden;
   position: relative;
-  box-sizing: border-box; }
+  box-sizing: border-box;
+}
 
 * {
-  box-sizing: inherit; }
+  box-sizing: inherit;
+}
 
 #container {
   display: flex;
   flex-flow: column nowrap;
-  height: 100%; }
-  #container #menu {
+  height: 100%;
+
+  #game {
+  }
+
+  #menu {
     position: absolute;
     top: 0;
     left: 0;
@@ -22,12 +28,18 @@ html, body {
     background: white;
     display: flex;
     flex-flow: column nowrap;
-    text-align: center; }
-    #container #menu a.button {
+    text-align: center;
+
+    a.button {
       display: inline-block;
       background: #333;
       text-decoration: none;
       color: white;
-      padding: 2em; }
-      #container #menu a.button:hover {
-        background: #555; }
+      padding: 2em;
+
+      &:hover {
+        background: #555;
+      }
+    }
+  }
+}

@@ -7,8 +7,10 @@ browser: true
 
 const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE);
-const SCREEN_WIDTH = window.innerWidth;
-const SCREEN_HEIGHT = window.innerHeight;
+const CANVAS = document.getElementById('game');
+const CONTAINER = document.getElementById('container');
+const SCREEN_WIDTH = CANVAS.width;
+const SCREEN_HEIGHT = CANVAS.height;
 const ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
 
 /* Game Settings */
@@ -36,7 +38,6 @@ class Game{
       this.initializeCamera();
       this.initializeLight();
       this.initializeMouse();
-      this.initializeContainer();
 
       this.radius = 10;
       this.theta = 45;
@@ -55,21 +56,19 @@ class Game{
     }
 
     update() {
-        // this.scene.traverse((object) => {
-        //   if(object.type == "Cube") {
-        //     object.update();
-        //   }
-        // });
-
-        for(let i = 0; i< this.cubes.length; i++) {
+        for(let i in this.cubes) {
           this.cubes[i].update();
+        }
+
+        for(let i in this.resourceNodes) {
+          this.resourceNodes[i].update();
         }
     }
 
     render() {
         this.update();
-        // requestAnimationFrame(this.render());
         this.renderer.render(this.scene, this.camera);
+        // requestAnimationFrame(this.render());
     }
 
     watchEvents() {
@@ -80,11 +79,9 @@ class Game{
       // mouse controls
     	document.addEventListener('mousemove', this.onDocumentMouseMove.bind(this), false );
     	document.addEventListener('mousedown', this.onDocumentMouseDown.bind(this), false );
+      document.addEventListener('contextmenu', this.onDocumentMouseRightDown.bind(this), false);
     	document.addEventListener('mouseup', this.onDocumentMouseUp.bind(this), false );
       document.addEventListener('mousewheel', this.onDocumentMouseWheel.bind(this), false );
-
-      // disable right click
-      document.addEventListener('contextmenu', (e)=>{e.preventDefault();return false;}, false);
 
       // resize window
       window.addEventListener('resize', this.onWindowResize.bind(this), false);
@@ -135,7 +132,6 @@ class Game{
       resourceNode.setSceneObject(this.scene.getObjectByName(name));
     }
 
-
     /*
       Adds 1000 randomly sized cubes in random places
     */
@@ -155,8 +151,23 @@ class Game{
       }
     }
 
+    removeAllCubes() {
+      let numDeleted = 0;
+      let numCubes = this.cubes.length;
+      for(let i =0; i < numCubes; i++) {
+        this.removeCube(this.cubes[0]);
+        numDeleted++;
+      }
+    }
+
+    listAllCubes() {
+      for(let i in this.cubes) {
+        console.log(this.cubes[i]);
+      }
+    }
+
     scenario1() {
-      // this.addRandomCubes(null, 100);
+      this.addRandomCubes(null, 100);
 
       // add 4 home cubes
       let size = new THREE.Vector3(50, 50, 50);
@@ -194,18 +205,16 @@ class Game{
     addUnit() {
       let size = new THREE.Vector3(50, 50, 50);
       let coordinates = new THREE.Vector3(500, 300, 25);
-      this.addCube(coordinates, size, `soldier${this.cubes.length}`);
+      this.addCube(coordinates, size, `cube${this.cubes.length}`);
     }
 
     removeCube(sceneObject) {
-      this.cubes = this.cubes.filter((cube) => {
-        if(cube.name === sceneObject.name) {
+      for(let i in this.cubes) {
+        if(this.cubes[i] == sceneObject) {
+          let removed = this.cubes.splice(i, 1);
           this.scene.remove(sceneObject);
-          return false;
-        } else {
-          return true;
         }
-      });
+      }
     }
 
     drawRaycaster() {
@@ -232,7 +241,9 @@ class Game{
       });
       this.renderer.setClearColor(0x000000);
       this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+      this.renderer.setSize(window.innerWidth, window.innerHeight, false);
+
+      this.renderer.autoClear = false;
 
       // enable shadows
       this.renderer.shadowMap.enabled = true;
@@ -276,17 +287,10 @@ class Game{
       this.raycaster = new THREE.Raycaster();
     }
 
-    initializeContainer() {
-      this.windowHalfX = SCREEN_WIDTH / 2;
-      this.windowHalfY = SCREEN_HEIGHT / 2;
-    }
-
     onWindowResize() {
-      this.windowHalfX = window.innerWidth / 2;
-      this.windowHalfY = window.innerHeight / 2;
       this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.renderer.setSize(window.innerWidth, window.innerHeight, false);
       this.camera.updateProjectionMatrix();
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     onDocumentKeyUp() {
@@ -372,9 +376,19 @@ class Game{
           }
           // add cube on ground where user clicks
           else if(intersect.object.name == "ground") {
-            this.addCube(new THREE.Vector3(intersect.point.x, intersect.point.y, 0), new THREE.Vector3(50, 50, 10), `cube${this.cubes.length}`);
+            this.addCube(new THREE.Vector3(intersect.point.x, intersect.point.y, 0), new THREE.Vector3(50, 50, 10));
           }
         }
+      }
+    }
+
+    onDocumentMouseRightDown(event) {
+      event.preventDefault();
+
+      if(!this.shiftIsDown) {
+        // get intersecting point with ground & add a resourceNode there
+        this.addResourceNode(this.groundMouseIntersect(), new THREE.Vector3(50, 50, 10));
+        console.log('right click');
       }
     }
 
@@ -436,16 +450,9 @@ class Game{
       // calculate objects intersecting the picking ray
       let intersects = this.raycaster.intersectObjects(this.scene.children);
 
-      let mouseWorldCoordinatesX = 0;
-      let mouseWorldCoordinatesY = 0;
-      let mouseWorldCoordinatesZ = 0;
-
       for(let i in intersects) {
         if(intersects[i].object.name == "ground") {
-          mouseWorldCoordinatesX = intersects[i].point.x;
-          mouseWorldCoordinatesY = intersects[i].point.y;
-          mouseWorldCoordinatesZ = intersects[i].point.z;
-          break;
+          return intersects[i].point;
         }
       }
     }
@@ -612,7 +619,7 @@ class Cube extends SceneObject {
         }
       }
 
-      // find all resource nodes
+      // find & process all resource nodes
       let resourceNodes = window.game.resourceNodes.map((sceneObject) => {
         sceneObject.distance = this.getDistanceFrom(sceneObject);
         return sceneObject;

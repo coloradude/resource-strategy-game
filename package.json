@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon --watch game --exec \"npm start\"",
+    "dev": "nodemon --watch game --watch public/stylesheets/*.scss --exec \"npm start\"",
     "prestart": "npm run build",
     "start": "node ./bin/www",
     "build": "./build.sh"
