@@ -1,22 +1,28 @@
 <div id="container">
   <canvas id="game"></canvas>
   <div id="menu">
-    <div class="player-score">
-      Score: <span id="player-score">0</span>
+    <div class="player-score row">
+      <span class="resourceLabel">Score:</span>
+      <span class="resourceAmount" id="player-score">0</span>
     </div>
-    <div class="player-gold">
-      Gold: <span id="player-gold">0</span>
+    <div class="player-gold row">
+      <span class="resourceLabel">Gold:</span>
+      <span class="resourceAmount" id="player-gold">0</span>
     </div>
-    <div class="player-metal">
-      Metal: <span id="player-metal">0</span>
+    <div class="player-metal row">
+      <span class="resourceLabel">Metal:</span>
+      <span class="resourceAmount" id="player-metal">0</span>
     </div>
-    <div class="player-food">
-      Food: <span id="player-food">0</span>
+    <div class="player-food row">
+      <span class="resourceLabel">Food:</span>
+      <span class="resourceAmount" id="player-food">0</span>
     </div>
     <a class="button" href="#" onclick="window.game.addUnit()">Add Unit</a>
     <a class="button" href="#" onclick="window.game.addRandomCubes()">Add Random Cubes</a>
     <a class="button" href="#" onclick="window.game.removeAllCubes()">Remove All Cubes</a>
     <a class="button" href="#" onclick="window.game.listAllCubes()">List All Cubes</a>
+    <a class="button" href="#" onclick="window.game.resetScore()">Reset Score</a>
+    <a class="button" href="#" onclick="window.game.resetResources()">Reset Resources</a>
   </div>
 </div>
 <script src="build/output/init.js"></script>

@@ -30,6 +30,7 @@ const CAMERA_START_Z = 2000;
 /* Interface Settings */
 const MAXZOOM = 2500;
 const MINZOOM = 100;
+const MENU_WIDTH = 200;
 
 class Game{
     constructor() {
@@ -46,6 +47,8 @@ class Game{
       this.cubes = [];
       this.resourceNodes = [];
 
+      this.selectedObjects = [];
+
       this.player = new Player();
 
       this.addGround();
@@ -58,7 +61,7 @@ class Game{
     }
 
     update() {
-        this.updateScore();
+        this.renderScore();
 
         for(let i in this.cubes) {
           this.cubes[i].update();
@@ -78,7 +81,7 @@ class Game{
         });
     }
 
-    updateScore() {
+    renderScore() {
       this.menu.updateScore(this.player.score);
       this.menu.updateGold(this.player.resources.gold);
       this.menu.updateFood(this.player.resources.food);
@@ -195,28 +198,23 @@ class Game{
     }
 
     scenario1() {
-      this.addRandomCubes(null, 100);
-
       // add 4 home cubes
       let size = new THREE.Vector3(50, 50, 50);
-      let coordinates = new THREE.Vector3(500, 300, 25);
-      this.addCube(coordinates, size, 'soldier1');
 
-      coordinates = new THREE.Vector3(400, 300, 25);
-      this.addCube(coordinates, size, 'soldier2');
+      this.addCube(new THREE.Vector3(500, 300, 25), size, 'soldier1');
 
-      coordinates = new THREE.Vector3(400, 300, 25);
-      this.addCube(coordinates, size, 'soldier3');
+      this.addCube(new THREE.Vector3(400, 300, 25), size, 'soldier2');
 
-      coordinates = new THREE.Vector3(400, 300, 25);
-      this.addCube(coordinates, size, 'soldier4');
+      this.addCube(new THREE.Vector3(400, 300, 25), size, 'soldier3');
+
+      this.addCube(new THREE.Vector3(400, 300, 25), size, 'soldier4');
 
       // add resource nodes
-      coordinates = new THREE.Vector3(1000, 300, 25);
-      this.addResourceNode(coordinates, size, 'metal');
+      this.addResourceNode(new THREE.Vector3(1000, 300, 25), size, 'metal');
 
-      coordinates = new THREE.Vector3(2000, 1200, 25);
-      this.addResourceNode(coordinates, size, 'food');
+      this.addResourceNode(new THREE.Vector3(2000, 1200, 25), size, 'food');
+
+      this.addResourceNode(new THREE.Vector3(3000, 2400, 25), size, 'gold');
     }
 
     addGround() {
@@ -269,7 +267,7 @@ class Game{
       });
       this.renderer.setClearColor(0x000000);
       this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.renderer.setSize(window.innerWidth, window.innerHeight, false);
+      this.renderer.setSize(window.innerWidth - MENU_WIDTH, window.innerHeight, false);
 
       this.renderer.autoClear = false;
 
@@ -344,9 +342,6 @@ class Game{
     }
 
     onDocumentKeyDown(event) {
-
-      console.log('something pressed: ' + event.which);
-
       switch (event.which) {
         case 37: // left arrow
           this.camera.position.x -= 5;
@@ -369,17 +364,12 @@ class Game{
     }
 
     onDocumentMouseUp(event) {
-
       event.preventDefault();
 
       this.isMouseDown = false;
 
-      // console.log(`mouseup detected; \nold position: ${this.mouseDownPosition.x}, ${this.mouseDownPosition.y}`);
-
-      this.mouseDownPosition.x = event.clientX;
-      this.mouseDownPosition.y = event.clientY;
-
-      // console.log(`new position: ${this.mouseDownPosition.x}, ${this.mouseDownPosition.y}`);
+      this.mouseDownPosition.x = event.offsetX;
+      this.mouseDownPosition.y = event.offsetY;
     }
 
     onDocumentMouseDown(event) {
@@ -388,8 +378,8 @@ class Game{
 
       this.isMouseDown = true;
 
-      this.mouseDownPosition.x = event.clientX;
-      this.mouseDownPosition.y = event.clientY;
+      this.mouseDownPosition.x = event.offsetX;
+      this.mouseDownPosition.y = event.offsetY;
 
       if(!this.shiftIsDown) {
         // get intersecting point with ground & add a cube there
@@ -420,15 +410,14 @@ class Game{
       if(!this.shiftIsDown) {
         // get intersecting point with ground & add a resourceNode there
         this.addResourceNode(this.groundMouseIntersect(), new THREE.Vector3(50, 50, 10));
-        console.log('right click');
       }
     }
 
     onDocumentMouseMove(event) {
       event.preventDefault();
 
-      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      this.mouse.x = (event.offsetX / window.innerWidth) * 2 - 1;
+      this.mouse.y = -(event.offsetY / window.innerHeight) * 2 + 1;
 
       if (this.isMouseDown) {
         let oldX = this.mouseDownPosition.x,
@@ -488,6 +477,16 @@ class Game{
         }
       }
     }
+
+    resetScore() {
+      this.player.score = 0;
+    }
+
+    resetResources() {
+      for(let i in this.player.resources) {
+        this.player.resources[i] = 0;
+      }
+    }
 }
 
 module.exports = Game;
@@ -516,29 +515,23 @@ class SceneObject extends THREE.Mesh {
   }
 
   moveTowardDestination(destination = null) {
-
+    let tolerance = 1;
     if(destination !== null) {
-      let difX = this.sceneObject.position.x - destination.x;
-      let difY = this.sceneObject.position.y - destination.y;
-      let difZ = this.sceneObject.position.z - destination.z;
+      let difX = destination.x - this.sceneObject.position.x;
+      let difY = destination.y - this.sceneObject.position.y;
+      let difZ = destination.z - this.sceneObject.position.z;
 
-      if(Math.abs(difX) > this.size.x) {
-        this.velocity.x = this.speed * -Math.sign(difX);
-      } else {
-        this.velocity.x = 0;
-      }
+      // correct destination
+      difX -= Math.sign(difX) * this.size.x/2;
+      difY -= Math.sign(difY) * this.size.y/2;
+      difZ -= Math.sign(difZ) * this.size.z/2;
 
-      if(Math.abs(difY) > this.size.y) {
-        this.velocity.y = this.speed * -Math.sign(difY);
-      } else {
-        this.velocity.y = 0;
-      }
+      let d = Math.sqrt(Math.pow(difX, 2) + Math.pow(difY, 2) + Math.pow(difZ, 2));
 
-      if(Math.abs(difZ) > this.size.z) {
-        this.velocity.z = this.speed * -Math.sign(difZ);
-      } else {
-        this.velocity.z = 0;
-      }
+      // move at constant speed no matter the direction
+      this.velocity.x = (this.speed * difX) / d;
+      this.velocity.y = (this.speed * difY) / d;
+      this.velocity.z = (this.speed * difZ) / d;
 
       if(this.velocity.x !== 0 || this.velocity.y !== 0 || this.velocity.z !== 0) {
         // update position
@@ -670,10 +663,7 @@ class ResourceNode extends SceneObject {
 
 class MetalResourceNode extends ResourceNode {
   constructor() {
-    let size = 50;
-    let widthSegments = 5;
-    let heightSegments = 5;
-    let geometry = new THREE.SphereGeometry(size, widthSegments, heightSegments);
+    let geometry = null;
     let material = new THREE.MeshLambertMaterial({
       color: 0x333333
     });
@@ -684,10 +674,7 @@ class MetalResourceNode extends ResourceNode {
 
 class GoldResourceNode extends ResourceNode {
   constructor() {
-    let size = 50;
-    let widthSegments = 5;
-    let heightSegments = 5;
-    let geometry = new THREE.SphereGeometry(size, widthSegments, heightSegments);
+    let geometry = null;
     let material = new THREE.MeshLambertMaterial({
       color: 0xFFFF00
     });
@@ -698,10 +685,7 @@ class GoldResourceNode extends ResourceNode {
 
 class FoodResourceNode extends ResourceNode {
   constructor() {
-    let size = 50;
-    let widthSegments = 5;
-    let heightSegments = 5;
-    let geometry = new THREE.SphereGeometry(size, widthSegments, heightSegments);
+    let geometry = null;
     let material = new THREE.MeshLambertMaterial({
       color: 0xf4a742
     });

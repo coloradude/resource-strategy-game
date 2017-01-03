@@ -6,6 +6,7 @@ html, body {
   overflow: hidden;
   position: relative;
   box-sizing: border-box;
+  font-family: "Lucida Console", Monaco, monospace;
 }
 
 * {
@@ -18,17 +19,31 @@ html, body {
   height: 100%;
 
   #game {
+    margin-left: 200px;
   }
 
   #menu {
     position: absolute;
     top: 0;
     left: 0;
-    width: 10%;
+    width: 200px;
     background: white;
     display: flex;
     flex-flow: column nowrap;
     text-align: center;
+
+    div.row {
+      text-align: left;
+      display: flex;
+      flex-flow: row nowrap;
+      padding: .5em 1em;
+
+      span {
+        width: 50%;
+        display: inline-block;
+        text-align: right;
+      }
+    }
 
     a.button {
       display: inline-block;
