@@ -46,6 +46,8 @@ class Game{
       this.cubes = [];
       this.resourceNodes = [];
 
+      this.player = new Player();
+
       this.addGround();
 
       this.addMenu();
@@ -56,6 +58,8 @@ class Game{
     }
 
     update() {
+        this.updateScore();
+
         for(let i in this.cubes) {
           this.cubes[i].update();
         }
@@ -68,10 +72,17 @@ class Game{
     render() {
         this.update();
         this.renderer.render(this.scene, this.camera);
-        var that = this;
+        let that = this;
         requestAnimationFrame(() => {
           that.render();
         });
+    }
+
+    updateScore() {
+      this.menu.updateScore(this.player.score);
+      this.menu.updateGold(this.player.resources.gold);
+      this.menu.updateFood(this.player.resources.food);
+      this.menu.updateMetal(this.player.resources.metal);
     }
 
     watchEvents() {
@@ -119,8 +130,24 @@ class Game{
     @coordinates: (x, y, z) vector
     @size: (x, y, z) vector
     */
-    addResourceNode(coordinates = new THREE.Vector3(0, 0, 0), size = new THREE.Vector3(100, 100, 100), name = `resourceNode${this.resourceNodes.length}`) {
-      let resourceNode = new ResourceNode();
+    addResourceNode(coordinates = new THREE.Vector3(0, 0, 0), size = new THREE.Vector3(100, 100, 100), type = "metal") {
+      let resourceNode;
+      switch(type) {
+        case "metal":
+          resourceNode = new MetalResourceNode();
+          break;
+        case "food":
+          resourceNode = new FoodResourceNode();
+          break;
+        case "gold":
+          resourceNode = new GoldResourceNode();
+          break;
+        default:
+          console.error('invalid resourceNode type');
+          break;
+      }
+
+      let name = `resourceNode${this.resourceNodes.length}`;
 
       resourceNode.name = name;
       resourceNode.position.set(coordinates.x, coordinates.y, coordinates.z);
@@ -141,7 +168,7 @@ class Game{
         let random = Math.random();
         let width = random * 100;
         let length = random * 100;
-        let height = 10;
+        let height = random * 100;
         let size = new THREE.Vector3(width, length, height);
 
         coordinates = new THREE.Vector3(Math.random() * MAPWIDTH, Math.random() * MAPLENGTH, random * 50);
@@ -186,10 +213,10 @@ class Game{
 
       // add resource nodes
       coordinates = new THREE.Vector3(1000, 300, 25);
-      this.addResourceNode(coordinates, size);
+      this.addResourceNode(coordinates, size, 'metal');
 
       coordinates = new THREE.Vector3(2000, 1200, 25);
-      this.addResourceNode(coordinates, size);
+      this.addResourceNode(coordinates, size, 'food');
     }
 
     addGround() {
@@ -286,6 +313,10 @@ class Game{
       this.isMouseDown = false;
       this.mouseDownPosition = new THREE.Vector2();
       this.raycaster = new THREE.Raycaster();
+    }
+
+    getPlayer() {
+      return this.player;
     }
 
     onWindowResize() {
@@ -566,9 +597,14 @@ class SceneObject extends THREE.Mesh {
 class Ground extends SceneObject {
   constructor() {
     let geometry = new THREE.PlaneBufferGeometry(MAPWIDTH, MAPLENGTH, 1, 1);
-    let material = new THREE.MeshPhongMaterial({
-      emissive: 0xFFFFFF
+    let loader = new THREE.TextureLoader();
+    let texture = loader.load('./build/output/assets/sand.jpg');
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat = new THREE.Vector2(5, 5);
+    let material = new THREE.MeshBasicMaterial({
+      map: texture
     });
+
     super(geometry, material);
   }
 }
@@ -588,38 +624,6 @@ class Cube extends SceneObject {
 
   update() {
     if(this.sceneObject !== null) {
-      // check for wall collision
-      if(this.sceneObject.position.x >= MAPWIDTH || this.sceneObject.position.x <= 0) {
-        this.velocity.x = -this.velocity.x;
-      }
-      if (this.sceneObject.position.y >= MAPLENGTH || this.sceneObject.position.y <= 0) {
-        this.velocity.y = -this.velocity.y;
-      }
-      if (this.sceneObject.position.z >= MAPHEIGHT || this.sceneObject.position.z <= 0) {
-        this.velocity.z = -this.velocity.z;
-      }
-
-      const xTolerance = 1;
-      const yTolerance = 1;
-      const zTolerance = 1;
-
-      // check for other cube collision
-      for(let i = 0; i < this.scene.children.length; i++) {
-        let obj = this.scene.children[i];
-
-        if(obj != this.sceneObject && obj.type == "Cube") {
-          if(Math.abs(obj.position.x - this.sceneObject.position.x) < xTolerance) {
-            this.velocity.x = -this.velocity.x;
-          }
-          if(Math.abs(obj.position.y - this.sceneObject.position.y) < yTolerance) {
-            this.velocity.y = -this.velocity.y;
-          }
-          if(Math.abs(obj.position.z - this.sceneObject.position.z) < zTolerance) {
-            this.velocity.z = -this.velocity.z;
-          }
-        }
-      }
-
       // find & process all resource nodes
       let resourceNodes = window.game.resourceNodes.map((sceneObject) => {
         sceneObject.distance = this.getDistanceFrom(sceneObject);
@@ -635,31 +639,106 @@ class Cube extends SceneObject {
           }
         }
         this.destination = minDistanceNode.position;
+
+        // add resource points according to closest resource node
+        if(this.getDistanceFrom(minDistanceNode) < 100) {
+          window.game.player.resources[minDistanceNode.resourceType] += 1;
+        }
       }
+
     }
     super.update();
   }
 }
 
 class ResourceNode extends SceneObject {
-  constructor() {
+  constructor(geometry, material) {
     let size = 50;
     let widthSegments = 5;
     let heightSegments = 5;
-    let geometry = new THREE.SphereGeometry(size, widthSegments, heightSegments);
-    let material = new THREE.MeshLambertMaterial({
+    geometry = geometry || new THREE.SphereGeometry(size, widthSegments, heightSegments);
+    material = material || new THREE.MeshLambertMaterial({
       color: 0xcc44ac
     });
 
     super(geometry, material);
 
     this.type = "resourceNode";
+    this.resourceType = null;
+  }
+}
+
+class MetalResourceNode extends ResourceNode {
+  constructor() {
+    let size = 50;
+    let widthSegments = 5;
+    let heightSegments = 5;
+    let geometry = new THREE.SphereGeometry(size, widthSegments, heightSegments);
+    let material = new THREE.MeshLambertMaterial({
+      color: 0x333333
+    });
+    super(geometry, material);
     this.resourceType = "metal";
+  }
+}
+
+class GoldResourceNode extends ResourceNode {
+  constructor() {
+    let size = 50;
+    let widthSegments = 5;
+    let heightSegments = 5;
+    let geometry = new THREE.SphereGeometry(size, widthSegments, heightSegments);
+    let material = new THREE.MeshLambertMaterial({
+      color: 0xFFFF00
+    });
+    super(geometry, material);
+    this.resourceType = "gold";
+  }
+}
+
+class FoodResourceNode extends ResourceNode {
+  constructor() {
+    let size = 50;
+    let widthSegments = 5;
+    let heightSegments = 5;
+    let geometry = new THREE.SphereGeometry(size, widthSegments, heightSegments);
+    let material = new THREE.MeshLambertMaterial({
+      color: 0xf4a742
+    });
+    super(geometry, material);
+    this.resourceType = "food";
   }
 }
 
 class Menu {
   constructor() {
     this.element = document.getElementById('menu');
+  }
+
+  updateFood(food) {
+    document.getElementById('player-food').innerHTML = food;
+  }
+
+  updateGold(gold) {
+    document.getElementById('player-gold').innerHTML = gold;
+  }
+
+  updateMetal(metal) {
+    document.getElementById('player-metal').innerHTML = metal;
+  }
+
+  updateScore(score) {
+    document.getElementById('player-score').innerHTML = score;
+  }
+}
+
+class Player {
+  constructor() {
+    this.resources = {
+      gold: 0,
+      metal: 0,
+      food: 0
+    };
+    this.score = 0;
   }
 }
