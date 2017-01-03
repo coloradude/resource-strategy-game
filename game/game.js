@@ -63,6 +63,10 @@ class Game{
     update() {
         this.renderScore();
 
+        for(let i in this.selectedObjects) {
+          this.selectedObjects[i].select(true);
+        }
+
         for(let i in this.cubes) {
           this.cubes[i].update();
         }
@@ -370,6 +374,49 @@ class Game{
 
       this.mouseDownPosition.x = event.offsetX;
       this.mouseDownPosition.y = event.offsetY;
+
+      // update the picking ray with the camera and mouse position
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+
+      // calculate objects intersecting the picking ray
+      let intersects = this.raycaster.intersectObjects(this.scene.children);
+
+      // loop through intersecting objects
+      for(let intersect of intersects) {
+        // add cube on ground where user clicks
+        if(intersect.object.name == "ground") {
+          this.worldMouseCoordinatesEnd = intersect.point;
+
+          // create bounding box to determine which objects were selected
+          let boundingBox = new THREE.Vector2(
+            new THREE.Vector2(
+              Math.min(this.worldMouseCoordinatesStart.x, this.worldMouseCoordinatesEnd.x),
+              Math.min(this.worldMouseCoordinatesStart.y, this.worldMouseCoordinatesEnd.y)
+            ),
+            new THREE.Vector2(
+              Math.max(this.worldMouseCoordinatesStart.x, this.worldMouseCoordinatesEnd.x),
+              Math.max(this.worldMouseCoordinatesStart.y, this.worldMouseCoordinatesEnd.y)
+            )
+          );
+
+          // console.log(`Starting click: (${this.worldMouseCoordinatesStart.x}, ${this.worldMouseCoordinatesStart.y})`);
+          // console.log(`Ending click: (${this.worldMouseCoordinatesEnd.x}, ${this.worldMouseCoordinatesEnd.y})`);
+          // console.log(`Resulting box: (${boundingBox.x.x}, ${boundingBox.x.y}), (${boundingBox.y.x}, ${boundingBox.y.y})`);
+
+          this.selectedObjects = [];
+          // gather cubes in selection & add to this.selectedObjects
+          for(let i in this.cubes) {
+            if(
+              this.cubes[i].position.x >= boundingBox.x.x &&
+              this.cubes[i].position.y >= boundingBox.x.y &&
+              this.cubes[i].position.x <= boundingBox.y.x &&
+              this.cubes[i].position.y <= boundingBox.y.y
+            ) {
+              this.selectedObjects.push(this.cubes[i]);
+            }
+          }
+        }
+      }
     }
 
     onDocumentMouseDown(event) {
@@ -392,13 +439,9 @@ class Game{
 
         // loop through intersecting objects
         for(let intersect of intersects) {
-          if(intersect.object.type == "Cube") {
-            this.removeCube(intersect.object);
-            break;
-          }
           // add cube on ground where user clicks
-          else if(intersect.object.name == "ground") {
-            this.addCube(new THREE.Vector3(intersect.point.x, intersect.point.y, 0), new THREE.Vector3(50, 50, 10));
+          if(intersect.object.name == "ground") {
+            this.worldMouseCoordinatesStart = intersect.point;
           }
         }
       }
@@ -506,6 +549,9 @@ class SceneObject extends THREE.Mesh {
     this.boundingBox = null;
     this.sceneObject = null;
     this.destination = null;
+
+    this.selectedColor = 0xFFFFFF;
+    this.unselectedColor = 0xCC0000;
   }
 
   update() {
@@ -584,6 +630,14 @@ class SceneObject extends THREE.Mesh {
       Math.pow(this.position.y - sceneObject.position.y, 2) +
       Math.pow(this.position.z - sceneObject.position.z, 2)
     );
+  }
+
+  select(selected) {
+    if(selected) {
+      this.sceneObject.material.color.setHex(this.selectedColor);
+    } else {
+      this.sceneObject.material.color.setHex(this.unselectedColor);
+    }
   }
 }
 
