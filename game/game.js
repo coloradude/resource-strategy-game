@@ -20,7 +20,7 @@ const MAPHEIGHT = 1000;
 
 /* Camera Settings */
 const FOV = 90;
-
+const MAXFRAMERATE = 1000 / 30; // 30fps
 const NEARFRUSTRAM = 0.1;
 const FAFRUSTRAM = 10000;
 const CAMERA_START_X = MAPWIDTH / 2;
@@ -77,12 +77,17 @@ class Game{
     }
 
     render() {
-        this.update();
-        this.renderer.render(this.scene, this.camera);
+      // perform game updates
+      this.update();
+      this.renderer.render(this.scene, this.camera);
+
+      // limit animation request to FRAMERATE
+      setTimeout(() => {
         let that = this;
         requestAnimationFrame(() => {
           that.render();
-        });
+        }, MAXFRAMERATE);
+      });
     }
 
     renderScore() {
@@ -119,7 +124,11 @@ class Game{
     @coordinates: (x, y, z) vector
     @size: (x, y, z) vector
     */
-    addCube(coordinates = new THREE.Vector3(0, 0, 0), size = new THREE.Vector3(100, 100, 100), name = `cube${this.cubes.length}`) {
+    addCube(
+      coordinates = new THREE.Vector3(0, 0, 0),
+      size = new THREE.Vector3(100, 100, 100),
+      name = `cube${this.cubes.length}`
+    ) {
       let cube = new Cube(size);
 
       cube.name = name;
@@ -137,7 +146,11 @@ class Game{
     @coordinates: (x, y, z) vector
     @size: (x, y, z) vector
     */
-    addResourceNode(coordinates = new THREE.Vector3(0, 0, 0), size = new THREE.Vector3(100, 100, 100), type = "metal") {
+    addResourceNode(
+      coordinates = new THREE.Vector3(0, 0, 0),
+      size = new THREE.Vector3(100, 100, 100),
+      type = "metal"
+    ) {
       let resourceNode;
       switch(type) {
         case "metal":
@@ -170,7 +183,10 @@ class Game{
     /*
       Adds 1000 randomly sized cubes in random places
     */
-    addRandomCubes(coordinates = new THREE.Vector3(0, 0, 0), number = 1000) {
+    addRandomCubes(
+      coordinates = new THREE.Vector3(0, 0, 0),
+      number = 1000
+    ) {
       for(let i = 0; i < number; i++) {
         let random = Math.random();
         let width = random * 100;
@@ -192,6 +208,13 @@ class Game{
       for(let i =0; i < numCubes; i++) {
         this.removeCube(this.cubes[0]);
         numDeleted++;
+      }
+    }
+
+    removeSelectedCubes() {
+      // could down to avoid skipping nodes
+      for(let i = this.selectedObjects.length - 1; i >= 0; i-- ) {
+        this.removeCube(this.selectedObjects[i]);
       }
     }
 
@@ -239,10 +262,20 @@ class Game{
     }
 
     removeCube(sceneObject) {
+      // remove from this.scene
+      this.scene.remove(sceneObject);
+
+      // remove from this.cubes
       for(let i in this.cubes) {
         if(this.cubes[i] == sceneObject) {
-          let removed = this.cubes.splice(i, 1);
-          this.scene.remove(sceneObject);
+          this.cubes.splice(i, 1);
+        }
+      }
+
+      // remove from this.selectedObjects
+      for(let i in this.selectedObjects) {
+        if(this.selectedObjects[i] == sceneObject) {
+          this.selectedObjects.splice(i, 1);
         }
       }
     }

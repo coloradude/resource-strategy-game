@@ -8,8 +8,4 @@ window.onload = () => {
     window.game = new Game();
 
     game.render();
-
-    // setInterval(() => {
-    //   game.render();
-    // }, 1000 / 60);
 };
