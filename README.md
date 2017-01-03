@@ -60,7 +60,7 @@ npm run dev
 npm start
 ```
 
-Once running, `http://localhost:8000/` (assuming port 8000) displays the menu
+Once running, `http://localhost:3000/` (assuming port 3000) displays the game
 
 Technology
 ---------------
