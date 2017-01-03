@@ -68,7 +68,10 @@ class Game{
     render() {
         this.update();
         this.renderer.render(this.scene, this.camera);
-        // requestAnimationFrame(this.render());
+        var that = this;
+        requestAnimationFrame(() => {
+          that.render();
+        });
     }
 
     watchEvents() {
@@ -110,8 +113,6 @@ class Game{
       cube.setName(name);
       cube.setScene(this.scene);
       cube.setSceneObject(this.scene.getObjectByName(name));
-
-      // console.log(`added cube to scene at position (${cube.position.x}, ${cube.position.y}, ${cube.position.z}) using coordinates (${coordinates.x}, ${coordinates.y}, ${coordinates.z})`);
     }
 
     /*

@@ -7,7 +7,9 @@ window.onload = () => {
     'use strict';
     window.game = new Game();
 
-    setInterval(() => {
-      game.render();
-    }, 1000 / 60);
+    game.render();
+
+    // setInterval(() => {
+    //   game.render();
+    // }, 1000 / 60);
 };
