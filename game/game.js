@@ -9,6 +9,7 @@ const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE);
 const CANVAS = document.getElementById('game');
 const CONTAINER = document.getElementById('container');
+const MENU = document.getElementById('menu');
 const SCREEN_WIDTH = CANVAS.width;
 const SCREEN_HEIGHT = CANVAS.height;
 const ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
@@ -31,7 +32,7 @@ const SCROLL_SCALE = 1;
 /* Interface Settings */
 const MAXZOOM = 3500;
 const MINZOOM = 1000;
-const MENU_WIDTH = document.getElementById('menu').width;
+const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue('width'));
 
 class Game{
     constructor() {
@@ -301,10 +302,10 @@ class Game{
 
     initializeRenderer() {
       this.gameElem = window.getComputedStyle(CANVAS, null);
-      let marginLeft = parseInt(this.gameElem.getPropertyValue('margin-left'));
-      let height = parseInt(this.gameElem.getPropertyValue('height'));
-      let width = parseInt(this.gameElem.getPropertyValue('width'));
-      let computedWidth = width - marginLeft;
+      this.gameElem.offsetLeft = parseInt(this.gameElem.getPropertyValue('margin-left'));
+      this.gameElem.detectedHeight = parseInt(this.gameElem.getPropertyValue('height'));
+      this.gameElem.detectedWidth = parseInt(this.gameElem.getPropertyValue('width'));
+      this.gameElem.computedWidth = this.gameElem.detectedWidth - this.gameElem.offsetLeft;
 
       this.renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -312,7 +313,7 @@ class Game{
       });
       this.renderer.setClearColor(0x000000);
       this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.renderer.setSize(computedWidth, height, false);
+      this.renderer.setSize(this.gameElem.computedWidth, this.gameElem.detectedHeight, false);
 
       this.renderer.autoClear = false;
 
@@ -360,13 +361,13 @@ class Game{
     }
 
     onWindowResize() {
-      let marginLeft = parseInt(this.gameElem.getPropertyValue('margin-left'));
-      let height = parseInt(this.gameElem.getPropertyValue('height'));
-      let width = parseInt(this.gameElem.getPropertyValue('width'));
-      let computedWidth = width - marginLeft;
+      this.gameElem.offsetLeft = parseInt(this.gameElem.getPropertyValue('margin-left'));
+      this.gameElem.detectedHeight = parseInt(this.gameElem.getPropertyValue('height'));
+      this.gameElem.detectedWidth = parseInt(this.gameElem.getPropertyValue('width'));
+      this.gameElem.computedWidth = this.gameElem.detectedWidth - this.gameElem.offsetLeft;
 
-      this.camera.aspect = computedWidth / height;
-      this.renderer.setSize(computedWidth, height, false);
+      this.camera.aspect = this.gameElem.computedWidth / this.gameElem.detectedHeight;
+      this.renderer.setSize(this.gameElem.computedWidth, this.gameElem.detectedHeight, false);
       this.camera.updateProjectionMatrix();
     }
 
@@ -530,7 +531,7 @@ class Game{
       this.mouse.x = (event.offsetX / window.innerWidth) * 2 - 1;
       this.mouse.y = -(event.offsetY / window.innerHeight) * 2 + 1;
 
-      if (this.isMouseDown) {
+      if (this.isMouseDown && this.mouseIsOnGame(event)) {
         let oldX = this.mouseDownPosition.x,
             oldY = this.mouseDownPosition.y;
 
@@ -542,8 +543,8 @@ class Game{
           let deltaX = this.mouseDownPosition.x - oldX,
               deltaY = this.mouseDownPosition.y - oldY;
 
-          let screenPercentageX = deltaX / window.innerWidth,
-              screenPercentageY = deltaY / window.innerHeight;
+          let screenPercentageX = deltaX / this.gameElem.computedWidth,
+              screenPercentageY = deltaY / this.gameElem.detectedHeight;
 
           // move camera along X-Y plane accordingly
           this.camera.position.x -= deltaX;
@@ -587,7 +588,7 @@ class Game{
     }
 
     mouseIsOnGame(event) {
-      if(event.x < MENU_WIDTH) {
+      if(event.clientX < MENU_WIDTH) {
         return false;
       } else {
         return true;
