@@ -25,12 +25,13 @@ const NEARFRUSTRAM = 0.1;
 const FAFRUSTRAM = 10000;
 const CAMERA_START_X = MAPWIDTH / 2;
 const CAMERA_START_Y = MAPLENGTH / 2;
-const CAMERA_START_Z = 2000;
+const CAMERA_START_Z = 3000;
+const SCROLL_SCALE = 1;
 
 /* Interface Settings */
-const MAXZOOM = 2500;
-const MINZOOM = 100;
-const MENU_WIDTH = 200;
+const MAXZOOM = 3500;
+const MINZOOM = 1000;
+const MENU_WIDTH = document.getElementById('menu').width;
 
 class Game{
     constructor() {
@@ -40,7 +41,6 @@ class Game{
       this.initializeLight();
       this.initializeMouse();
 
-      this.radius = 10;
       this.theta = 45;
       this.phi = 60;
       this.worldMouseCoordinatesStart = new THREE.Vector3(0, 0, 0);
@@ -81,6 +81,8 @@ class Game{
     render() {
       // perform game updates
       this.update();
+      // move camera according to keyboard controls
+      this.keyboardCameraControls();
       this.renderer.render(this.scene, this.camera);
 
       // limit animation request to FRAMERATE
@@ -334,17 +336,7 @@ class Game{
     }
 
     initializeCamera() {
-      this.camera = new THREE.PerspectiveCamera(FOV, ASPECT, NEARFRUSTRAM, FAFRUSTRAM);
-      this.camera.position.x = CAMERA_START_X;
-      this.camera.position.y = CAMERA_START_Y;
-      this.camera.position.z = CAMERA_START_Z;
-
-      let marginLeft = parseInt(this.gameElem.getPropertyValue('margin-left'));
-      let height = parseInt(this.gameElem.getPropertyValue('height'));
-      let width = parseInt(this.gameElem.getPropertyValue('width'));
-      let computedWidth = width - marginLeft;
-
-      this.camera.aspect = computedWidth / height;
+      this.camera = new Camera();
 
       this.cameraHelper = new THREE.CameraHelper(this.camera);
     }
@@ -381,12 +373,16 @@ class Game{
     onDocumentKeyUp() {
       switch (event.which) {
         case 37: // left arrow
+          this.leftArrowIsDown = false;
           break;
         case 39: // right arrow
+          this.rightArrowIsDown = false;
           break;
         case 38: // up arrow
+          this.upArrowIsDown = false;
           break;
         case 40: // down arrow
+          this.downArrowIsDown = false;
           break;
         case 16: // shift
           this.shiftIsDown = false;
@@ -399,22 +395,43 @@ class Game{
     onDocumentKeyDown(event) {
       switch (event.which) {
         case 37: // left arrow
-          this.camera.position.x -= 5;
+          this.leftArrowIsDown = true;
           break;
         case 39: // right arrow
-          this.camera.position.x += 5;
+          this.rightArrowIsDown = true;
           break;
         case 38: // up arrow
-          this.camera.position.z -= 5;
+          this.upArrowIsDown = true;
           break;
         case 40: // down arrow
-          this.camera.position.z += 5;
+          this.downArrowIsDown = true;
           break;
         case 16: // shift
           this.shiftIsDown = true;
           break;
         default:
           break;
+      }
+    }
+
+    keyboardCameraControls() {
+      if(this.leftArrowIsDown || this.rightArrowIsDown || this.upArrowIsDown || this.downArrowIsDown) {
+        let newCoords = this.camera.position;
+
+        if(this.leftArrowIsDown) {
+          newCoords.x -= SCROLL_SCALE * 100;
+        }
+        if(this.rightArrowIsDown) {
+          newCoords.x += SCROLL_SCALE * 100;
+        }
+        if(this.upArrowIsDown) {
+          newCoords.y += SCROLL_SCALE * 100;
+        }
+        if(this.downArrowIsDown) {
+          newCoords.y -= SCROLL_SCALE * 100;
+        }
+
+        this.camera.moveTo(newCoords);
       }
     }
 
@@ -548,20 +565,8 @@ class Game{
       /*
         Scrolling up/down zooms camera
       */
-      this.radius -= event.wheelDeltaY/10;
-      this.radius = Math.max(Math.min(MAXZOOM, this.radius), MINZOOM);
-
-      let newPosition = this.radius;
-
-      // limit camera z position to MAXZOOM and MINZOOM interface settings
-      this.camera.position.z = newPosition;
-
-      /*
-        Scrolling left/right rotates camera
-      */
-
-
-      this.camera.updateMatrix();
+      let deltaZ = event.wheelDeltaY/10;
+      this.camera.moveTo(new THREE.Vector3(this.camera.position.x, this.camera.position.y, this.camera.position.z - deltaZ));
     }
 
     groundMouseIntersectPoint() {
@@ -880,5 +885,37 @@ class Player {
       food: 0
     };
     this.score = 0;
+  }
+}
+
+class Camera extends THREE.PerspectiveCamera {
+  constructor() {
+    super(FOV, ASPECT, NEARFRUSTRAM, FAFRUSTRAM);
+
+    this.position.x = CAMERA_START_X;
+    this.position.y = CAMERA_START_Y;
+    this.position.z = CAMERA_START_Z;
+
+    this.gameElem = window.getComputedStyle(CANVAS, null);
+
+    let marginLeft = parseInt(this.gameElem.getPropertyValue('margin-left'));
+    let height = parseInt(this.gameElem.getPropertyValue('height'));
+    let width = parseInt(this.gameElem.getPropertyValue('width'));
+    let computedWidth = width - marginLeft;
+
+    this.aspect = computedWidth / height;
+  }
+
+  moveTo(coords) {
+    // limit movement to within game bounds
+    coords.x = Math.min(coords.x, MAPWIDTH);
+    coords.x = Math.max(coords.x, 0);
+    coords.y = Math.min(coords.y, MAPLENGTH);
+    coords.y = Math.max(coords.y, 0);
+    coords.z = Math.min(coords.z, MAXZOOM);
+    coords.z = Math.max(coords.z, MINZOOM);
+
+    this.position.set(coords.x, coords.y, coords.z);
+    this.updateMatrix();
   }
 }
