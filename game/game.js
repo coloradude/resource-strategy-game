@@ -448,7 +448,7 @@ class Game{
 
       this.scene.remove(this.selectionBox);
 
-      if(this.mouseIsOnGame(event)) {
+      if(this.mouseIsOnGame(event) && this.worldMouseCoordinatesEnd !== null && this.worldMouseCoordinatesStart !== null) {
         /*
           create bounding box to determine which objects were selected
           boundingBox = ((minX, minY), (maxX, maxY))
@@ -546,9 +546,17 @@ class Game{
           let screenPercentageX = deltaX / this.gameElem.computedWidth,
               screenPercentageY = deltaY / this.gameElem.detectedHeight;
 
+          let worldDistanceToMoveX = MAPWIDTH * screenPercentageX,
+              worldDistanceToMoveY = MAPLENGTH * screenPercentageY;
+
           // move camera along X-Y plane accordingly
-          this.camera.position.x -= deltaX;
-          this.camera.position.y += deltaY;
+          let newCoords = new THREE.Vector3(
+            this.camera.position.x - worldDistanceToMoveX,
+            this.camera.position.y + worldDistanceToMoveY,
+            this.camera.position.z
+          );
+
+          this.camera.moveTo(newCoords);
         } else {
           // send mouse coordinates to selectionBox
           this.selectionBox.continueCoordinates(this.groundMouseIntersectPoint());
@@ -844,11 +852,13 @@ class SelectionBox extends InterfaceObject {
   }
 
   continueCoordinates(coords = new THREE.Vector3(0, 0, 0)) {
-    this.geometry = new THREE.BoxGeometry(
-      this.position.x + coords.x,
-      this.position.y + coords.y,
-      this.position.z + coords.z
-    );
+    if(coords !== null) {
+      this.geometry = new THREE.BoxGeometry(
+        this.position.x + coords.x,
+        this.position.y + coords.y,
+        this.position.z + coords.z
+      );
+    }
   }
 
   endCoordinates(coords) {
