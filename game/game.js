@@ -14,8 +14,8 @@ const SCREEN_HEIGHT = CANVAS.height;
 const ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
 
 /* Game Settings */
-const MAPWIDTH = 5000;
-const MAPLENGTH = MAPWIDTH / ASPECT;
+const MAPWIDTH = 10000;
+const MAPLENGTH = 10000;
 const MAPHEIGHT = 1000;
 
 /* Camera Settings */
@@ -140,6 +140,7 @@ class Game{
       this.cubes.push(cube);
 
       cube.setName(name);
+      cube.setSceneObject(this.scene.getObjectByName(name));
     }
 
     /*
@@ -176,7 +177,6 @@ class Game{
       this.resourceNodes.push(resourceNode);
 
       resourceNode.setName(name);
-      resourceNode.setScene(this.scene);
       resourceNode.setSceneObject(this.scene.getObjectByName(name));
     }
 
@@ -430,37 +430,39 @@ class Game{
 
       this.scene.remove(this.selectionBox);
 
-      /*
-        create bounding box to determine which objects were selected
-        boundingBox = ((minX, minY), (maxX, maxY))
-      */
-      let boundingBox = new THREE.Vector2(
-        new THREE.Vector2(
-          Math.min(this.worldMouseCoordinatesStart.x, this.worldMouseCoordinatesEnd.x),
-          Math.min(this.worldMouseCoordinatesStart.y, this.worldMouseCoordinatesEnd.y)
-        ),
-        new THREE.Vector2(
-          Math.max(this.worldMouseCoordinatesStart.x, this.worldMouseCoordinatesEnd.x),
-          Math.max(this.worldMouseCoordinatesStart.y, this.worldMouseCoordinatesEnd.y)
-        )
-      );
+      if(this.mouseIsOnGame(event)) {
+        /*
+          create bounding box to determine which objects were selected
+          boundingBox = ((minX, minY), (maxX, maxY))
+        */
+        let boundingBox = new THREE.Vector2(
+          new THREE.Vector2(
+            Math.min(this.worldMouseCoordinatesStart.x, this.worldMouseCoordinatesEnd.x),
+            Math.min(this.worldMouseCoordinatesStart.y, this.worldMouseCoordinatesEnd.y)
+          ),
+          new THREE.Vector2(
+            Math.max(this.worldMouseCoordinatesStart.x, this.worldMouseCoordinatesEnd.x),
+            Math.max(this.worldMouseCoordinatesStart.y, this.worldMouseCoordinatesEnd.y)
+          )
+        );
 
-      // deselect all units
-      for(let i in this.selectedObjects) {
-        this.selectedObjects[i].select(false);
-      }
+        // deselect all units
+        for(let i in this.selectedObjects) {
+          this.selectedObjects[i].select(false);
+        }
 
-      this.selectedObjects = [];
+        this.selectedObjects = [];
 
-      // gather cubes in selection & add to this.selectedObjects
-      for(let i in this.cubes) {
-        if(
-          this.cubes[i].position.x >= boundingBox.x.x &&
-          this.cubes[i].position.y >= boundingBox.x.y &&
-          this.cubes[i].position.x <= boundingBox.y.x &&
-          this.cubes[i].position.y <= boundingBox.y.y
-        ) {
-          this.selectedObjects.push(this.cubes[i]);
+        // gather cubes in selection & add to this.selectedObjects
+        for(let i in this.cubes) {
+          if(
+            this.cubes[i].position.x >= boundingBox.x.x &&
+            this.cubes[i].position.y >= boundingBox.x.y &&
+            this.cubes[i].position.x <= boundingBox.y.x &&
+            this.cubes[i].position.y <= boundingBox.y.y
+          ) {
+            this.selectedObjects.push(this.cubes[i]);
+          }
         }
       }
     }
@@ -469,24 +471,26 @@ class Game{
 
       event.preventDefault();
 
-      this.isMouseDown = true;
+      if(this.mouseIsOnGame(event)) {
+        this.isMouseDown = true;
 
-      this.mouseDownPosition.x = event.offsetX;
-      this.mouseDownPosition.y = event.offsetY;
+        this.mouseDownPosition.x = event.offsetX;
+        this.mouseDownPosition.y = event.offsetY;
 
-      if(!this.shiftIsDown) {
-        this.worldMouseCoordinatesStart = this.groundMouseIntersectPoint();
+        if(!this.shiftIsDown) {
+          this.worldMouseCoordinatesStart = this.groundMouseIntersectPoint();
 
-        this.addSelectionBox();
-        this.selectionBox.startCoordinates(this.worldMouseCoordinatesStart);
+          if(this.worldMouseCoordinatesStart !== null) {
+            this.addSelectionBox();
+            this.selectionBox.startCoordinates(this.worldMouseCoordinatesStart);
+          }
+        }
       }
     }
 
     addSelectionBox() {
       this.selectionBox = new SelectionBox();
       this.scene.add(this.selectionBox);
-
-      console.log(this.selectionBox);
     }
 
     removeSelectionBox() {
@@ -573,8 +577,16 @@ class Game{
         }
       }
 
-      // if mouse ray doesn't intersect ground, return mouse starting point (nothing should be selected)
-      return this.worldMouseCoordinatesStart;
+      // if mouse ray doesn't intersect ground, return null
+      return null;
+    }
+
+    mouseIsOnGame(event) {
+      if(event.x < MENU_WIDTH) {
+        return false;
+      } else {
+        return true;
+      }
     }
 
     resetScore() {
@@ -603,7 +615,6 @@ class SceneObject extends THREE.Mesh {
     this.receiveShadow = true;
 
     this.boundingBox = null;
-    this.sceneObject = null;
     this.destination = null;
 
     this.selectedColor = 0xFFFFFF;
@@ -611,17 +622,14 @@ class SceneObject extends THREE.Mesh {
   }
 
   update() {
-    if(this.sceneObject !== null) {
-      this.moveTowardDestination(this.destination);
-    }
+    this.moveTowardDestination(this.destination);
   }
 
   moveTowardDestination(destination = null) {
-    let tolerance = 1;
     if(destination !== null) {
-      let difX = destination.x - this.sceneObject.position.x;
-      let difY = destination.y - this.sceneObject.position.y;
-      let difZ = destination.z - this.sceneObject.position.z;
+      let difX = destination.x - this.position.x;
+      let difY = destination.y - this.position.y;
+      let difZ = destination.z - this.position.z;
 
       // correct destination
       difX -= Math.sign(difX) * this.size.x/2;
@@ -637,14 +645,14 @@ class SceneObject extends THREE.Mesh {
 
       if(this.velocity.x !== 0 || this.velocity.y !== 0 || this.velocity.z !== 0) {
         // update position
-        this.sceneObject.position.x += this.velocity.x;
-        this.sceneObject.position.y += this.velocity.y;
-        this.sceneObject.position.z += this.velocity.z;
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+        this.position.z += this.velocity.z;
 
         // store local position
-        this.position.x = this.sceneObject.position.x;
-        this.position.y = this.sceneObject.position.y;
-        this.position.z = this.sceneObject.position.z;
+        this.position.x = this.position.x;
+        this.position.y = this.position.y;
+        this.position.z = this.position.z;
       }
     }
   }
@@ -658,25 +666,12 @@ class SceneObject extends THREE.Mesh {
   }
 
   setSceneObject(sceneObject) {
-    this.sceneObject = sceneObject;
-    this.boundingBox = new THREE.Box3().setFromObject(this.sceneObject);
+    this.boundingBox = new THREE.Box3().setFromObject(this);
     this.size = this.getSize();
   }
 
   getSize() {
     return new THREE.Vector3(this.boundingBox.max.x - this.boundingBox.min.x, this.boundingBox.max.y - this.boundingBox.min.y, this.boundingBox.max.z - this.boundingBox.min.z);
-  }
-
-  getObject() {
-    return this.sceneObject;
-  }
-
-  setScene(scene) {
-    this.scene = scene;
-  }
-
-  getScene() {
-    return this.scene;
   }
 
   getDistanceFrom(sceneObject) {
@@ -822,10 +817,6 @@ class InterfaceObject extends THREE.Mesh {
 
   getSize() {
     return new THREE.Vector3(this.boundingBox.max.x - this.boundingBox.min.x, this.boundingBox.max.y - this.boundingBox.min.y, this.boundingBox.max.z - this.boundingBox.min.z);
-  }
-
-  getObject() {
-    return this.sceneObject;
   }
 }
 
