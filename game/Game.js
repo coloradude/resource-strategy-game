@@ -208,7 +208,7 @@ class Game{
     */
     addCube(
       coordinates = new THREE.Vector3(0, 0, 0),
-      size = new THREE.Vector3(100, 100, 100),
+      size = null,
       name = `cube${this.cubes.length}`
     ) {
       let cube = new Cube(size);
@@ -394,10 +394,14 @@ class Game{
       this.menu = new Menu(this);
     }
 
-    addUnit() {
-      let size = new THREE.Vector3(50, 50, 50);
-      let coordinates = new THREE.Vector3(500, 300, 25);
-      this.addCube(coordinates, size, `cube${this.cubes.length}`);
+    addUnit(coords) {
+      if(!coords) {
+        coords = new THREE.Vector3(
+          Math.random() * MAPWIDTH, Math.random() * MAPLENGTH, 25
+        );
+      }
+
+      this.addCube(coords);
     }
 
     removeCube(sceneObject) {
@@ -598,6 +602,7 @@ class Game{
           if(!this.shiftIsDown) {
             this.worldMouseCoordinatesEnd = this.mouseIntersectPoint(this.ground);
 
+            // if not dragging, deselectAllUnits
             if(this.mouseDownPosition.x == event.offsetX && this.mouseDownPosition.y == event.offsetY){
               this.deselectAllUnits();
             }
@@ -823,6 +828,10 @@ class Game{
       for(let i in this.player.resources) {
         this.player.resources[i] = 0;
       }
+    }
+
+    setRightTool(tool) {
+      this.rightTool = tool;
     }
 
     getRandomInt(min, max) {
