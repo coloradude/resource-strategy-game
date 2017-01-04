@@ -135,7 +135,7 @@ class Game{
 
       this.watchEvents();
 
-      this.loadScenario(require('../output/assets/scenario1.json'));
+      this.loadScenario(require('../output/assets/scenario2.json'));
     }
 
     update() {
