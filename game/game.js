@@ -38,6 +38,7 @@ const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue
 
 /* Import Objects */
 const Player = require('./objects/Player.js');
+const Camera = require('./objects/Camera.js');
 const SceneObject = require('./objects/SceneObject.js');
 const Ground = require('./objects/Ground.js');
 const Cube = require('./objects/Cube.js');
@@ -445,7 +446,7 @@ class Game{
     }
 
     initializeCamera() {
-      this.camera = new Camera();
+      this.camera = new Camera(FOV, ASPECT, NEARFRUSTRAM, FAFRUSTRAM, CAMERA_START_X, CAMERA_START_Y, CAMERA_START_Z, MAPWIDTH, MAPLENGTH, MAXZOOM, MINZOOM);
 
       this.cameraHelper = new THREE.CameraHelper(this.camera);
     }
@@ -527,6 +528,8 @@ class Game{
     keyboardCameraControls() {
       if(this.leftArrowIsDown || this.rightArrowIsDown || this.upArrowIsDown || this.downArrowIsDown) {
         let newCoords = this.camera.position;
+
+        console.log(newCoords);
 
         if(this.leftArrowIsDown) {
           newCoords.x -= SCROLL_SCALE * 100;
@@ -824,37 +827,5 @@ class Menu {
 
   updateScore(score) {
     document.getElementById('player-score').innerHTML = parseInt(score);
-  }
-}
-
-class Camera extends THREE.PerspectiveCamera {
-  constructor() {
-    super(FOV, ASPECT, NEARFRUSTRAM, FAFRUSTRAM);
-
-    this.position.x = CAMERA_START_X;
-    this.position.y = CAMERA_START_Y;
-    this.position.z = CAMERA_START_Z;
-
-    this.gameElem = window.getComputedStyle(CANVAS, null);
-
-    let marginLeft = parseInt(this.gameElem.getPropertyValue('margin-left'));
-    let height = parseInt(this.gameElem.getPropertyValue('height'));
-    let width = parseInt(this.gameElem.getPropertyValue('width'));
-    let computedWidth = width - marginLeft;
-
-    this.aspect = computedWidth / height;
-  }
-
-  moveTo(coords) {
-    // limit movement to within game bounds
-    coords.x = Math.min(coords.x, MAPWIDTH);
-    coords.x = Math.max(coords.x, 0);
-    coords.y = Math.min(coords.y, MAPLENGTH);
-    coords.y = Math.max(coords.y, 0);
-    coords.z = Math.min(coords.z, MAXZOOM);
-    coords.z = Math.max(coords.z, MINZOOM);
-
-    this.position.set(coords.x, coords.y, coords.z);
-    this.updateMatrix();
   }
 }
