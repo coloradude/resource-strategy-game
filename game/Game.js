@@ -133,7 +133,7 @@ class Game{
 
       this.watchEvents();
 
-      this.scenario1();
+      this.loadScenario(require('../output/assets/scenario1.json'));
     }
 
     update() {
@@ -332,6 +332,46 @@ class Game{
     listAllCubes() {
       for(let i in this.cubes) {
         console.log(this.cubes[i]);
+      }
+    }
+
+    loadScenario(jsonFile) {
+      this.scenario = jsonFile;
+
+      for(let i in this.scenario) {
+        let obj = this.scenario[i];
+        let coords;
+        let size;
+        let name;
+        let type;
+
+        switch(obj.type) {
+          case 'cube':
+            coords = obj.data.coordinates;
+            size = obj.data.size;
+            name = obj.data.name;
+
+            this.addCube(coords, size, name);
+            break;
+          case 'building':
+            coords = obj.data.coordinates;
+            size = obj.data.size;
+            name = obj.data.name;
+
+            this.addBuilding(coords, size, name);
+            break;
+          case 'resourceNode':
+            console.log(`I am a ${obj.data.resourceType} resourceNode`);
+            coords = obj.data.coordinates;
+            size = obj.data.size;
+            type = obj.data.type;
+
+            this.addResourceNode(coords, size, type);
+            break;
+          default:
+            console.error(`Error reading scenario file: unrecognized node type ${obj.type}`);
+            break;
+        }
       }
     }
 
