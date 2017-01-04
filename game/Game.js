@@ -375,30 +375,6 @@ class Game{
       }
     }
 
-    scenario1() {
-      // add 4 home cubes
-      let size = new THREE.Vector3(50, 50, 50);
-
-      this.addCube(new THREE.Vector3(500, 300, size.z/2), size, 'soldier1');
-
-      this.addCube(new THREE.Vector3(400, 300, size.z/2), size, 'soldier2');
-
-      this.addCube(new THREE.Vector3(400, 300, size.z/2), size, 'soldier3');
-
-      this.addCube(new THREE.Vector3(400, 300, size.z/2), size, 'soldier4');
-
-      // add buildings
-      size = new THREE.Vector3(400, 400, 200);
-      this.addBuilding(new THREE.Vector3(800, 800, size.z/2), size, 'building1');
-
-      // add resource nodes
-      // this.addResourceNode(new THREE.Vector3(1000, 300, 25), size, 'metal');
-
-      // this.addResourceNode(new THREE.Vector3(2000, 1200, 25), size, 'food');
-
-      // this.addResourceNode(new THREE.Vector3(3000, 2400, 25), size, 'gold');
-    }
-
     addGround() {
       let ground = new Ground(MAPWIDTH, MAPLENGTH);
       ground.name = "ground";
@@ -503,6 +479,7 @@ class Game{
       this.camera = new Camera(FOV, ASPECT, NEARFRUSTRAM, FAFRUSTRAM, CAMERA_START_X, CAMERA_START_Y, CAMERA_START_Z, MAPWIDTH, MAPLENGTH, MAXZOOM, MINZOOM);
 
       this.cameraHelper = new THREE.CameraHelper(this.camera);
+      this.camera.updateProjectionMatrix();
     }
 
     initializeLight() {
