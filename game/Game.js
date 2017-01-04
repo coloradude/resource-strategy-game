@@ -53,6 +53,8 @@ const FoodResourceNode = require('./objects/ResourceNode/FoodResourceNode.js');
 
 /* Control Settings */
 const CONTROLS = {
+  leftClick: 1,
+  rightClick: 3,
   backspace: 8,
   tab: 9,
   space: 32,
@@ -183,7 +185,7 @@ class Game{
       // mouse controls
     	document.addEventListener('mousemove', this.onDocumentMouseMove.bind(this), false );
     	document.addEventListener('mousedown', this.onDocumentMouseDown.bind(this), false );
-      document.addEventListener('contextmenu', this.onDocumentMouseRightDown.bind(this), false);
+      document.addEventListener('contextmenu', this.onDocumentContextMenu.bind(this), false);
     	document.addEventListener('mouseup', this.onDocumentMouseUp.bind(this), false );
       document.addEventListener('mousewheel', this.onDocumentMouseWheel.bind(this), false );
 
@@ -365,7 +367,6 @@ class Game{
             this.addBuilding(coords, size, name);
             break;
           case 'resourceNode':
-            console.log(`I am a ${obj.data.resourceType} resourceNode`);
             coords = obj.data.coordinates;
             size = obj.data.size;
             type = obj.data.type;
@@ -499,6 +500,9 @@ class Game{
       this.isMouseDown = false;
       this.mouseDownPosition = new THREE.Vector2();
       this.raycaster = new THREE.Raycaster();
+
+      this.leftTool = 'select';
+      this.rightTool = 'createNode';
     }
 
     getPlayer() {
@@ -586,6 +590,7 @@ class Game{
       event.preventDefault();
 
       this.isMouseDown = false;
+      this.isRightMouseDown = false;
 
       this.mouseDownPosition.x = event.offsetX;
       this.mouseDownPosition.y = event.offsetY;
@@ -601,29 +606,35 @@ class Game{
 
       if(this.mouseIsOnGame(event)) {
 
-        this.isMouseDown = true;
+        if(event.which == CONTROLS.leftClick) {
+            this.isMouseDown = true;
 
-        this.mouseDownPosition.x = event.offsetX;
-        this.mouseDownPosition.y = event.offsetY;
+            this.mouseDownPosition.x = event.offsetX;
+            this.mouseDownPosition.y = event.offsetY;
 
-        if(!this.shiftIsDown) {
-          this.worldMouseCoordinatesStart = this.groundMouseIntersectPoint();
+            if(!this.shiftIsDown) {
+              this.worldMouseCoordinatesStart = this.groundMouseIntersectPoint();
 
-          if(this.worldMouseCoordinatesStart !== null) {
-            this.addSelectionBox();
-            this.selectionBox.startCoordinates(this.worldMouseCoordinatesStart);
-          }
+              if(this.worldMouseCoordinatesStart !== null) {
+                this.addSelectionBox();
+                this.selectionBox.startCoordinates(this.worldMouseCoordinatesStart);
+              }
+            }
+        }
+        else if (event.which == CONTROLS.rightClick) {
+            this.isRightMouseDown = true;
+
+            if(this.selectedObjects.length > 0) {
+              this.rightTool = 'assign';
+            }
+
+            this.useRightTool();
         }
       }
     }
 
-    onDocumentMouseRightDown(event) {
+    onDocumentContextMenu(event) {
       event.preventDefault();
-
-      if(!this.shiftIsDown) {
-        // get intersecting point with ground & add a resourceNode there
-        this.addResourceNode(this.groundMouseIntersectPoint(), new THREE.Vector3(50, 50, 10));
-      }
     }
 
     onDocumentMouseMove(event) {
@@ -632,6 +643,7 @@ class Game{
       this.mouse.x = (event.offsetX / window.innerWidth) * 2 - 1;
       this.mouse.y = -(event.offsetY / window.innerHeight) * 2 + 1;
 
+      // left click down
       if (this.isMouseDown && this.mouseIsOnGame(event)) {
         let oldX = this.mouseDownPosition.x,
             oldY = this.mouseDownPosition.y;
@@ -671,6 +683,9 @@ class Game{
 
         this.camera.updateMatrix();
       }
+      else if (this.isRightMouseDown && this.mouseIsOnGame(event)) {
+        console.log(`rightMouseDown`);
+      }
 
       this.raycaster.setFromCamera(this.mouse, this.camera);
     }
@@ -700,6 +715,29 @@ class Game{
 
       // if mouse ray doesn't intersect ground, return null
       return null;
+    }
+
+    useRightTool() {
+      switch(this.rightTool) {
+        case 'createNode':
+          if(!this.shiftIsDown) {
+            // get intersecting point with ground & add a resourceNode there
+            this.addResourceNode(this.groundMouseIntersectPoint(), new THREE.Vector3(50, 50, 10));
+          }
+          break;
+        case 'assign':
+          let coords = this.groundMouseIntersectPoint();
+          for(let i in this.selectedObjects) {
+            this.selectedObjects[i].queueJob({
+              job: 'move',
+              coordinates: new THREE.Vector3(coords.x, coords.y, coords.z)
+            });
+          }
+          break;
+        default:
+          console.error('no rightTool assigned');
+          break;
+      }
     }
 
     mouseIsOnGame(event) {
