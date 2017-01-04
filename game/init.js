@@ -1,7 +1,10 @@
-/*jshint
-esversion: 6
+/*
+jshint
+esversion: 6,
+browser: true
 */
-import Game from "./game.js";
+
+const Game = require("./game.js");
 
 window.onload = () => {
     'use strict';
