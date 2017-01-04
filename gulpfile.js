@@ -12,14 +12,13 @@ let pump = require('pump');
 let obfuscator = require('gulp-js-obfuscator');
 
 gulp.task('css', function() {
-  return gulp.src('./public/stylesheets/**/*.scss')
-    .pipe(sass()
-      .on('error', sass.logError))
+  return gulp.src('./game/assets/stylesheets/**/*.scss')
+    .pipe(sass().on('error', sass.logError))
     .pipe(gulp.dest('./public/stylesheets'));
 });
 
 gulp.task('css:watch', function() {
-  gulp.watch('./public/stylesheets/**/*.scss', ['css']);
+  gulp.watch('./game/assets/stylesheets/**/*.scss', ['css']);
 });
 
 gulp.task('obfuscate', function() {
