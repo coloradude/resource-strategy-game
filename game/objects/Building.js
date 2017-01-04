@@ -21,14 +21,23 @@ class Building extends SceneObject {
     this.buildingType = null;
   }
 
-  assign(objectsArray, coords) {
-    // make cubes idle
-    for(let i in objectsArray) {
-      objectsArray[i].removeJob({
-        job: 'move'
+  assign(objArray, coords) {
+
+    for(let i in objArray) {
+      objArray[i].queueJob({
+        job: 'move',
+        coordinates: this.position
+      });
+
+      // grow by 1000
+      let growAmt = 1000;
+      objArray[i].queueJob({
+        job: 'grow',
+        size: new THREE.Vector3(growAmt, growAmt, growAmt)
       });
     }
-    return true;
+
+    return true; // stop bubbling
   }
 }
 
