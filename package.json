@@ -23,7 +23,12 @@
     "babel-preset-env": "^1.1.4",
     "gulp": "^3.9.1",
     "gulp-cli": "^1.2.2",
+    "gulp-js-obfuscator": "^1.0.0",
+    "gulp-rename": "^1.2.2",
     "gulp-sass": "^3.0.0",
-    "nodemon": "^1.11.0"
+    "gulp-uglify": "^2.0.0",
+    "js-obfuscator": "^0.1.1",
+    "nodemon": "^1.11.0",
+    "pump": "^1.0.2"
   }
 }
