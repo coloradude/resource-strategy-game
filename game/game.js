@@ -36,11 +36,56 @@ const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue
 
 /* Control Settings */
 const CONTROLS = {
+  backspace: 8,
+  tab: 9,
+  space: 32,
   leftArrow: 37,
   upArrow: 38,
   rightArrow: 39,
   downArrow: 40,
-  shift: 16
+  enter: 13,
+  shift: 16,
+  ctrl: 17,
+  alt: 18,
+  capsLock: 20, // turning on only
+  num0: 48,
+  num1: 49,
+  num2: 50,
+  num3: 51,
+  num4: 52,
+  num5: 53,
+  num6: 54,
+  num7: 55,
+  num8: 56,
+  num9: 57,
+  a: 65,
+  b: 66,
+  c: 67,
+  d: 68,
+  e: 69,
+  f: 70,
+  g: 71,
+  h: 72,
+  i: 73,
+  j: 74,
+  k: 75,
+  l: 76,
+  m: 77,
+  n: 78,
+  o: 79,
+  p: 80,
+  q: 81,
+  r: 82,
+  s: 83,
+  t: 84,
+  u: 85,
+  v: 86,
+  w: 87,
+  x: 88,
+  y: 89,
+  z: 90,
+  leftApple: 91,
+  rightApple: 92
 };
 
 class Game{
@@ -57,6 +102,7 @@ class Game{
       this.worldMouseCoordinatesEnd = new THREE.Vector3(0, 0, 0);
 
       this.cubes = [];
+      this.buildings = [];
       this.resourceNodes = [];
 
       this.selectedObjects = [];
@@ -154,6 +200,23 @@ class Game{
       cube.setSceneObject(this.scene.getObjectByName(name));
     }
 
+    addBuilding(
+      coordinates = new THREE.Vector3(0, 0, 0),
+      size = new THREE.Vector3(100, 100, 100),
+      name = `building${this.cubes.length}`
+    ) {
+      let building = new Building(size);
+
+      building.name = name;
+      building.position.set(coordinates.x, coordinates.y, coordinates.z);
+
+      this.scene.add(building);
+      this.buildings.push(building);
+
+      building.setName(name);
+      building.setSceneObject(this.scene.getObjectByName(name));
+    }
+
     /*
     @coordinates: (x, y, z) vector
     @size: (x, y, z) vector
@@ -239,13 +302,17 @@ class Game{
       // add 4 home cubes
       let size = new THREE.Vector3(50, 50, 50);
 
-      this.addCube(new THREE.Vector3(500, 300, 25), size, 'soldier1');
+      this.addCube(new THREE.Vector3(500, 300, size.z/2), size, 'soldier1');
 
-      this.addCube(new THREE.Vector3(400, 300, 25), size, 'soldier2');
+      this.addCube(new THREE.Vector3(400, 300, size.z/2), size, 'soldier2');
 
-      this.addCube(new THREE.Vector3(400, 300, 25), size, 'soldier3');
+      this.addCube(new THREE.Vector3(400, 300, size.z/2), size, 'soldier3');
 
-      this.addCube(new THREE.Vector3(400, 300, 25), size, 'soldier4');
+      this.addCube(new THREE.Vector3(400, 300, size.z/2), size, 'soldier4');
+
+      // add buildings
+      size = new THREE.Vector3(400, 400, 200);
+      this.addBuilding(new THREE.Vector3(800, 800, size.z/2), size, 'building1');
 
       // add resource nodes
       // this.addResourceNode(new THREE.Vector3(1000, 300, 25), size, 'metal');
@@ -402,6 +469,7 @@ class Game{
     }
 
     onDocumentKeyDown(event) {
+      console.log(event.which);
       switch (event.which) {
         case CONTROLS.leftArrow:
           this.leftArrowIsDown = true;
@@ -713,6 +781,8 @@ class Cube extends SceneObject {
     this.type = "Cube";
 
     this.speed = 25;
+    this.resourceCollectionRange = 100;
+    this.resourceCollectionRate = 0.1;
   }
 
   update() {
@@ -733,12 +803,30 @@ class Cube extends SceneObject {
       this.destination = minDistanceNode.position;
 
       // add resource points according to closest resource node
-      if(this.getDistanceFrom(minDistanceNode) < 100) {
-        window.game.player.resources[minDistanceNode.resourceType] += 1;
+      if(this.getDistanceFrom(minDistanceNode) < this.resourceCollectionRange) {
+        // cancel destination (we're close enough)
+        this.destination = null;
+
+        // add resources
+        window.game.player.resources[minDistanceNode.resourceType] += minDistanceNode.collectionSpeed * this.resourceCollectionRate;
       }
     }
 
     super.update();
+  }
+}
+
+class Building extends SceneObject {
+  constructor(size) {
+    let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+    let material = new THREE.MeshLambertMaterial({
+      color: 0x333333
+    });
+
+    super(geometry, material);
+
+    this.type = "building";
+    this.buildingType = null;
   }
 }
 
@@ -756,6 +844,7 @@ class ResourceNode extends SceneObject {
 
     this.type = "resourceNode";
     this.resourceType = null;
+    this.collectionSpeed = 1;
   }
 }
 
@@ -907,19 +996,19 @@ class Menu {
   }
 
   updateFood(food) {
-    document.getElementById('player-food').innerHTML = food;
+    document.getElementById('player-food').innerHTML = parseInt(food);
   }
 
   updateGold(gold) {
-    document.getElementById('player-gold').innerHTML = gold;
+    document.getElementById('player-gold').innerHTML = parseInt(gold);
   }
 
   updateMetal(metal) {
-    document.getElementById('player-metal').innerHTML = metal;
+    document.getElementById('player-metal').innerHTML = parseInt(metal);
   }
 
   updateScore(score) {
-    document.getElementById('player-score').innerHTML = score;
+    document.getElementById('player-score').innerHTML = parseInt(score);
   }
 }
 
