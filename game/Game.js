@@ -135,7 +135,7 @@ class Game{
 
       this.watchEvents();
 
-      this.loadScenario(require('../output/assets/scenario2.json'));
+      this.loadScenario(require('../output/assets/scenario1.json'));
     }
 
     update() {
@@ -684,7 +684,6 @@ class Game{
         this.camera.updateMatrix();
       }
       else if (this.isRightMouseDown && this.mouseIsOnGame(event)) {
-        console.log(`rightMouseDown`);
       }
 
       this.raycaster.setFromCamera(this.mouse, this.camera);

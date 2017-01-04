@@ -23,6 +23,8 @@ class SceneObject extends THREE.Mesh {
 
     this.selectedColor = 0xFFFFFF;
     this.unselectedColor = 0xCC0000;
+
+    this.destinationRange = new THREE.Vector3(25, 25, 25); // tolerance for how close an object must get before stopping
   }
 
   update() {
@@ -40,23 +42,26 @@ class SceneObject extends THREE.Mesh {
       difY -= Math.sign(difY) * this.size.y/2;
       difZ -= Math.sign(difZ) * this.size.z/2;
 
-      let d = Math.sqrt(Math.pow(difX, 2) + Math.pow(difY, 2) + Math.pow(difZ, 2));
+      // only move if farther than this.destinationRange
+      if(Math.abs(difX) > this.destinationRange.x || Math.abs(difY) > this.destinationRange.y || Math.abs(difZ) > this.destinationRange.z) {
+        let d = Math.sqrt(Math.pow(difX, 2) + Math.pow(difY, 2) + Math.pow(difZ, 2));
 
-      // move at constant speed no matter the direction
-      this.velocity.x = (this.speed * difX) / d;
-      this.velocity.y = (this.speed * difY) / d;
-      this.velocity.z = (this.speed * difZ) / d;
+        // move at constant speed no matter the direction
+        this.velocity.x = (this.speed * difX) / d;
+        this.velocity.y = (this.speed * difY) / d;
+        this.velocity.z = (this.speed * difZ) / d;
 
-      if(this.velocity.x !== 0 || this.velocity.y !== 0 || this.velocity.z !== 0) {
-        // update position
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
-        this.position.z += this.velocity.z;
+        if(this.velocity.x !== 0 || this.velocity.y !== 0 || this.velocity.z !== 0) {
+          // update position
+          this.position.x += this.velocity.x;
+          this.position.y += this.velocity.y;
+          this.position.z += this.velocity.z;
 
-        // store local position
-        this.position.x = this.position.x;
-        this.position.y = this.position.y;
-        this.position.z = this.position.z;
+          // store local position
+          this.position.x = this.position.x;
+          this.position.y = this.position.y;
+          this.position.z = this.position.z;
+        }
       }
     }
   }
