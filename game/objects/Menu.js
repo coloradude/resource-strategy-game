@@ -32,6 +32,9 @@ class Menu {
       }, {
         name: 'resetResources',
         function: this.game.resetResources
+      }, {
+        name: 'listSelectedUnits',
+        function: this.game.listSelectedUnits
       }
     ];
 

@@ -335,6 +335,10 @@ class Game{
       }
     }
 
+    listSelectedUnits() {
+      console.log(this.selectedObjects);
+    }
+
     loadScenario(jsonFile) {
       this.scenario = jsonFile;
 
