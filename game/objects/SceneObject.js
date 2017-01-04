@@ -106,6 +106,11 @@ class SceneObject extends THREE.Mesh {
     }
   }
 
+  /*
+    @objArray an array of current selectedObjects
+    @coords the intersection of mouse raycast and this object
+    This is called whenever a player right-clicks on this object while selectedObjects.length > 0
+  */
   assign(objectsArray, coords) {
     // if bubbling should continue, return falsey
     // otherwise, the click stops bubbling down

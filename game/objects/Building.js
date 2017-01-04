@@ -21,9 +21,15 @@ class Building extends SceneObject {
     this.buildingType = null;
   }
 
+  /*
+    @objArray an array of current selectedObjects
+    @coords the intersection of mouse raycast and this object
+    This is called whenever a player right-clicks on this object while selectedObjects.length > 0
+  */
   assign(objArray, coords) {
 
     for(let i in objArray) {
+      // move towards me
       objArray[i].queueJob({
         job: 'move',
         coordinates: this.position
