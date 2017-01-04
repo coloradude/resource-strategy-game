@@ -35,6 +35,14 @@ class Menu {
       }, {
         name: 'listSelectedUnits',
         function: this.game.listSelectedUnits
+      }, {
+        name: 'toolToAddRandomNode',
+        function: this.game.setRightTool,
+        args: ['createRandomNode']
+      }, {
+        name: 'toolToAddBuilding',
+        function: this.game.setRightTool,
+        args: ['createBuilding']
       }
     ];
 
@@ -54,7 +62,7 @@ class Menu {
       // if the id matches one in this.buttons, call that button's function
       for(let i in this.buttons) {
         if(event.path[0].id === `menu-${this.buttons[i].name}`) {
-          this.buttons[i].function.call(this.game);
+          this.buttons[i].function.apply(this.game, this.buttons[i].args);
         }
       }
     });
