@@ -22,6 +22,8 @@ class Cube extends SceneObject {
     this.growSpeed = 100;
     this.resourceCollectionRange = 100;
     this.resourceCollectionRate = 0.1;
+    this.minSize = new THREE.Vector3(100, 100, 100);
+    this.growthTolerance = 5;
 
     this.destinationSize = new THREE.Vector3(500, 500, 10);
     this.growthScalar = 0.0001;
@@ -132,7 +134,6 @@ class Cube extends SceneObject {
 
   idle() {
     // do nothing
-    // this.velocity = new THREE.Vector3(0, 0, 0);
   }
 
   /*
@@ -140,8 +141,7 @@ class Cube extends SceneObject {
   */
   grow(size) {
     let currentSize = this.getSize();
-    console.log(`grow, currentSize:`);
-    console.log(currentSize);
+
     this.destinationSize = new THREE.Vector3(
       currentSize.x + size.x,
       currentSize.y + size.y,
@@ -154,12 +154,11 @@ class Cube extends SceneObject {
   */
   shrink(size) {
     let currentSize = this.getSize();
-    console.log(`shrink, currentSize:`);
-    console.log(currentSize);
+
     this.destinationSize = new THREE.Vector3(
-      currentSize.x - size.x,
-      currentSize.y - size.y,
-      currentSize.z - size.z
+      Math.max(currentSize.x - size.x, this.minSize.x),
+      Math.max(currentSize.y - size.y, this.minSize.y),
+      Math.max(currentSize.z - size.z, this.minSize.z)
     );
   }
 
@@ -186,7 +185,7 @@ class Cube extends SceneObject {
       return sceneObject;
     });
 
-    // move toward closest resource node
+    // find closest resource node
     if(resourceNodes.length > 0) {
       let minDistanceNode = resourceNodes[0];
       for(let i in resourceNodes) {
@@ -197,6 +196,7 @@ class Cube extends SceneObject {
 
       return minDistanceNode;
     } else {
+      // there are no available resource nodes
       return null;
     }
   }
@@ -222,11 +222,9 @@ class Cube extends SceneObject {
       let difZ = size.z - mySize.z;
 
       // only grow if farther than
-      let tolerance = 50;
+      let tolerance = this.growthTolerance;
       if(Math.abs(difX) > tolerance || Math.abs(difY) > tolerance || Math.abs(difZ) > tolerance) {
         // grow
-        // console.log((this.growthVelocity.x * this.growthScalar));
-        // console.log((mySize.z - difZ)/mySize.z * this.growthScalar);
         this.scale.set(
           Math.max(this.scale.x + (this.growthScalar * difX), 0),
           Math.max(this.scale.y + (this.growthScalar * difY), 0),
