@@ -122,7 +122,7 @@ class Game{
       this.worldMouseCoordinatesStart = new THREE.Vector3(0, 0, 0);
       this.worldMouseCoordinatesEnd = new THREE.Vector3(0, 0, 0);
 
-      this.rightTool = 'createCube';
+      this.rightTool = 'createRandomNode';
 
       this.cubes = [];
       this.buildings = [];
@@ -726,11 +726,23 @@ class Game{
     }
 
     useRightTool(tool) {
+      let groundIntersect;
       switch(tool) {
-        case 'createNode':
+        case 'createRandomNode':
           if(!this.shiftIsDown) {
-            // get intersecting point with ground & add a resourceNode there
-            this.addResourceNode(this.mouseIntersectPoint(this.ground), new THREE.Vector3(50, 50, 10));
+            // get intersecting point with ground & add a random resourceNode there
+            let nodeTypes = [
+              'metal',
+              'gold',
+              'food'
+            ];
+            let nodeToMake = nodeTypes[this.getRandomInt(0, nodeTypes.length - 1)];
+
+            this.addResourceNode(
+              this.mouseIntersectPoint(this.ground),
+              new THREE.Vector3(50, 50, 10),
+              nodeToMake
+            );
           }
           break;
         case 'assign':
@@ -760,13 +772,21 @@ class Game{
           break;
         case 'createCube':
           // place a new cube at ground intersetion
-          let groundIntersect = this.raycaster.intersectObjects([this.ground])[0];
-
-          console.log('creating cube');
-          console.log(groundIntersect);
+          groundIntersect = this.raycaster.intersectObjects([this.ground])[0];
 
           if(groundIntersect) {
             this.addCube(
+              groundIntersect.point,
+              new THREE.Vector3(500, 500, 500)
+            );
+          }
+          break;
+        case 'createBuilding':
+          // place a new building at ground intersetion
+          groundIntersect = this.raycaster.intersectObjects([this.ground])[0];
+
+          if(groundIntersect) {
+            this.addBuilding(
               groundIntersect.point,
               new THREE.Vector3(500, 500, 500)
             );
@@ -794,6 +814,10 @@ class Game{
       for(let i in this.player.resources) {
         this.player.resources[i] = 0;
       }
+    }
+
+    getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }
 
