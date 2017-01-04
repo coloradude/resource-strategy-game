@@ -20,6 +20,7 @@ const MAPWIDTH = 10000;
 const MAPLENGTH = 10000;
 const MAPHEIGHT = 1000;
 const SHADOWS = true;
+const LEVEL = require('../output/assets/scenario1.json');
 
 /* Camera Settings */
 const FOV = 90;
@@ -135,7 +136,7 @@ class Game{
 
       this.watchEvents();
 
-      this.loadScenario(require('../output/assets/scenario1.json'));
+      this.loadScenario(LEVEL);
     }
 
     update() {
@@ -200,8 +201,8 @@ class Game{
     }
 
     /*
-    @coordinates: (x, y, z) vector
-    @size: (x, y, z) vector
+      @coordinates: (x, y, z) vector
+      @size: (x, y, z) vector
     */
     addCube(
       coordinates = new THREE.Vector3(0, 0, 0),
@@ -257,8 +258,8 @@ class Game{
     }
 
     /*
-    @coordinates: (x, y, z) vector
-    @size: (x, y, z) vector
+      @coordinates: (x, y, z) vector
+      @size: (x, y, z) vector
     */
     addResourceNode(
       coordinates = new THREE.Vector3(0, 0, 0),
@@ -731,8 +732,6 @@ class Game{
           }
           break;
         case 'assign':
-          let coords = this.mouseIntersectPoint(this.ground);
-
           // update the picking ray with the camera and mouse position
           this.raycaster.setFromCamera(this.mouse, this.camera);
 
