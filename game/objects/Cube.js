@@ -25,7 +25,7 @@ class Cube extends SceneObject {
     this.minSize = new THREE.Vector3(100, 100, 100);
     this.growthTolerance = 5;
 
-    this.destinationSize = new THREE.Vector3(500, 500, 10);
+    this.destinationSize = null;
     this.growthScalar = 0.0001;
 
     this.growthVelocity = new THREE.Vector3(1, 1, 1);
