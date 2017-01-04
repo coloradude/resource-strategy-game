@@ -6,19 +6,20 @@ browser: true
 */
 
 const THREE = require('three');
-const SceneObject = require('./SceneObject.js');
+const Building = require('./Building.js');
 
-class Building extends SceneObject {
-  constructor(size) {
+class Mine extends Building {
+  constructor(size = new THREE.Vector3(100, 100, 100), type = 'mine', status = 'complete') {
     let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
     let material = new THREE.MeshLambertMaterial({
-      color: 0x333333
+      color: 0xCCCC00
     });
 
     super(geometry, material);
 
-    this.type = "building";
-    this.buildingType = null;
+    this.type = 'building';
+    this.buildingType = 'mine';
+    this.status = status;
   }
 
   /*
@@ -29,12 +30,6 @@ class Building extends SceneObject {
   assign(objArray, coords) {
 
     for(let i in objArray) {
-      // move towards me
-      objArray[i].queueJob({
-        job: 'move',
-        coordinates: this.position
-      });
-
       // grow by 1000
       let growAmt = 1000;
       objArray[i].queueJob({
@@ -43,8 +38,10 @@ class Building extends SceneObject {
       });
     }
 
+    super.assign(objArray, coords);
+
     return true; // stop bubbling
   }
 }
 
-module.exports = Building;
+module.exports = Mine;
