@@ -19,8 +19,16 @@ class Cube extends SceneObject {
 
     this.type = "Cube";
     this.speed = 25;
+    this.growSpeed = 100;
     this.resourceCollectionRange = 100;
     this.resourceCollectionRate = 0.1;
+
+    this.destinationSize = new THREE.Vector3(500, 500, 10);
+    this.growthScalar = 0.0001;
+
+    this.growthVelocity = new THREE.Vector3(1, 1, 1);
+
+    this.selectedColor = 0x000000;
 
     this.jobPriorities = {
       'build': 7,
@@ -38,8 +46,9 @@ class Cube extends SceneObject {
   }
 
   update() {
+    this.growTowardDestinationSize(this.destinationSize);
     this.closestResourceNode = this.getClosestResourceNode();
-    this.calculateResourcePoints();
+    this.calculateResourcePoints(); // should be optimized to search in radius around me
 
     this.doJob(this.highestPriorityJob());
 
@@ -82,8 +91,16 @@ class Cube extends SceneObject {
         this.queue.push(job);
         break;
       case 'idle':
-        // already the default, no need to add
+        // already the default, no need to queue
 
+        break;
+      case 'grow':
+        // happens async, no need to queue
+        this.grow(job.size);
+        break;
+      case 'shrink':
+        // happens async, no need to queue
+        this.shrink(job.size);
         break;
       default:
         console.error(`unrecognized job ${job.job}`);
@@ -116,6 +133,34 @@ class Cube extends SceneObject {
   idle() {
     // do nothing
     // this.velocity = new THREE.Vector3(0, 0, 0);
+  }
+
+  /*
+    @size Vector3(x to add, y to add, z to add)
+  */
+  grow(size) {
+    let currentSize = this.getSize();
+    console.log(`grow, currentSize:`);
+    console.log(currentSize);
+    this.destinationSize = new THREE.Vector3(
+      currentSize.x + size.x,
+      currentSize.y + size.y,
+      currentSize.z + size.z
+    );
+  }
+
+  /*
+    @size Vector3(x to add, y to add, z to add)
+  */
+  shrink(size) {
+    let currentSize = this.getSize();
+    console.log(`shrink, currentSize:`);
+    console.log(currentSize);
+    this.destinationSize = new THREE.Vector3(
+      currentSize.x - size.x,
+      currentSize.y - size.y,
+      currentSize.z - size.z
+    );
   }
 
   highestPriorityJob() {
@@ -166,6 +211,30 @@ class Cube extends SceneObject {
       // add resources
       let resourceAmountGained = this.closestResourceNode.collectionSpeed * this.resourceCollectionRate;
       window.game.player.resources[this.closestResourceNode.resourceType] += resourceAmountGained;
+    }
+  }
+
+  growTowardDestinationSize(size) {
+    if(size !== null) {
+      let mySize = this.getSize();
+      let difX = size.x - mySize.x;
+      let difY = size.y - mySize.y;
+      let difZ = size.z - mySize.z;
+
+      // only grow if farther than
+      let tolerance = 50;
+      if(Math.abs(difX) > tolerance || Math.abs(difY) > tolerance || Math.abs(difZ) > tolerance) {
+        // grow
+        // console.log((this.growthVelocity.x * this.growthScalar));
+        // console.log((mySize.z - difZ)/mySize.z * this.growthScalar);
+        this.scale.set(
+          Math.max(this.scale.x + (this.growthScalar * difX), 0),
+          Math.max(this.scale.y + (this.growthScalar * difY), 0),
+          Math.max(this.scale.z + (this.growthScalar * difZ), 0)
+        );
+      }
+
+      this.size = this.getSize();
     }
   }
 
