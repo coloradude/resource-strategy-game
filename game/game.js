@@ -1,4 +1,5 @@
-/*jshint
+/*
+jshint
 node: true,
 esversion: 6,
 browser: true
@@ -6,6 +7,7 @@ browser: true
 'use strict';
 
 const THREE = require('three');
+
 const CANVAS = document.getElementById('game');
 const CONTAINER = document.getElementById('container');
 const MENU = document.getElementById('menu');
@@ -34,6 +36,17 @@ const MAXZOOM = 3500;
 const MINZOOM = 1000;
 const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue('width'));
 
+/* Import Objects */
+const Player = require('./objects/Player.js');
+const SceneObject = require('./objects/SceneObject.js');
+const Ground = require('./objects/Ground.js');
+const Cube = require('./objects/Cube.js');
+const Building = require('./objects/Building.js');
+const ResourceNode = require('./objects/ResourceNode/ResourceNode.js');
+const MetalResourceNode = require('./objects/ResourceNode/MetalResourceNode.js');
+const GoldResourceNode = require('./objects/ResourceNode/GoldResourceNode.js');
+const FoodResourceNode = require('./objects/ResourceNode/FoodResourceNode.js');
+
 /* Control Settings */
 const CONTROLS = {
   backspace: 8,
@@ -48,6 +61,7 @@ const CONTROLS = {
   ctrl: 17,
   alt: 18,
   capsLock: 20, // turning on only
+  delete: 46,
   num0: 48,
   num1: 49,
   num2: 50,
@@ -217,6 +231,25 @@ class Game{
       building.setSceneObject(this.scene.getObjectByName(name));
     }
 
+    removeBuilding(building) {
+      // remove from this.scene
+      this.scene.remove(building);
+
+      // remove from this.buildings
+      for(let i in this.buildings) {
+        if(this.buildings[i] == building) {
+          this.buildings.splice(i, 1);
+        }
+      }
+    }
+
+    removeAllBuildings() {
+      let numDeleted = 0;
+      for(let i = this.cubes.length - 1; i >= 0; i--) {
+        this.removeBuilding(this.buildings[i]);
+      }
+    }
+
     /*
     @coordinates: (x, y, z) vector
     @size: (x, y, z) vector
@@ -323,7 +356,7 @@ class Game{
     }
 
     addGround() {
-      let ground = new Ground();
+      let ground = new Ground(MAPWIDTH, MAPLENGTH);
       ground.name = "ground";
       ground.position.set(MAPWIDTH/2, MAPLENGTH/2, 0);
       this.scene.add(ground);
@@ -469,7 +502,7 @@ class Game{
     }
 
     onDocumentKeyDown(event) {
-      console.log(event.which);
+
       switch (event.which) {
         case CONTROLS.leftArrow:
           this.leftArrowIsDown = true;
@@ -663,224 +696,6 @@ class Game{
 
 module.exports = Game;
 
-class SceneObject extends THREE.Mesh {
-  constructor(geometry, material) {
-    super(geometry, material);
-
-    // movement options
-    this.speed = 0;
-    this.velocity = new THREE.Vector3(0, 0, 0);
-
-    // rendering options
-    if(SHADOWS) {
-      this.castShadow = true;
-      this.receiveShadow = true;
-    }
-
-    this.boundingBox = null;
-    this.destination = null;
-
-    this.selectedColor = 0xFFFFFF;
-    this.unselectedColor = 0xCC0000;
-  }
-
-  update() {
-    this.moveTowardDestination(this.destination);
-  }
-
-  moveTowardDestination(destination = null) {
-    if(destination !== null) {
-      let difX = destination.x - this.position.x;
-      let difY = destination.y - this.position.y;
-      let difZ = destination.z - this.position.z;
-
-      // correct destination
-      difX -= Math.sign(difX) * this.size.x/2;
-      difY -= Math.sign(difY) * this.size.y/2;
-      difZ -= Math.sign(difZ) * this.size.z/2;
-
-      let d = Math.sqrt(Math.pow(difX, 2) + Math.pow(difY, 2) + Math.pow(difZ, 2));
-
-      // move at constant speed no matter the direction
-      this.velocity.x = (this.speed * difX) / d;
-      this.velocity.y = (this.speed * difY) / d;
-      this.velocity.z = (this.speed * difZ) / d;
-
-      if(this.velocity.x !== 0 || this.velocity.y !== 0 || this.velocity.z !== 0) {
-        // update position
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
-        this.position.z += this.velocity.z;
-
-        // store local position
-        this.position.x = this.position.x;
-        this.position.y = this.position.y;
-        this.position.z = this.position.z;
-      }
-    }
-  }
-
-  setName(name) {
-    this.name = name;
-  }
-
-  getName() {
-    return this.name;
-  }
-
-  setSceneObject(sceneObject) {
-    this.boundingBox = new THREE.Box3().setFromObject(this);
-    this.size = this.getSize();
-  }
-
-  getSize() {
-    return new THREE.Vector3(this.boundingBox.max.x - this.boundingBox.min.x, this.boundingBox.max.y - this.boundingBox.min.y, this.boundingBox.max.z - this.boundingBox.min.z);
-  }
-
-  getDistanceFrom(sceneObject) {
-    // 3-dimensional pythagorean formula
-    return Math.sqrt(
-      Math.pow(this.position.x - sceneObject.position.x, 2) +
-      Math.pow(this.position.y - sceneObject.position.y, 2) +
-      Math.pow(this.position.z - sceneObject.position.z, 2)
-    );
-  }
-
-  select(selected) {
-    if(selected) {
-      this.material.color.setHex(this.selectedColor);
-    } else {
-      this.material.color.setHex(this.unselectedColor);
-    }
-  }
-}
-
-class Ground extends SceneObject {
-  constructor() {
-    let geometry = new THREE.PlaneBufferGeometry(MAPWIDTH, MAPLENGTH, 1, 1);
-    let loader = new THREE.TextureLoader();
-    let texture = loader.load('./build/output/assets/sand.jpg');
-        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat = new THREE.Vector2(5, 5);
-    let material = new THREE.MeshBasicMaterial({
-      map: texture
-    });
-
-    super(geometry, material);
-  }
-}
-
-class Cube extends SceneObject {
-  constructor(size) {
-    let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-    let material = new THREE.MeshLambertMaterial({
-      color: 0xCC0000
-    });
-
-    super(geometry, material);
-    this.type = "Cube";
-
-    this.speed = 25;
-    this.resourceCollectionRange = 100;
-    this.resourceCollectionRate = 0.1;
-  }
-
-  update() {
-    // find & process all resource nodes
-    let resourceNodes = window.game.resourceNodes.map((sceneObject) => {
-      sceneObject.distance = this.getDistanceFrom(sceneObject);
-      return sceneObject;
-    });
-
-    // move toward closest resource node
-    if(resourceNodes.length > 0) {
-      let minDistanceNode = resourceNodes[0];
-      for(let i in resourceNodes) {
-        if(resourceNodes[i].distance < minDistanceNode.distance) {
-          minDistanceNode = resourceNodes[i];
-        }
-      }
-      this.destination = minDistanceNode.position;
-
-      // add resource points according to closest resource node
-      if(this.getDistanceFrom(minDistanceNode) < this.resourceCollectionRange) {
-        // cancel destination (we're close enough)
-        this.destination = null;
-
-        // add resources
-        window.game.player.resources[minDistanceNode.resourceType] += minDistanceNode.collectionSpeed * this.resourceCollectionRate;
-      }
-    }
-
-    super.update();
-  }
-}
-
-class Building extends SceneObject {
-  constructor(size) {
-    let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-    let material = new THREE.MeshLambertMaterial({
-      color: 0x333333
-    });
-
-    super(geometry, material);
-
-    this.type = "building";
-    this.buildingType = null;
-  }
-}
-
-class ResourceNode extends SceneObject {
-  constructor(geometry, material) {
-    let size = 50;
-    let widthSegments = 5;
-    let heightSegments = 5;
-    geometry = geometry || new THREE.SphereGeometry(size, widthSegments, heightSegments);
-    material = material || new THREE.MeshLambertMaterial({
-      color: 0xcc44ac
-    });
-
-    super(geometry, material);
-
-    this.type = "resourceNode";
-    this.resourceType = null;
-    this.collectionSpeed = 1;
-  }
-}
-
-class MetalResourceNode extends ResourceNode {
-  constructor() {
-    let geometry = null;
-    let material = new THREE.MeshLambertMaterial({
-      color: 0x333333
-    });
-    super(geometry, material);
-    this.resourceType = "metal";
-  }
-}
-
-class GoldResourceNode extends ResourceNode {
-  constructor() {
-    let geometry = null;
-    let material = new THREE.MeshLambertMaterial({
-      color: 0xFFFF00
-    });
-    super(geometry, material);
-    this.resourceType = "gold";
-  }
-}
-
-class FoodResourceNode extends ResourceNode {
-  constructor() {
-    let geometry = null;
-    let material = new THREE.MeshLambertMaterial({
-      color: 0xf4a742
-    });
-    super(geometry, material);
-    this.resourceType = "food";
-  }
-}
-
 class InterfaceObject extends THREE.Mesh {
   constructor(geometry, material) {
     super(geometry, material);
@@ -1009,17 +824,6 @@ class Menu {
 
   updateScore(score) {
     document.getElementById('player-score').innerHTML = parseInt(score);
-  }
-}
-
-class Player {
-  constructor() {
-    this.resources = {
-      gold: 0,
-      metal: 0,
-      food: 0
-    };
-    this.score = 0;
   }
 }
 
