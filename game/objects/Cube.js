@@ -123,13 +123,15 @@ class Cube extends SceneObject {
       }
 
       return minDistanceNode;
+    } else {
+      return null;
     }
   }
 
   calculateResourcePoints() {
     // add resource points according to closest resource node
 
-    if(this.getDistanceFrom(this.closestResourceNode) <= this.resourceCollectionRange) {
+    if(this.closestResourceNode !== null && this.getDistanceFrom(this.closestResourceNode) <= this.resourceCollectionRange) {
       // cancel destination (we're close enough)
       this.destination = null;
 
