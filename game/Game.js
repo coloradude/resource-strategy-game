@@ -128,7 +128,7 @@ class Game{
       this.buildings = [];
       this.resourceNodes = [];
 
-      this.selectedObjects = [];
+      this.selectedUnits = [];
 
       this.player = new Player();
 
@@ -144,8 +144,8 @@ class Game{
     update() {
         this.renderScore();
 
-        for(let i in this.selectedObjects) {
-          this.selectedObjects[i].select(true);
+        for(let i in this.selectedUnits) {
+          this.selectedUnits[i].select(true);
         }
 
         for(let i in this.cubes) {
@@ -329,8 +329,8 @@ class Game{
 
     removeSelectedCubes() {
       // could down to avoid skipping nodes
-      for(let i = this.selectedObjects.length - 1; i >= 0; i-- ) {
-        this.removeCube(this.selectedObjects[i]);
+      for(let i = this.selectedUnits.length - 1; i >= 0; i-- ) {
+        this.removeCube(this.selectedUnits[i]);
       }
     }
 
@@ -341,7 +341,7 @@ class Game{
     }
 
     listSelectedUnits() {
-      console.log(this.selectedObjects);
+      console.log(this.selectedUnits);
     }
 
     loadScenario(jsonFile) {
@@ -411,10 +411,10 @@ class Game{
         }
       }
 
-      // remove from this.selectedObjects
-      for(let i in this.selectedObjects) {
-        if(this.selectedObjects[i] == sceneObject) {
-          this.selectedObjects.splice(i, 1);
+      // remove from this.selectedUnits
+      for(let i in this.selectedUnits) {
+        if(this.selectedUnits[i] == sceneObject) {
+          this.selectedUnits.splice(i, 1);
         }
       }
     }
@@ -595,17 +595,21 @@ class Game{
       if(event.which == CONTROLS.leftClick) {
           this.isMouseDown = false;
 
-          this.mouseDownPosition.x = event.offsetX;
-          this.mouseDownPosition.y = event.offsetY;
-
           if(!this.shiftIsDown) {
             this.worldMouseCoordinatesEnd = this.mouseIntersectPoint(this.ground);
+
+            if(this.mouseDownPosition.x == event.offsetX && this.mouseDownPosition.y == event.offsetY){
+              this.deselectAllUnits();
+            }
           }
+
+          this.mouseDownPosition.x = event.offsetX;
+          this.mouseDownPosition.y = event.offsetY;
       }
       else if (event.which == CONTROLS.rightClick) {
           this.isRightMouseDown = false;
 
-          if(this.selectedObjects.length > 0) {
+          if(this.selectedUnits.length > 0) {
             this.useRightTool('assign');
           } else {
             this.useRightTool(this.rightTool);
@@ -683,11 +687,9 @@ class Game{
           // send mouse coordinates to selectionBox
           this.selectionBox.continueCoordinates(this.mouseIntersectPoint(this.ground));
 
-          // set this.selectedObjects to those in selectionBox
-          for(let i in this.selectedObjects) {
-            this.selectedObjects[i].select(false);
-          }
-          this.selectedObjects = this.selectionBox.getCubesInBox();
+          // set this.selectedUnits to those in selectionBox
+          this.deselectAllUnits();
+          this.selectedUnits = this.selectionBox.getCubesInBox();
         }
 
         this.camera.updateMatrix();
@@ -725,6 +727,13 @@ class Game{
       return null;
     }
 
+    deselectAllUnits() {
+      for(let i in this.selectedUnits) {
+        this.selectedUnits[i].select(false);
+      }
+      this.selectedUnits = [];
+    }
+
     useRightTool(tool) {
       let groundIntersect;
       switch(tool) {
@@ -755,7 +764,7 @@ class Game{
           // iterate over click intersect objects, camera -> ground
           for(let i in intersects) {
 
-            let returnValue = intersects[i].object.assign(this.selectedObjects, intersects[i].point);
+            let returnValue = intersects[i].object.assign(this.selectedUnits, intersects[i].point);
 
             /*
               object.assign() returns null and bubbles by default;
