@@ -10,6 +10,14 @@ const SceneObject = require('./SceneObject.js');
 
 class Cube extends SceneObject {
   constructor(size) {
+    if(!size) {
+      // defalt size
+      size = new THREE.Vector3(
+        100,
+        100,
+        100
+      );
+    }
     let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
     let material = new THREE.MeshLambertMaterial({
       color: 0xCC0000
@@ -94,7 +102,6 @@ class Cube extends SceneObject {
         break;
       case 'idle':
         // already the default, no need to queue
-
         break;
       case 'grow':
         // happens async, no need to queue
