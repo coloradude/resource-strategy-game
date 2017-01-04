@@ -30,7 +30,7 @@ class Ground extends SceneObject {
       });
     }
 
-    return true;
+    return true; // stop bubbling
   }
 }
 

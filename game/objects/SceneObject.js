@@ -75,20 +75,26 @@ class SceneObject extends THREE.Mesh {
   }
 
   setSceneObject(sceneObject) {
-    this.boundingBox = new THREE.Box3().setFromObject(this);
+    this.sceneObject = sceneObject;
+    this.boundingBox = new THREE.Box3().setFromObject(this.sceneObject);
     this.size = this.getSize();
   }
 
   getSize() {
-    return new THREE.Vector3(this.boundingBox.max.x - this.boundingBox.min.x, this.boundingBox.max.y - this.boundingBox.min.y, this.boundingBox.max.z - this.boundingBox.min.z);
+    this.boundingBox = new THREE.Box3().setFromObject(this.sceneObject);
+    return new THREE.Vector3(
+      this.boundingBox.max.x - this.boundingBox.min.x,
+      this.boundingBox.max.y - this.boundingBox.min.y,
+      this.boundingBox.max.z - this.boundingBox.min.z
+    );
   }
 
-  getDistanceFrom(sceneObject) {
+  getDistanceFrom(obj) {
     // 3-dimensional pythagorean formula
     return Math.sqrt(
-      Math.pow(this.position.x - sceneObject.position.x, 2) +
-      Math.pow(this.position.y - sceneObject.position.y, 2) +
-      Math.pow(this.position.z - sceneObject.position.z, 2)
+      Math.pow(this.position.x - obj.position.x, 2) +
+      Math.pow(this.position.y - obj.position.y, 2) +
+      Math.pow(this.position.z - obj.position.z, 2)
     );
   }
 
@@ -101,6 +107,8 @@ class SceneObject extends THREE.Mesh {
   }
 
   assign(objectsArray, coords) {
+    // if bubbling should continue, return falsey
+    // otherwise, the click stops bubbling down
     return null;
   }
 }
