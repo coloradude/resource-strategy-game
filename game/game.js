@@ -34,6 +34,9 @@ const MAXZOOM = 3500;
 const MINZOOM = 1000;
 const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue('width'));
 
+/* Control Settings */
+const CONTROLS = {};
+
 class Game{
     constructor() {
       this.initializeRenderer();
@@ -120,7 +123,6 @@ class Game{
 
     listObjectsInScene() {
       this.scene.traverse((object) => {
-        console.log(object.name);
         console.log(object);
       });
     }
@@ -240,11 +242,11 @@ class Game{
       this.addCube(new THREE.Vector3(400, 300, 25), size, 'soldier4');
 
       // add resource nodes
-      this.addResourceNode(new THREE.Vector3(1000, 300, 25), size, 'metal');
+      // this.addResourceNode(new THREE.Vector3(1000, 300, 25), size, 'metal');
 
-      this.addResourceNode(new THREE.Vector3(2000, 1200, 25), size, 'food');
+      // this.addResourceNode(new THREE.Vector3(2000, 1200, 25), size, 'food');
 
-      this.addResourceNode(new THREE.Vector3(3000, 2400, 25), size, 'gold');
+      // this.addResourceNode(new THREE.Vector3(3000, 2400, 25), size, 'gold');
     }
 
     addGround() {
@@ -447,42 +449,6 @@ class Game{
       this.worldMouseCoordinatesEnd = this.groundMouseIntersectPoint();
 
       this.scene.remove(this.selectionBox);
-
-      if(this.mouseIsOnGame(event) && this.worldMouseCoordinatesEnd !== null && this.worldMouseCoordinatesStart !== null) {
-        /*
-          create bounding box to determine which objects were selected
-          boundingBox = ((minX, minY), (maxX, maxY))
-        */
-        let boundingBox = new THREE.Vector2(
-          new THREE.Vector2(
-            Math.min(this.worldMouseCoordinatesStart.x, this.worldMouseCoordinatesEnd.x),
-            Math.min(this.worldMouseCoordinatesStart.y, this.worldMouseCoordinatesEnd.y)
-          ),
-          new THREE.Vector2(
-            Math.max(this.worldMouseCoordinatesStart.x, this.worldMouseCoordinatesEnd.x),
-            Math.max(this.worldMouseCoordinatesStart.y, this.worldMouseCoordinatesEnd.y)
-          )
-        );
-
-        // deselect all units
-        for(let i in this.selectedObjects) {
-          this.selectedObjects[i].select(false);
-        }
-
-        this.selectedObjects = [];
-
-        // gather cubes in selection & add to this.selectedObjects
-        for(let i in this.cubes) {
-          if(
-            this.cubes[i].position.x >= boundingBox.x.x &&
-            this.cubes[i].position.y >= boundingBox.x.y &&
-            this.cubes[i].position.x <= boundingBox.y.x &&
-            this.cubes[i].position.y <= boundingBox.y.y
-          ) {
-            this.selectedObjects.push(this.cubes[i]);
-          }
-        }
-      }
     }
 
     onDocumentMouseDown(event) {
@@ -509,6 +475,7 @@ class Game{
     addSelectionBox() {
       this.selectionBox = new SelectionBox();
       this.scene.add(this.selectionBox);
+      this.selectionBox.setSceneObject(this.scene.getObjectByName('selectionBox'));
     }
 
     removeSelectionBox() {
@@ -560,6 +527,12 @@ class Game{
         } else {
           // send mouse coordinates to selectionBox
           this.selectionBox.continueCoordinates(this.groundMouseIntersectPoint());
+
+          // set this.selectedObjects to those in selectionBox
+          for(let i in this.selectedObjects) {
+            this.selectedObjects[i].select(false);
+          }
+          this.selectedObjects = this.selectionBox.getCubesInBox();
         }
 
         this.camera.updateMatrix();
@@ -814,6 +787,7 @@ class FoodResourceNode extends ResourceNode {
 class InterfaceObject extends THREE.Mesh {
   constructor(geometry, material) {
     super(geometry, material);
+    this.size = new THREE.Vector3(0, 0, 0);
   }
 
   setName(name) {
@@ -826,43 +800,96 @@ class InterfaceObject extends THREE.Mesh {
 
   setSceneObject(sceneObject) {
     this.boundingBox = new THREE.Box3().setFromObject(sceneObject);
-    this.size = this.getSize();
+    this.size.x = this.boundingBox.max.x - this.boundingBox.min.x;
+    this.size.y = this.boundingBox.max.y - this.boundingBox.min.y;
+    this.size.z = this.boundingBox.max.z - this.boundingBox.min.z;
   }
 
   getSize() {
-    return new THREE.Vector3(this.boundingBox.max.x - this.boundingBox.min.x, this.boundingBox.max.y - this.boundingBox.min.y, this.boundingBox.max.z - this.boundingBox.min.z);
+    return new THREE.Vector3(this.size.x, this.size.y, this.size.z);
   }
 }
 
 class SelectionBox extends InterfaceObject {
   constructor() {
-    let geometry = new THREE.BoxGeometry(1000, 1000, 1000);
+    let geometry = new THREE.BoxGeometry(0, 0, 0);
     let material = new THREE.MeshLambertMaterial({
-      color: 0xCCCC00
+      color: 0xCCCC00,
+      transparent: true,
+      opacity: 0.5
     });
 
     super(geometry, material);
     this.name = "selectionBox";
     this.type = "interface";
-    this.position.set(new THREE.Vector3(0, 0, 0));
   }
 
   startCoordinates(coords) {
-    this.position.set(coords);
+    this.startCoordinates = coords;
+    this.position.set(
+      coords.x + this.size.x/2,
+      coords.y + this.size.y/2,
+      this.size.z/2
+    );
   }
 
   continueCoordinates(coords = new THREE.Vector3(0, 0, 0)) {
     if(coords !== null) {
+      let oldGeometry = this.geometry;
+
       this.geometry = new THREE.BoxGeometry(
-        this.position.x + coords.x,
-        this.position.y + coords.y,
-        this.position.z + coords.z
+        (this.startCoordinates.x - coords.x),
+        (this.startCoordinates.y - coords.y),
+        this.size.z
       );
+
+      this.setSize();
+
+      this.position.set(
+        Math.min(this.startCoordinates.x, coords.x) + this.size.x/2,
+        Math.min(this.startCoordinates.y, coords.y) + this.size.y/2,
+        this.size.z/2
+      );
+
+      this.currentCoords = coords;
     }
   }
 
-  endCoordinates(coords) {
+  setSize() {
+    this.boundingBox = new THREE.Box3().setFromObject(this);
+    this.size.x = this.boundingBox.max.x - this.boundingBox.min.x;
+    this.size.y = this.boundingBox.max.y - this.boundingBox.min.y;
+    this.size.z = this.boundingBox.max.z - this.boundingBox.min.z;
+  }
 
+  getCubesInBox() {
+    let cubes = window.game.cubes;
+    let cubesInBox = [];
+
+    // determine bottom left (minX, minY)
+    let bottomLeft = new THREE.Vector2(
+      Math.min(this.startCoordinates.x, this.currentCoords.x),
+      Math.min(this.startCoordinates.y, this.currentCoords.y)
+    );
+
+    // determine top right (maxX, maxY)
+    let topRight = new THREE.Vector2(
+      Math.max(this.startCoordinates.x, this.currentCoords.x),
+      Math.max(this.startCoordinates.y, this.currentCoords.y)
+    );
+
+    for(let i in cubes) {
+      if(
+        cubes[i].position.x > bottomLeft.x &&
+        cubes[i].position.x < topRight.x &&
+        cubes[i].position.y > bottomLeft.y &&
+        cubes[i].position.y < topRight.y
+      ) {
+        // add to selection
+        cubesInBox.push(cubes[i]);
+      }
+    }
+    return cubesInBox;
   }
 }
 
