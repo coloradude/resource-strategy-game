@@ -55,6 +55,13 @@ html, body {
       &:hover {
         background: #555;
       }
+
+      &.rightTool {
+        background: #777;
+        padding: 1em .5em;
+        font-size: 0.8em;
+        text-align: left;
+      }
     }
   }
 }

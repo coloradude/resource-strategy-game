@@ -46,7 +46,8 @@ const InterfaceObject = require('./objects/InterfaceObject/InterfaceObject.js');
 const SelectionBox = require('./objects/InterfaceObject/SelectionBox.js');
 const Ground = require('./objects/Ground.js');
 const Cube = require('./objects/Cube.js');
-const Building = require('./objects/Building.js');
+const Building = require('./objects/Building/Building.js');
+const Mine = require('./objects/Building/Mine.js');
 const ResourceNode = require('./objects/ResourceNode/ResourceNode.js');
 const MetalResourceNode = require('./objects/ResourceNode/MetalResourceNode.js');
 const GoldResourceNode = require('./objects/ResourceNode/GoldResourceNode.js');
@@ -225,10 +226,26 @@ class Game{
 
     addBuilding(
       coordinates = new THREE.Vector3(0, 0, 0),
-      size = new THREE.Vector3(100, 100, 100),
-      name = `building${this.cubes.length}`
+      size = undefined,
+      name = `building${this.cubes.length}`,
+      type = null,
+      status = 'incomplete'
     ) {
-      let building = new Building(size);
+      let building;
+      switch(type) {
+        case 'mine':
+          building = new Mine(size, undefined, status);
+          break;
+        case null:
+          building = new Building(
+            undefined,
+            undefined
+          );
+          break;
+        default:
+          console.error(`unrecognized building type ${type}`);
+          return;
+      }
 
       building.name = name;
       building.position.set(coordinates.x, coordinates.y, coordinates.z);
@@ -340,6 +357,12 @@ class Game{
       }
     }
 
+    listAllBuildings() {
+      for(let i in this.buildings) {
+        console.log(this.buildings[i]);
+      }
+    }
+
     listSelectedUnits() {
       console.log(this.selectedUnits);
     }
@@ -363,11 +386,13 @@ class Game{
             this.addCube(coords, size, name);
             break;
           case 'building':
-            coords = obj.data.coordinates;
-            size = obj.data.size;
-            name = obj.data.name;
-
-            this.addBuilding(coords, size, name);
+            this.addBuilding(
+              obj.data.coordinates,
+              obj.data.size,
+              obj.data.name,
+              obj.data.type,
+              obj.data.status
+            );
             break;
           case 'resourceNode':
             coords = obj.data.coordinates;
@@ -790,8 +815,7 @@ class Game{
 
           if(groundIntersect) {
             this.addCube(
-              groundIntersect.point,
-              new THREE.Vector3(500, 500, 500)
+              groundIntersect.point
             );
           }
           break;
@@ -803,6 +827,20 @@ class Game{
             this.addBuilding(
               groundIntersect.point,
               new THREE.Vector3(500, 500, 500)
+            );
+          }
+          break;
+        case 'buildBuilding':
+          // place a new building at ground intersetion
+          groundIntersect = this.raycaster.intersectObjects([this.ground])[0];
+
+          if(groundIntersect) {
+            this.addBuilding(
+              groundIntersect.point,
+              undefined,
+              undefined,
+              'mine',
+              undefined
             );
           }
           break;

@@ -38,7 +38,7 @@ class Cube extends SceneObject {
 
     this.growthVelocity = new THREE.Vector3(1, 1, 1);
 
-    this.selectedColor = 0x000000;
+    this.selectedColor = 0xFFFFFF;
 
     this.jobPriorities = {
       'build': 7,

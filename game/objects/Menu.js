@@ -27,6 +27,9 @@ class Menu {
         name: 'listAllCubes',
         function: this.game.listAllCubes
       }, {
+        name: 'listAllBuildings',
+        function: this.game.listAllBuildings
+      }, {
         name: 'resetScore',
         function: this.game.resetScore
       }, {
@@ -43,6 +46,14 @@ class Menu {
         name: 'toolToAddBuilding',
         function: this.game.setRightTool,
         args: ['createBuilding']
+      }, {
+        name: 'toolToAddCube',
+        function: this.game.setRightTool,
+        args: ['createCube']
+      }, {
+        name: 'toolToBuildBuilding',
+        function: this.game.setRightTool,
+        args: ['buildBuilding']
       }
     ];
 
@@ -59,7 +70,7 @@ class Menu {
   assignClickListeners() {
     this.element.addEventListener('click', (event) => {
 
-      // if the id matches one in this.buttons, call that button's function
+      // if the id matches one in this.buttons, call that button's function with its args
       for(let i in this.buttons) {
         if(event.path[0].id === `menu-${this.buttons[i].name}`) {
           this.buttons[i].function.apply(this.game, this.buttons[i].args);
