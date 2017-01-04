@@ -18,10 +18,11 @@ const ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
 const MAPWIDTH = 10000;
 const MAPLENGTH = 10000;
 const MAPHEIGHT = 1000;
+const SHADOWS = true;
 
 /* Camera Settings */
 const FOV = 90;
-const MAXFRAMERATE = 1000 / 30; // 30fps
+const MAXFRAMERATE = 1000 / 60; // 30fps
 const NEARFRUSTRAM = 0.1;
 const FAFRUSTRAM = 10000;
 const CAMERA_START_X = MAPWIDTH / 2;
@@ -35,7 +36,13 @@ const MINZOOM = 1000;
 const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue('width'));
 
 /* Control Settings */
-const CONTROLS = {};
+const CONTROLS = {
+  leftArrow: 37,
+  upArrow: 38,
+  rightArrow: 39,
+  downArrow: 40,
+  shift: 16
+};
 
 class Game{
     constructor() {
@@ -94,8 +101,8 @@ class Game{
         let that = this;
         requestAnimationFrame(() => {
           that.render();
-        }, MAXFRAMERATE);
-      });
+        });
+      }, MAXFRAMERATE);
     }
 
     renderScore() {
@@ -375,19 +382,19 @@ class Game{
 
     onDocumentKeyUp() {
       switch (event.which) {
-        case 37: // left arrow
+        case CONTROLS.leftArrow:
           this.leftArrowIsDown = false;
           break;
-        case 39: // right arrow
+        case CONTROLS.rightArrow:
           this.rightArrowIsDown = false;
           break;
-        case 38: // up arrow
+        case CONTROLS.upArrow:
           this.upArrowIsDown = false;
           break;
-        case 40: // down arrow
+        case CONTROLS.downArrow:
           this.downArrowIsDown = false;
           break;
-        case 16: // shift
+        case CONTROLS.shift:
           this.shiftIsDown = false;
           break;
         default:
@@ -397,19 +404,19 @@ class Game{
 
     onDocumentKeyDown(event) {
       switch (event.which) {
-        case 37: // left arrow
+        case CONTROLS.leftArrow:
           this.leftArrowIsDown = true;
           break;
-        case 39: // right arrow
+        case CONTROLS.rightArrow:
           this.rightArrowIsDown = true;
           break;
-        case 38: // up arrow
+        case CONTROLS.upArrow:
           this.upArrowIsDown = true;
           break;
-        case 40: // down arrow
+        case CONTROLS.downArrow:
           this.downArrowIsDown = true;
           break;
-        case 16: // shift
+        case CONTROLS.shift:
           this.shiftIsDown = true;
           break;
         default:
@@ -598,8 +605,10 @@ class SceneObject extends THREE.Mesh {
     this.velocity = new THREE.Vector3(0, 0, 0);
 
     // rendering options
-    this.castShadow = true;
-    this.receiveShadow = true;
+    if(SHADOWS) {
+      this.castShadow = true;
+      this.receiveShadow = true;
+    }
 
     this.boundingBox = null;
     this.destination = null;
@@ -704,7 +713,7 @@ class Cube extends SceneObject {
     super(geometry, material);
     this.type = "Cube";
 
-    this.speed = 10;
+    this.speed = 25;
   }
 
   update() {
