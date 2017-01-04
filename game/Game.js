@@ -744,11 +744,15 @@ class Game{
 
             let returnValue = intersects[i].object.assign(this.selectedObjects, intersects[i].point);
 
+            /*
+              object.assign() returns null and bubbles by default;
+              if bubbling should continue, its object.assign() should return falsey
+            */
             if(returnValue) {
-              /*
-                sceneObject returns null by default;
-              */
+              // stop bubbling
               break;
+            } {
+              // continue bubbling
             }
           }
 
