@@ -7,15 +7,6 @@ browser: true
 
 const THREE = require('three');
 
-import {
-  MAPWIDTH,
-  MAPLENGTH,
-  MAXZOOM,
-  MINZOOM
-} from '../game.js';
-
-const CANVAS = document.getElementById('game');
-
 class Camera extends THREE.PerspectiveCamera {
   constructor(FOV, ASPECT, NEARFRUSTRAM, FAFRUSTRAM, CAMERA_START_X, CAMERA_START_Y, CAMERA_START_Z, MAPWIDTH, MAPLENGTH, MAXZOOM, MINZOOM) {
     super(FOV, ASPECT, NEARFRUSTRAM, FAFRUSTRAM);
