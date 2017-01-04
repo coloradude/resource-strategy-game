@@ -21,8 +21,13 @@ class Building extends SceneObject {
     this.buildingType = null;
   }
 
-  assign(objectsArray) {
-    console.log(objectsArray);
+  assign(objectsArray, coords) {
+    // make cubes idle
+    for(let i in objectsArray) {
+      objectsArray[i].removeJob({
+        job: 'move'
+      });
+    }
     return true;
   }
 }

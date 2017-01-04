@@ -23,6 +23,7 @@ class Cube extends SceneObject {
     this.resourceCollectionRate = 0.1;
 
     this.jobPriorities = {
+      'build': 7,
       'move': 5,
       'goToClosestResourceNode': 4,
       'idle': 1
@@ -51,13 +52,17 @@ class Cube extends SceneObject {
         this.idle();
         break;
       case 'move':
-        this.move(job);
+        this.move(job.coordinates);
         break;
     }
   }
 
-  move(job) {
-    this.destination = job.coordinates;
+  move(coords) {
+    this.destination = coords;
+  }
+
+  stop() {
+    this.destination = this.position;
   }
 
   queueJob(job) {
@@ -78,10 +83,33 @@ class Cube extends SceneObject {
         break;
       case 'idle':
         // already the default, no need to add
+
         break;
       default:
         console.error(`unrecognized job ${job.job}`);
         break;
+    }
+  }
+
+  removeJob(job) {
+    // process job removal
+    switch(job.job) {
+      case 'move':
+        this.stop();
+        break;
+      case 'idle':
+        // do nothing, idle not removable
+        return;
+      default:
+        console.error(`removeJob failed for urecognized job ${job.job}`);
+        break;
+    }
+
+    // remove job from queue
+    for(let i in this.queue) {
+      if(this.queue[i].job == job.job) {
+        this.queue.splice(i, 1);
+      }
     }
   }
 

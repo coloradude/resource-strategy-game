@@ -739,22 +739,19 @@ class Game{
           // calculate objects intersecting the picking ray
           let intersects = this.raycaster.intersectObjects(this.scene.children);
 
+          // iterate over click intersect objects, camera -> ground
           for(let i in intersects) {
-            if(intersects[i].object.name !== "ground") {
 
-              let returnValue = intersects[i].object.assign(this.selectedObjects);
-              if(returnValue) {
-                  console.log(returnValue);
-              }
+            let returnValue = intersects[i].object.assign(this.selectedObjects, intersects[i].point);
+
+            if(returnValue) {
+              /*
+                sceneObject returns null by default;
+              */
+              break;
             }
           }
 
-          for(let i in this.selectedObjects) {
-            this.selectedObjects[i].queueJob({
-              job: 'move',
-              coordinates: new THREE.Vector3(coords.x, coords.y, coords.z)
-            });
-          }
           break;
         default:
           console.error('no rightTool assigned');

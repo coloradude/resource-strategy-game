@@ -21,6 +21,17 @@ class Ground extends SceneObject {
 
     super(geometry, material);
   }
+
+  assign(objArray, coords) {
+    for(let i in objArray) {
+      objArray[i].queueJob({
+        job: 'move',
+        coordinates: new THREE.Vector3(coords.x, coords.y, coords.z)
+      });
+    }
+
+    return true;
+  }
 }
 
 module.exports = Ground;

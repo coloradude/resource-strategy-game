@@ -100,7 +100,7 @@ class SceneObject extends THREE.Mesh {
     }
   }
 
-  assign(objectsArray) {
+  assign(objectsArray, coords) {
     return null;
   }
 }
