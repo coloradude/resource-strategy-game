@@ -10,7 +10,7 @@ const SceneObject = require('../SceneObject.js');
 
 class ResourceNode extends SceneObject {
   constructor(geometry, material) {
-    let size = 50;
+    let size = 100;
     let widthSegments = 5;
     let heightSegments = 5;
 
