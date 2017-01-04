@@ -381,10 +381,10 @@ class Game{
     }
 
     addGround() {
-      let ground = new Ground(MAPWIDTH, MAPLENGTH);
-      ground.name = "ground";
-      ground.position.set(MAPWIDTH/2, MAPLENGTH/2, 0);
-      this.scene.add(ground);
+      this.ground = new Ground(MAPWIDTH, MAPLENGTH);
+      this.ground.name = "ground";
+      this.ground.position.set(MAPWIDTH/2, MAPLENGTH/2, 0);
+      this.scene.add(this.ground);
     }
 
     addMenu() {
@@ -589,13 +589,25 @@ class Game{
     onDocumentMouseUp(event) {
       event.preventDefault();
 
-      this.isMouseDown = false;
-      this.isRightMouseDown = false;
+      if(event.which == CONTROLS.leftClick) {
+          this.isMouseDown = false;
 
-      this.mouseDownPosition.x = event.offsetX;
-      this.mouseDownPosition.y = event.offsetY;
+          this.mouseDownPosition.x = event.offsetX;
+          this.mouseDownPosition.y = event.offsetY;
 
-      this.worldMouseCoordinatesEnd = this.groundMouseIntersectPoint();
+          if(!this.shiftIsDown) {
+            this.worldMouseCoordinatesEnd = this.mouseIntersectPoint(this.ground);
+          }
+      }
+      else if (event.which == CONTROLS.rightClick) {
+          this.isRightMouseDown = false;
+
+          if(this.selectedObjects.length > 0) {
+            this.rightTool = 'assign';
+          }
+
+          this.useRightTool();
+      }
 
       this.scene.remove(this.selectionBox);
     }
@@ -613,7 +625,7 @@ class Game{
             this.mouseDownPosition.y = event.offsetY;
 
             if(!this.shiftIsDown) {
-              this.worldMouseCoordinatesStart = this.groundMouseIntersectPoint();
+              this.worldMouseCoordinatesStart = this.mouseIntersectPoint(this.ground);
 
               if(this.worldMouseCoordinatesStart !== null) {
                 this.addSelectionBox();
@@ -623,12 +635,6 @@ class Game{
         }
         else if (event.which == CONTROLS.rightClick) {
             this.isRightMouseDown = true;
-
-            if(this.selectedObjects.length > 0) {
-              this.rightTool = 'assign';
-            }
-
-            this.useRightTool();
         }
       }
     }
@@ -672,7 +678,7 @@ class Game{
           this.camera.moveTo(newCoords);
         } else {
           // send mouse coordinates to selectionBox
-          this.selectionBox.continueCoordinates(this.groundMouseIntersectPoint());
+          this.selectionBox.continueCoordinates(this.mouseIntersectPoint(this.ground));
 
           // set this.selectedObjects to those in selectionBox
           for(let i in this.selectedObjects) {
@@ -699,7 +705,7 @@ class Game{
       this.camera.moveTo(new THREE.Vector3(this.camera.position.x, this.camera.position.y, this.camera.position.z - deltaZ));
     }
 
-    groundMouseIntersectPoint() {
+    mouseIntersectPoint(obj) {
       // update the picking ray with the camera and mouse position
       this.raycaster.setFromCamera(this.mouse, this.camera);
 
@@ -707,12 +713,12 @@ class Game{
       let intersects = this.raycaster.intersectObjects(this.scene.children);
 
       for(let i in intersects) {
-        if(intersects[i].object.name == "ground") {
+        if(intersects[i].object == obj) {
           return intersects[i].point;
         }
       }
 
-      // if mouse ray doesn't intersect ground, return null
+      // if mouse ray doesn't intersect anything, return null
       return null;
     }
 
@@ -721,11 +727,28 @@ class Game{
         case 'createNode':
           if(!this.shiftIsDown) {
             // get intersecting point with ground & add a resourceNode there
-            this.addResourceNode(this.groundMouseIntersectPoint(), new THREE.Vector3(50, 50, 10));
+            this.addResourceNode(this.mouseIntersectPoint(this.ground), new THREE.Vector3(50, 50, 10));
           }
           break;
         case 'assign':
-          let coords = this.groundMouseIntersectPoint();
+          let coords = this.mouseIntersectPoint(this.ground);
+
+          // update the picking ray with the camera and mouse position
+          this.raycaster.setFromCamera(this.mouse, this.camera);
+
+          // calculate objects intersecting the picking ray
+          let intersects = this.raycaster.intersectObjects(this.scene.children);
+
+          for(let i in intersects) {
+            if(intersects[i].object.name !== "ground") {
+
+              let returnValue = intersects[i].object.assign(this.selectedObjects);
+              if(returnValue) {
+                  console.log(returnValue);
+              }
+            }
+          }
+
           for(let i in this.selectedObjects) {
             this.selectedObjects[i].queueJob({
               job: 'move',

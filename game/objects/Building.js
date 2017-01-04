@@ -20,6 +20,11 @@ class Building extends SceneObject {
     this.type = "building";
     this.buildingType = null;
   }
+
+  assign(objectsArray) {
+    console.log(objectsArray);
+    return true;
+  }
 }
 
 module.exports = Building;

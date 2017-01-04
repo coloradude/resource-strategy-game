@@ -99,6 +99,10 @@ class SceneObject extends THREE.Mesh {
       this.material.color.setHex(this.unselectedColor);
     }
   }
+
+  assign(objectsArray) {
+    return null;
+  }
 }
 
 module.exports = SceneObject;
