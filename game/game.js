@@ -6,7 +6,6 @@ browser: true
 'use strict';
 
 const THREE = require('three');
-const OrbitControls = require('three-orbit-controls')(THREE);
 const CANVAS = document.getElementById('game');
 const CONTAINER = document.getElementById('container');
 const MENU = document.getElementById('menu');
