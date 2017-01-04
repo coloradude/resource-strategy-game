@@ -122,6 +122,8 @@ class Game{
       this.worldMouseCoordinatesStart = new THREE.Vector3(0, 0, 0);
       this.worldMouseCoordinatesEnd = new THREE.Vector3(0, 0, 0);
 
+      this.rightTool = 'createCube';
+
       this.cubes = [];
       this.buildings = [];
       this.resourceNodes = [];
@@ -604,10 +606,10 @@ class Game{
           this.isRightMouseDown = false;
 
           if(this.selectedObjects.length > 0) {
-            this.rightTool = 'assign';
+            this.useRightTool('assign');
+          } else {
+            this.useRightTool(this.rightTool);
           }
-
-          this.useRightTool();
       }
 
       this.scene.remove(this.selectionBox);
@@ -723,8 +725,8 @@ class Game{
       return null;
     }
 
-    useRightTool() {
-      switch(this.rightTool) {
+    useRightTool(tool) {
+      switch(tool) {
         case 'createNode':
           if(!this.shiftIsDown) {
             // get intersecting point with ground & add a resourceNode there
@@ -755,6 +757,20 @@ class Game{
             }
           }
 
+          break;
+        case 'createCube':
+          // place a new cube at ground intersetion
+          let groundIntersect = this.raycaster.intersectObjects([this.ground])[0];
+
+          console.log('creating cube');
+          console.log(groundIntersect);
+
+          if(groundIntersect) {
+            this.addCube(
+              groundIntersect.point,
+              new THREE.Vector3(500, 500, 500)
+            );
+          }
           break;
         default:
           console.error('no rightTool assigned');
