@@ -39,6 +39,7 @@ const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue
 /* Import Objects */
 const Player = require('./objects/Player.js');
 const Camera = require('./objects/Camera.js');
+const Menu = require('./objects/Menu.js');
 const SceneObject = require('./objects/SceneObject.js');
 const InterfaceObject = require('./objects/InterfaceObject/InterfaceObject.js');
 const SelectionBox = require('./objects/InterfaceObject/SelectionBox.js');
@@ -366,7 +367,7 @@ class Game{
     }
 
     addMenu() {
-      this.menu = new Menu();
+      this.menu = new Menu(this);
     }
 
     addUnit() {
@@ -392,6 +393,17 @@ class Game{
           this.selectedObjects.splice(i, 1);
         }
       }
+    }
+
+    addSelectionBox() {
+      this.selectionBox = new SelectionBox();
+      this.scene.add(this.selectionBox);
+      this.selectionBox.setSceneObject(this.scene.getObjectByName('selectionBox'));
+    }
+
+    removeSelectionBox() {
+      this.scene.remove(this.selectionBox);
+      this.selectionBox = null;
     }
 
     drawRaycaster() {
@@ -431,7 +443,7 @@ class Game{
       // enable shadows
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = THREE.PCFShadowMap;
-      this.renderer.shadowMapSoft = true;
+      this.renderer.shadowMapSoft = true; // false for better performance
 
       this.renderer.shadowCameraNear = 3;
       this.renderer.shadowCameraFar = 10000;
@@ -454,10 +466,11 @@ class Game{
     }
 
     initializeLight() {
-      let light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(0, 0, 2500);
-      light.castShadow = true;
-      this.scene.add(light);
+      this.light = new THREE.DirectionalLight(0xffffff, 1);
+      this.light.position.set(0, 0, 1500);
+      this.light.castShadow = true;
+      this.light.shadowMapDarkness = 0.5;
+      this.scene.add(this.light);
     }
 
     initializeMouse() {
@@ -531,8 +544,6 @@ class Game{
       if(this.leftArrowIsDown || this.rightArrowIsDown || this.upArrowIsDown || this.downArrowIsDown) {
         let newCoords = this.camera.position;
 
-        console.log(newCoords);
-
         if(this.leftArrowIsDown) {
           newCoords.x -= SCROLL_SCALE * 100;
         }
@@ -568,6 +579,7 @@ class Game{
       event.preventDefault();
 
       if(this.mouseIsOnGame(event)) {
+
         this.isMouseDown = true;
 
         this.mouseDownPosition.x = event.offsetX;
@@ -582,17 +594,6 @@ class Game{
           }
         }
       }
-    }
-
-    addSelectionBox() {
-      this.selectionBox = new SelectionBox();
-      this.scene.add(this.selectionBox);
-      this.selectionBox.setSceneObject(this.scene.getObjectByName('selectionBox'));
-    }
-
-    removeSelectionBox() {
-      this.scene.remove(this.selectionBox);
-      this.selectionBox = null;
     }
 
     onDocumentMouseRightDown(event) {
@@ -700,25 +701,3 @@ class Game{
 }
 
 module.exports = Game;
-
-class Menu {
-  constructor() {
-    this.element = document.getElementById('menu');
-  }
-
-  updateFood(food) {
-    document.getElementById('player-food').innerHTML = parseInt(food);
-  }
-
-  updateGold(gold) {
-    document.getElementById('player-gold').innerHTML = parseInt(gold);
-  }
-
-  updateMetal(metal) {
-    document.getElementById('player-metal').innerHTML = parseInt(metal);
-  }
-
-  updateScore(score) {
-    document.getElementById('player-score').innerHTML = parseInt(score);
-  }
-}
