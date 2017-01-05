@@ -16,7 +16,8 @@ class Menu {
         function: this.game.addUnit
       }, {
         name: 'addRandomCubes',
-        function: this.game.addRandomCubes
+        function: this.game.addRandomCubes,
+        args: [10]
       }, {
         name: 'removeAllCubes',
         function: this.game.removeAllCubes

@@ -318,11 +318,10 @@ class Game{
     }
 
     /*
-      Adds 1000 randomly sized cubes in random places
+      Adds 100 randomly sized cubes in random places
     */
     addRandomCubes(
-      coordinates = new THREE.Vector3(0, 0, 0),
-      number = 1000
+      number = 100
     ) {
       for(let i = 0; i < number; i++) {
         let random = Math.random();
@@ -330,9 +329,7 @@ class Game{
         let length = random * 100;
         let height = random * 100;
         let size = new THREE.Vector3(width, length, height);
-
-        coordinates = new THREE.Vector3(Math.random() * MAPWIDTH, Math.random() * MAPLENGTH, random * 50);
-
+        let coordinates = new THREE.Vector3(Math.random() * MAPWIDTH, Math.random() * MAPLENGTH, random * 50);
         let name = `cube${this.cubes.length}`;
 
         this.addCube(coordinates, size, name);
