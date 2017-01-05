@@ -30,18 +30,11 @@ class ResourceNode extends SceneObject {
 
     for(let i in objArray) {
 
-      // move towards me
       objArray[i].queueJob({
-        job: 'move',
-        coordinates: this.position
+        job: 'collectResource',
+        resourceNode: this
       });
 
-      // shrink by 1000
-      let shrinkAmt = 1000;
-      objArray[i].queueJob({
-        job: 'shrink',
-        size: new THREE.Vector3(shrinkAmt, shrinkAmt, shrinkAmt)
-      });
     }
     return true; // stop bubbling
   }

@@ -28,7 +28,7 @@ class Cube extends SceneObject {
     this.type = "Cube";
     this.speed = 25;
     this.growSpeed = 100;
-    this.resourceCollectionRange = 100;
+    this.resourceCollectionRange = 200;
     this.resourceCollectionRate = 0.1;
     this.minSize = new THREE.Vector3(100, 100, 100);
     this.growthTolerance = 5;
@@ -47,6 +47,7 @@ class Cube extends SceneObject {
     this.jobPriorities = {
       'move': 8,
       'build': 6,
+      'collectResource': 5,
       'goToClosestResourceNode': 2,
       'idle': 1
     };
@@ -61,8 +62,6 @@ class Cube extends SceneObject {
 
   update() {
     this.growTowardDestinationSize(this.destinationSize);
-    this.closestResourceNode = this.getClosestResourceNode();
-    this.calculateResourcePoints(); // should be optimized to search in radius around me
 
     this.doJob(this.highestPriorityJob());
 
@@ -75,10 +74,19 @@ class Cube extends SceneObject {
         this.idle();
         break;
       case 'build':
+        // move til close enough, then do job
         if(this.getDistanceFrom(job.building) < this.buildRange) {
           this.build(job);
         } else {
           this.move(job.building.position);
+        }
+        break;
+      case 'collectResource':
+        // move til close enough, then do job
+        if(this.getDistanceFrom(job.resourceNode) < this.resourceCollectionRange) {
+          this.collectResource(job.resourceNode);
+        } else {
+          this.move(job.resourceNode.position);
         }
         break;
       case 'move':
@@ -89,6 +97,20 @@ class Cube extends SceneObject {
           this.removeJob(job);
         }
         break;
+      default:
+        console.error(`unrecognized job ${job.job}`);
+        break;
+    }
+  }
+
+  collectResource(resourceNode) {
+    if(resourceNode !== null) {
+      // add resources
+      let resourceAmountGained = resourceNode.collectionSpeed * this.resourceCollectionRate;
+
+      window.game.player.resources[resourceNode.resourceType] += resourceAmountGained;
+    } else {
+      console.error(`collectResource encountered null resourceNode`);
     }
   }
 
@@ -117,9 +139,7 @@ class Cube extends SceneObject {
           // at most 1 move instr, queuing updates existing job
           if(this.queue[i].job === 'move') {
             this.queue[i].coordinates = job.coordinates;
-          } else if(this.queue[i].job == 'build') {
-            console.log(`found a queued build job`);
-            // cancel any queued build jobs
+          } else if(this.queue[i].job == 'build' || this.queue[i].job == 'collectResource') {
             this.removeJob(this.queue[i]);
           }
         }
@@ -136,12 +156,25 @@ class Cube extends SceneObject {
         // happens async, no need to queue
         this.shrink(job.size);
         break;
+      case 'collectResource':
+        for(let i in this.queue) {
+          if(this.queue[i].job == 'collectResource') {
+            // update current collectResource job
+            this.queue[i] = job;
+            return;
+          } else if (this.queue[i].job == 'move' || this.queue[i].job == 'build') {
+            // cancel any existing move and build jobs
+            this.removeJob(this.queue[i]);
+          }
+        }
+        this.queue.push(job);
+        break;
       case 'build':
         for(let i in this.queue) {
           if(this.queue[i].building == job.building) {
             // don't queue build jobs on same building
             return;
-          } else if (this.queue[i].job == 'move' || this.queue[i].job == 'build') {
+          } else if (this.queue[i].job == 'move' || this.queue[i].job == 'build' || this.queue[i].job == 'collectResource') {
             // cancel any existing move and build jobs
             this.removeJob(this.queue[i]);
           }
@@ -215,10 +248,6 @@ class Cube extends SceneObject {
     return highestPriorityJob;
   }
 
-  goToClosestResourceNode() {
-    this.closestResourceNode = this.getClosestResourceNode();
-  }
-
   getClosestResourceNode() {
     // find & process all resource nodes
     let sceneObject;
@@ -240,19 +269,6 @@ class Cube extends SceneObject {
     } else {
       // there are no available resource nodes
       return null;
-    }
-  }
-
-  calculateResourcePoints() {
-    // add resource points according to closest resource node
-
-    if(this.closestResourceNode !== null && this.getDistanceFrom(this.closestResourceNode) <= this.resourceCollectionRange) {
-      // cancel destination (we're close enough)
-      this.destination = null;
-
-      // add resources
-      let resourceAmountGained = this.closestResourceNode.collectionSpeed * this.resourceCollectionRate;
-      window.game.player.resources[this.closestResourceNode.resourceType] += resourceAmountGained;
     }
   }
 
