@@ -11,21 +11,25 @@ const ColladaLoader = require('./ColladaLoader.js');
 class Model extends THREE.Object3D {
   constructor(game) {
     super();
-    this.loader = new THREE.ColladaLoader();
-    this.isLoaded = false;
-    this.load();
 
     this.game = game;
+
+    this.model = './build/output/assets/models/orange-mine.dae';
+    this.modelScale = new THREE.Vector3(100, 100, 50);
+
+    this.loader = new THREE.ColladaLoader();
+    this.isLoaded = false;
+    this.isAdded = false;
+    this.load();
 
     // movement options
     this.speed = 0;
     this.velocity = new THREE.Vector3(0, 0, 0);
+    this.destination = null;
 
+    // render options
     this.castShadow = true;
     this.receiveShadow = true;
-
-    this.boundingBox = null;
-    this.destination = null;
 
     this.selectedColor = 0xFFFFFF;
     this.unselectedColor = 0xCC0000;
@@ -34,14 +38,31 @@ class Model extends THREE.Object3D {
   }
 
   load() {
-    this.loader.load('./build/output/assets/models/orange-mine.dae', ((result) => {
-      result.scene.name = 'testing';
+    // asyncronously load model
+    this.loader.load(this.model, ((result) => {
 
-      result.scene.scale.set(10, 10, 5);
-      this.game.scene.add(result.scene);
+      // attach loaded model as child of this
+      this.add(result.scene);
 
-      this.sceneObject = this.game.scene.getObjectByName('testing');
-      console.log(this.sceneObject);
+      // set initial scale
+      this.scale.set(
+        this.modelScale.x,
+        this.modelScale.y,
+        this.modelScale.z
+      );
+
+      // add this to game scene
+      this.game.scene.add(this);
+
+      // calculate size
+      this.size = this.getSize();
+
+      // update ranges based on size
+      this.destinationRange = new THREE.Vector3(
+        this.size.x/2,
+        this.size.y/2,
+        this.size.z/2
+      );
 
       this.isLoaded = true;
     }).bind(this));
@@ -49,21 +70,16 @@ class Model extends THREE.Object3D {
 
   update() {
     if(this.isLoaded) {
-      console.log(`is loaded, adding to this.game.scene:`);
-      this.name = 'testing';
-      this.game.scene.add(this);
-      this.scale.set(10, 10, 5);
-      this.sceneObject = this.game.scene.getObjectByName('testing');
-      console.log(this.sceneObject);
-      this.isLoaded = false;
+      // main update loop
+      this.moveTowardDestination(this.destination);
     } else {
-      console.log(`not loaded yet`);
+      // loading model...
     }
-    this.moveTowardDestination(this.destination);
   }
 
   moveTowardDestination(destination = null) {
     if(destination !== null) {
+
       let difX = destination.x - this.position.x;
       let difY = destination.y - this.position.y;
       let difZ = destination.z - this.position.z;
@@ -75,6 +91,7 @@ class Model extends THREE.Object3D {
 
       // only move if farther than this.destinationRange
       if(Math.abs(difX) > this.destinationRange.x || Math.abs(difY) > this.destinationRange.y || Math.abs(difZ) > this.destinationRange.z) {
+
         let d = Math.sqrt(Math.pow(difX, 2) + Math.pow(difY, 2) + Math.pow(difZ, 2));
 
         // move at constant speed no matter the direction
@@ -83,6 +100,7 @@ class Model extends THREE.Object3D {
         this.velocity.z = (this.speed * difZ) / d;
 
         if(this.velocity.x !== 0 || this.velocity.y !== 0 || this.velocity.z !== 0) {
+
           // update position
           this.position.x += this.velocity.x;
           this.position.y += this.velocity.y;
@@ -94,23 +112,18 @@ class Model extends THREE.Object3D {
           this.position.z = this.position.z;
         }
       }
+    } else {
+      // destination is null, don't move
     }
   }
 
-  setName(name) {
-    this.name = name;
-  }
-
-  getName() {
-    return this.name;
-  }
-
   getSize() {
-    this.boundingBox = new THREE.Box3().setFromObject(this);
+    let boundingBox = new THREE.Box3().setFromObject(this);
+
     return new THREE.Vector3(
-      this.boundingBox.max.x - this.boundingBox.min.x,
-      this.boundingBox.max.y - this.boundingBox.min.y,
-      this.boundingBox.max.z - this.boundingBox.min.z
+      boundingBox.max.x - boundingBox.min.x,
+      boundingBox.max.y - boundingBox.min.y,
+      boundingBox.max.z - boundingBox.min.z
     );
   }
 
@@ -137,7 +150,7 @@ class Model extends THREE.Object3D {
     );
   }
 
-  select(selected) {
+  select(selected = true) {
     if(selected) {
       this.material.color.setHex(this.selectedColor);
     } else {
