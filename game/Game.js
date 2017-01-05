@@ -54,6 +54,8 @@ const MetalResourceNode = require('./objects/ResourceNode/MetalResourceNode.js')
 const GoldResourceNode = require('./objects/ResourceNode/GoldResourceNode.js');
 const FoodResourceNode = require('./objects/ResourceNode/FoodResourceNode.js');
 
+const ColladaLoader = require('./objects/ColladaLoader.js');
+
 /* Control Settings */
 const CONTROLS = {
   leftClick: 1,
@@ -145,6 +147,7 @@ class Game{
       this.watchEvents();
 
       this.loadScenario(LEVEL);
+      this.addWell();
     }
 
     update() {
@@ -165,6 +168,13 @@ class Game{
         for(let i in this.buildings) {
           this.buildings[i].update();
         }
+
+        if(this.loadedWell) {
+            console.log(this.well.position);
+            this.well.position.x += 100;
+            this.well.position.y += 100;
+        }
+
     }
 
     render() {
@@ -210,6 +220,29 @@ class Game{
       this.scene.traverse((object) => {
         console.log(object);
       });
+    }
+
+    addWell() {
+      /* temporary 3d file loading */
+      let loader = new THREE.ColladaLoader();
+
+      // start async model load
+      loader.load('./build/output/assets/models/orange-mine.dae', ((result) => {
+        result.scene.name = 'testing';
+
+        result.scene.scale.set(10, 10, 5);
+        window.game.scene.add(result.scene);
+
+        this.well = window.game.scene.getObjectByName('testing');
+
+        this.loadedWell = true;
+
+        console.log(`this:`);
+        console.log(this);
+
+        console.log(`this.well:`);
+        console.log(this.well);
+      }).bind(this));
     }
 
     /*
