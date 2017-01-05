@@ -35,7 +35,7 @@ class Cube extends SceneObject {
 
     this.destinationSize = null;
     this.growthScalar = 0.0001;
-    this.buildRange = 1000;
+    this.buildRange = 200;
     this.buildSpeed = 1;
 
     this.movementTolerance = 200;
@@ -70,7 +70,6 @@ class Cube extends SceneObject {
   }
 
   doJob(job) {
-    console.log(`doing job ${job.job}`);
     switch(job.job) {
       case 'idle':
         this.idle();
