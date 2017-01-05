@@ -115,8 +115,15 @@ class Cube extends SceneObject {
   }
 
   build(job) {
-    if(!job.building.build(this.buildSpeed)) {
-      this.removeJob(job);
+    let buildCost = job.building.buildCost / 100;
+    if(window.game.player.resources.metal > buildCost) {
+      if(!job.building.build(this.buildSpeed)) {
+        this.removeJob(job);
+      } else {
+        window.game.player.resources.metal -= buildCost;
+      }
+    } else {
+      // player doesn't have enough resources; wait til they do before building
     }
   }
 

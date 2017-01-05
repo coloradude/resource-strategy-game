@@ -25,6 +25,7 @@ class Building extends SceneObject {
     this.destination = null;
     this.buildSpeed = 1;
     this.buildQueue = 0;
+    this.buildCost = 1000; // total metal resources required to build
 
     this.completeColor = 0x333333;
     this.incompleteColor = 0x999999;
