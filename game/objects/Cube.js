@@ -35,15 +35,19 @@ class Cube extends SceneObject {
 
     this.destinationSize = null;
     this.growthScalar = 0.0001;
+    this.buildRange = 1000;
+    this.buildSpeed = 1;
+
+    this.movementTolerance = 200;
 
     this.growthVelocity = new THREE.Vector3(1, 1, 1);
 
     this.selectedColor = 0xFFFFFF;
 
     this.jobPriorities = {
-      'build': 7,
-      'move': 5,
-      'goToClosestResourceNode': 4,
+      'move': 8,
+      'build': 6,
+      'goToClosestResourceNode': 2,
       'idle': 1
     };
 
@@ -66,13 +70,32 @@ class Cube extends SceneObject {
   }
 
   doJob(job) {
+    console.log(`doing job ${job.job}`);
     switch(job.job) {
       case 'idle':
         this.idle();
         break;
-      case 'move':
-        this.move(job.coordinates);
+      case 'build':
+        if(this.getDistanceFrom(job.building) < this.buildRange) {
+          this.build(job);
+        } else {
+          this.move(job.building.position);
+        }
         break;
+      case 'move':
+        // move til close enough, then cancel job
+        if(this.getDistanceFrom(job.coordinates) > this.movementTolerance) {
+          this.move(job.coordinates);
+        } else {
+          this.removeJob(job);
+        }
+        break;
+    }
+  }
+
+  build(job) {
+    if(!job.building.build(this.buildSpeed)) {
+      this.removeJob(job);
     }
   }
 
@@ -91,11 +114,14 @@ class Cube extends SceneObject {
     // process job
     switch(job.job) {
       case 'move':
-        // at most 1 move instr, queuing updates existing job
         for(let i in this.queue) {
+          // at most 1 move instr, queuing updates existing job
           if(this.queue[i].job === 'move') {
             this.queue[i].coordinates = job.coordinates;
-            return;
+          } else if(this.queue[i].job == 'build') {
+            console.log(`found a queued build job`);
+            // cancel any queued build jobs
+            this.removeJob(this.queue[i]);
           }
         }
         this.queue.push(job);
@@ -111,6 +137,18 @@ class Cube extends SceneObject {
         // happens async, no need to queue
         this.shrink(job.size);
         break;
+      case 'build':
+        for(let i in this.queue) {
+          if(this.queue[i].building == job.building) {
+            // don't queue build jobs on same building
+            return;
+          } else if (this.queue[i].job == 'move' || this.queue[i].job == 'build') {
+            // cancel any existing move and build jobs
+            this.removeJob(this.queue[i]);
+          }
+        }
+        this.queue.push(job);
+        break;
       default:
         console.error(`unrecognized job ${job.job}`);
         break;
@@ -120,22 +158,20 @@ class Cube extends SceneObject {
   removeJob(job) {
     // process job removal
     switch(job.job) {
-      case 'move':
-        this.stop();
-        break;
       case 'idle':
         // do nothing, idle not removable
         return;
-      default:
-        console.error(`removeJob failed for urecognized job ${job.job}`);
+      case 'undefined':
+        console.error(`job.job undefined- did you mean to pass a job obj?`);
         break;
-    }
-
-    // remove job from queue
-    for(let i in this.queue) {
-      if(this.queue[i].job == job.job) {
-        this.queue.splice(i, 1);
-      }
+      default:
+        // remove job from queue
+        for(let i in this.queue) {
+          if(this.queue[i].job == job.job) {
+            this.queue.splice(i, 1);
+          }
+        }
+        break;
     }
   }
 

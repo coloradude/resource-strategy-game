@@ -30,19 +30,14 @@ class Mine extends Building {
   }
 
   /*
-    @objArray an array of current selectedObjects
+    @objArray an array of current selectedUnits
     @coords the intersection of mouse raycast and this object
     This is called whenever a player right-clicks on this object while selectedObjects.length > 0
   */
   assign(objArray, coords) {
 
     for(let i in objArray) {
-      // grow by 1000
-      let growAmt = 1000;
-      objArray[i].queueJob({
-        job: 'grow',
-        size: new THREE.Vector3(growAmt, growAmt, growAmt)
-      });
+      // assign any new jobs to selectedUnits
     }
 
     super.assign(objArray, coords);

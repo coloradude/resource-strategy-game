@@ -3,8 +3,8 @@
     "type": "cube",
     "data": {
         "coordinates": {
-            "x": 500,
-            "y": 300,
+            "x": 3000,
+            "y": 3000,
             "z": 25
         },
         "size": {
@@ -16,54 +16,6 @@
     }
 }, {
     "id": 1,
-    "type": "cube",
-    "data": {
-        "coordinates": {
-            "x": 400,
-            "y": 3000,
-            "z": 25
-        },
-        "size": {
-            "x": 200,
-            "y": 200,
-            "z": 200
-        },
-        "name": "soldier2"
-    }
-}, {
-    "id": 2,
-    "type": "cube",
-    "data": {
-        "coordinates": {
-            "x": 5000,
-            "y": 3000,
-            "z": 25
-        },
-        "size": {
-            "x": 200,
-            "y": 200,
-            "z": 200
-        },
-        "name": "soldier3"
-    }
-}, {
-    "id": 3,
-    "type": "cube",
-    "data": {
-        "coordinates": {
-            "x": 6000,
-            "y": 4000,
-            "z": 25
-        },
-        "size": {
-            "x": 200,
-            "y": 200,
-            "z": 200
-        },
-        "name": "soldier4"
-    }
-}, {
-    "id": 4,
     "type": "building",
     "data": {
         "coordinates": {
@@ -76,54 +28,8 @@
             "y": 1000,
             "z": 100
         },
-        "name": "building1"
+        "name": "building1",
+        "type": "mine"
     }
-}, {
-    "id": 5,
-    "type": "resourceNode",
-    "data": {
-        "coordinates": {
-            "x": 5000,
-            "y": 3000,
-            "z": 25
-        },
-        "size": {
-            "x": 200,
-            "y": 200,
-            "z": 200
-        },
-        "resourceType": "metal"
-    }
-}, {
-    "id": 6,
-    "type": "resourceNode",
-    "data": {
-        "coordinates": {
-            "x": 500,
-            "y": 5000,
-            "z": 25
-        },
-        "size": {
-            "x": 200,
-            "y": 200,
-            "z": 200
-        },
-        "resourceType": "gold"
-    }
-}, {
-    "id": 7,
-    "type": "resourceNode",
-    "data": {
-        "coordinates": {
-            "x": 1000,
-            "y": 8000,
-            "z": 25
-        },
-        "size": {
-            "x": 200,
-            "y": 200,
-            "z": 200
-        },
-        "resourceType": "food"
-    }
-}]
+}
+]

@@ -24,6 +24,7 @@ class Building extends SceneObject {
     this.status = status;
     this.destination = null;
     this.buildSpeed = 1;
+    this.buildQueue = 0;
 
     this.completeColor = 0x333333;
     this.incompleteColor = 0x999999;
@@ -43,7 +44,7 @@ class Building extends SceneObject {
   }
 
   update() {
-    this.build();
+    this.buildCheck();
     super.update();
   }
 
@@ -55,20 +56,26 @@ class Building extends SceneObject {
     }
   }
 
-  build() {
-    switch(true) {
-      case this.completion == 100:
-        // do nothing
-        this.status = 'complete';
-        this.updateColorByCompletion();
-        return;
-      case this.completion < 100:
-        this.completion += this.buildSpeed;
-        this.updateColorByCompletion();
-        break;
-      default:
-        console.error(`unrecognized this.completion`);
-        break;
+  buildCheck() {
+    if(this.completion >= 100) {
+      // do nothing
+      this.completion = 100;
+      this.status = 'complete';
+      this.updateColorByCompletion();
+    } else {
+      // build
+      this.completion += this.buildQueue;
+      this.buildQueue = 0;
+      this.updateColorByCompletion();
+    }
+  }
+
+  build(buildSpeed) {
+    if(this.completion < 100) {
+      this.buildQueue += this.buildSpeed * buildSpeed;
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -78,13 +85,20 @@ class Building extends SceneObject {
     This is called whenever a player right-clicks on this object while selectedObjects.length > 0
   */
   assign(objArray, coords) {
-
     for(let i in objArray) {
-      // move towards me
-      objArray[i].queueJob({
-        job: 'move',
-        coordinates: this.position
-      });
+      // if incomplete, build me
+      if(this.status === 'incomplete') {
+        objArray[i].queueJob({
+          job: 'build',
+          building: this
+        });
+      } else if (this.status == 'complete') {
+        // move towards me
+        objArray[i].queueJob({
+          job: 'move',
+          coordinates: this.position
+        });
+      }
     }
 
     return true; // stop bubbling
