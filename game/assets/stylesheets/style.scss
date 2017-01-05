@@ -27,8 +27,10 @@ html, body {
     top: 0;
     left: 0;
     width: 200px;
+    height: 100%;
     background: white;
     display: flex;
+    justify-content: flex-start;
     flex-flow: column nowrap;
     text-align: center;
 
@@ -42,10 +44,11 @@ html, body {
       overflow: hidden;
       margin: 0;
       width: 100%;
+      flex-grow: 1;
 
       &:hover {
         overflow: visible;
-        width: 300%;
+        width: 100vw;
         cursor: pointer;
 
         li {
@@ -64,6 +67,7 @@ html, body {
         flex-basis: 100%;
         display: inline-block;
         padding: 1em;
+        align-self: center;
       }
 
       li {
@@ -89,7 +93,6 @@ html, body {
           }
 
           li {
-            height: 0;
 
             a, a.button {
               display: block;
@@ -111,6 +114,7 @@ html, body {
       text-align: left;
       display: flex;
       flex-flow: row nowrap;
+      flex-grow: 1;
       padding: .5em 1em;
 
       span {

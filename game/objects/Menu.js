@@ -70,14 +70,26 @@ class Menu {
 
   assignClickListeners() {
     this.element.addEventListener('click', (event) => {
-
       // if the id matches one in this.buttons, call that button's function with its args
       for(let i in this.buttons) {
         if(event.path[0].id === `menu-${this.buttons[i].name}`) {
           this.buttons[i].function.apply(this.game, this.buttons[i].args);
         }
       }
-    });
+      // don't let click event bubble to game
+    }, true);
+
+    // don't let mouseMove bubble to game
+    this.element.addEventListener('mousemove', (event) => {
+    }, true);
+
+    // don't let mouseUp bubble to game
+    this.element.addEventListener('mouseup', () => {
+    }, true);
+
+    // don't let mouseUp bubble to game
+    this.element.addEventListener('mousedown', () => {
+    }, true);
   }
 
   updateFood(food) {
