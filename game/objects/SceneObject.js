@@ -90,11 +90,25 @@ class SceneObject extends THREE.Mesh {
   }
 
   getDistanceFrom(obj) {
+    let point = new THREE.Vector3();
+
+    if(
+      obj.x !== undefined &&
+      obj.y !== undefined &&
+      obj.z !== undefined
+    ) {
+      // obj is Vector3
+      point = obj;
+    } else {
+      // assume its a gameobj
+      point = obj.position;
+    }
+
     // 3-dimensional pythagorean formula
     return Math.sqrt(
-      Math.pow(this.position.x - obj.position.x, 2) +
-      Math.pow(this.position.y - obj.position.y, 2) +
-      Math.pow(this.position.z - obj.position.z, 2)
+      Math.pow(this.position.x - point.x, 2) +
+      Math.pow(this.position.y - point.y, 2) +
+      Math.pow(this.position.z - point.z, 2)
     );
   }
 
