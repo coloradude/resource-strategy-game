@@ -10,7 +10,7 @@ const THREE = require('three');
 
 const CANVAS = document.getElementById('game');
 const CONTAINER = document.getElementById('container');
-const MENU = document.getElementById('menu');
+const MENU = document.getElementById('leftMenu');
 const SCREEN_WIDTH = CANVAS.width;
 const SCREEN_HEIGHT = CANVAS.height;
 const ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
@@ -40,7 +40,8 @@ const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue
 /* Import Objects */
 const Player = require('./objects/Player.js');
 const Camera = require('./objects/Camera.js');
-const Menu = require('./objects/Menu.js');
+const Menu = require('./objects/Menu/Menu.js');
+const LeftMenu = require('./objects/Menu/LeftMenu.js');
 const SceneObject = require('./objects/SceneObject.js');
 const InterfaceObject = require('./objects/InterfaceObject/InterfaceObject.js');
 const SelectionBox = require('./objects/InterfaceObject/SelectionBox.js');
@@ -422,7 +423,7 @@ class Game{
     }
 
     addMenu() {
-      this.menu = new Menu(this);
+      this.menu = new LeftMenu(this);
     }
 
     addUnit(coords) {

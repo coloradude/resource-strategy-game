@@ -1,6 +1,6 @@
 <div id="container">
   <canvas id="game"></canvas>
-  <div id="menu">
+  <div id="leftMenu">
     <div class="player-score row">
       <span class="resourceLabel">Score:</span>
       <span class="resourceAmount" id="player-score">0</span>
@@ -18,18 +18,18 @@
       <span class="resourceAmount" id="player-food">0</span>
     </div>
     <ul>
-      <a>Place...</a>
+      <a>Place Object</a>
       <li>
         <ul>
           <a>Units</a>
           <li>
-            <a class="button" href="#" id="menu-toolToAddCube">Cube</a>
+            <a class="button" href="#" id="menu-toolToAddSmCube">Small Cube</a>
           </li>
           <li>
-            <a class="button" href="#" id="menu-toolToAddCube">Cube</a>
+            <a class="button" href="#" id="menu-toolToAddMdCube">Medium Cube</a>
           </li>
           <li>
-            <a class="button" href="#" id="menu-toolToAddCube">Cube</a>
+            <a class="button" href="#" id="menu-toolToAddLgCube">Large Cube</a>
           </li>
         </ul>
       </li>
@@ -73,6 +73,9 @@
     <a class="button" href="#" id="menu-listSelectedUnits">List Selected Units</a>
     <a class="button rightTool" href="#" id="menu-toolToAddRandomNode">Right Tool = addRandomNode</a>
     <a class="button rightTool" href="#" id="menu-toolToAddBuilding">Right Tool = addBuilding</a>
+  </div>
+  <div id="bottomMenu">
+
   </div>
 </div>
 <script src="build/output/init.js"></script>

@@ -5,10 +5,11 @@ esversion: 6,
 browser: true
 */
 
-class Menu {
+const Menu = require('./Menu.js');
+
+class LeftMenu extends Menu {
   constructor(game) {
-    this.element = window.document.getElementById('menu');
-    this.game = game;
+    super(game, 'leftMenu');
 
     this.buttons = [
       {
@@ -109,4 +110,4 @@ class Menu {
   }
 }
 
-module.exports = Menu;
+module.exports = LeftMenu;

@@ -22,7 +22,7 @@ html, body {
     margin-left: 200px;
   }
 
-  #menu {
+  #leftMenu {
     position: absolute;
     top: 0;
     left: 0;
@@ -93,9 +93,11 @@ html, body {
           }
 
           li {
-
+            flex-basis: 5em;
             a, a.button {
               display: block;
+              padding: 2em 1em;
+              height: 100%;
             }
           }
 
