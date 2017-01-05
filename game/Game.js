@@ -138,6 +138,7 @@ class Game{
       this.player.resources.gold = 2000;
 
       this.addGround();
+      this.addSelectionBox();
 
       this.addMenu();
 
@@ -221,10 +222,6 @@ class Game{
       name = `cube${this.cubes.length}`
     ) {
       if(coordinates !== null) {
-        console.log(`adding cube:`);
-        console.log(coordinates);
-        console.log(size);
-        console.log(name);
         let cube = new Cube(size);
 
         cube.name = name;
@@ -236,8 +233,7 @@ class Game{
         cube.setName(name);
         cube.setSceneObject(this.scene.getObjectByName(name));
       } else {
-        console.error(`addCube() detected null coordinates; exiting`);
-        // do nothing; invalid
+        // do nothing; invalid location
       }
     }
 
@@ -888,8 +884,6 @@ class Game{
     }
 
     setRightTool(tool, args = undefined) {
-      console.log(`args to setRightTool:`);
-      console.log(args);
       this.rightTool = tool;
 
       if(args !== undefined) {
