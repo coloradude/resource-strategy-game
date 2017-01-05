@@ -796,6 +796,18 @@ class Game{
             );
           }
           break;
+        case 'createResourceNode':
+          if(!this.shiftIsDown) {
+            // place a new cube at ground intersetion
+            groundIntersect = this.mouseIntersectPoint(this.ground);
+
+            if(groundIntersect) {
+              this.rightToolArgs[0] = groundIntersect;
+            }
+
+            this.addResourceNode.apply(this, this.rightToolArgs);
+          }
+          break;
         case 'assign':
           // update the picking ray with the camera and mouse position
           this.raycaster.setFromCamera(this.mouse, this.camera);

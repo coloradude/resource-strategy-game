@@ -46,6 +46,36 @@ class LeftMenu extends Menu {
         function: this.game.setRightTool,
         args: ['createRandomNode']
       }, {
+        name: 'toolToAddGold',
+        function: this.game.setRightTool,
+        args: [
+          'createResourceNode', [
+            undefined,
+            new THREE.Vector3(50, 50, 10),
+            'gold'
+          ]
+        ]
+      }, {
+        name: 'toolToAddFood',
+        function: this.game.setRightTool,
+        args: [
+          'createResourceNode', [
+            undefined,
+            new THREE.Vector3(50, 50, 10),
+            'food'
+          ]
+        ]
+      }, {
+        name: 'toolToAddMetal',
+        function: this.game.setRightTool,
+        args: [
+          'createResourceNode', [
+            undefined,
+            new THREE.Vector3(50, 50, 10),
+            'metal'
+          ]
+        ]
+      }, {
         name: 'toolToAddBuilding',
         function: this.game.setRightTool,
         args: ['createBuilding']
