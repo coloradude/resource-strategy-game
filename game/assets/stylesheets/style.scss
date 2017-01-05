@@ -42,7 +42,8 @@ html, body {
       padding: 0;
       list-style: none;
       overflow: hidden;
-      background: #FFFFFF;
+      background: #333;
+      color: white;
       margin: 0;
       width: 100%;
       flex-grow: 1;
@@ -50,6 +51,7 @@ html, body {
       &:hover {
         overflow: visible;
         cursor: pointer;
+        background: #555;
 
         li {
           width: auto;
@@ -70,7 +72,6 @@ html, body {
         margin: 0;
         padding: 1em;
         align-self: center;
-        background: #FFFFFF;
       }
 
       li {
@@ -92,6 +93,8 @@ html, body {
           overflow: hidden;
 
           a {
+            background: white;
+            color: #111;
             width: 100%;
           }
 
@@ -108,6 +111,10 @@ html, body {
           &:hover {
             overflow: visible;
 
+            > a {
+              background: #eeeeee;
+            }
+
             li {
               height: auto;
             }
@@ -120,6 +127,7 @@ html, body {
       text-align: left;
       display: flex;
       flex-flow: row nowrap;
+      align-items: center;
       flex-grow: 1;
       padding: .5em 1em;
 
