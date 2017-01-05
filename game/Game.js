@@ -38,6 +38,7 @@ const MINZOOM = 1000;
 const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue('width'));
 
 /* Import Objects */
+const Model = require('./objects/Model.js');
 const Player = require('./objects/Player.js');
 const Camera = require('./objects/Camera.js');
 const Menu = require('./objects/Menu/Menu.js');
@@ -146,8 +147,9 @@ class Game{
 
       this.watchEvents();
 
-      this.loadScenario(LEVEL);
-      this.addWell();
+      this.model = new Model(this);
+
+      // this.loadScenario(LEVEL);
     }
 
     update() {
@@ -168,13 +170,6 @@ class Game{
         for(let i in this.buildings) {
           this.buildings[i].update();
         }
-
-        if(this.loadedWell) {
-            console.log(this.well.position);
-            this.well.position.x += 100;
-            this.well.position.y += 100;
-        }
-
     }
 
     render() {
@@ -222,29 +217,6 @@ class Game{
       });
     }
 
-    addWell() {
-      /* temporary 3d file loading */
-      let loader = new THREE.ColladaLoader();
-
-      // start async model load
-      loader.load('./build/output/assets/models/orange-mine.dae', ((result) => {
-        result.scene.name = 'testing';
-
-        result.scene.scale.set(10, 10, 5);
-        window.game.scene.add(result.scene);
-
-        this.well = window.game.scene.getObjectByName('testing');
-
-        this.loadedWell = true;
-
-        console.log(`this:`);
-        console.log(this);
-
-        console.log(`this.well:`);
-        console.log(this.well);
-      }).bind(this));
-    }
-
     /*
       @coordinates: (x, y, z) vector
       @size: (x, y, z) vector
@@ -280,7 +252,7 @@ class Game{
       let building;
       switch(type) {
         case 'mine':
-          building = new Mine(size, undefined, status);
+          building = new Mine(this);
           break;
         case null:
           building = new Building(
@@ -294,13 +266,13 @@ class Game{
       }
 
       building.name = name;
-      building.position.set(coordinates.x, coordinates.y, coordinates.z);
+      // building.position.set(coordinates.x, coordinates.y, coordinates.z);
 
-      this.scene.add(building);
+      // this.scene.add(building);
       this.buildings.push(building);
 
-      building.setName(name);
-      building.setSceneObject(this.scene.getObjectByName(name));
+      // building.setName(name);
+      // building.setSceneObject(this.scene.getObjectByName(name));
     }
 
     removeBuilding(building) {
