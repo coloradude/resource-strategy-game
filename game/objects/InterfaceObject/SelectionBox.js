@@ -64,29 +64,33 @@ class SelectionBox extends InterfaceObject {
     let cubes = window.game.cubes;
     let cubesInBox = [];
 
-    // determine bottom left (minX, minY)
-    let bottomLeft = new THREE.Vector2(
-      Math.min(this.startCoordinates.x, this.currentCoords.x),
-      Math.min(this.startCoordinates.y, this.currentCoords.y)
-    );
+    if(this.currentCoords !== undefined) {
+      // determine bottom left (minX, minY)
+      let bottomLeft = new THREE.Vector2(
+        Math.min(this.startCoordinates.x, this.currentCoords.x),
+        Math.min(this.startCoordinates.y, this.currentCoords.y)
+      );
 
-    // determine top right (maxX, maxY)
-    let topRight = new THREE.Vector2(
-      Math.max(this.startCoordinates.x, this.currentCoords.x),
-      Math.max(this.startCoordinates.y, this.currentCoords.y)
-    );
+      // determine top right (maxX, maxY)
+      let topRight = new THREE.Vector2(
+        Math.max(this.startCoordinates.x, this.currentCoords.x),
+        Math.max(this.startCoordinates.y, this.currentCoords.y)
+      );
 
-    for(let i in cubes) {
-      if(
-        cubes[i].position.x > bottomLeft.x &&
-        cubes[i].position.x < topRight.x &&
-        cubes[i].position.y > bottomLeft.y &&
-        cubes[i].position.y < topRight.y
-      ) {
-        // add to selection
-        cubesInBox.push(cubes[i]);
+      for(let i in cubes) {
+        if(
+          cubes[i].position.x > bottomLeft.x &&
+          cubes[i].position.x < topRight.x &&
+          cubes[i].position.y > bottomLeft.y &&
+          cubes[i].position.y < topRight.y
+        ) {
+          // add to selection
+          cubesInBox.push(cubes[i]);
+        }
       }
+
     }
+
     return cubesInBox;
   }
 }
