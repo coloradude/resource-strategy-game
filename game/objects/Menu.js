@@ -12,7 +12,7 @@ class Menu {
 
     this.buttons = [
       {
-        name: 'addUnit',
+        name: 'addCube',
         function: this.game.addUnit
       }, {
         name: 'addRandomCubes',

@@ -32,6 +32,81 @@ html, body {
     flex-flow: column nowrap;
     text-align: center;
 
+    > ul {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 0;
+      list-style: none;
+      overflow: hidden;
+      margin: 0;
+      width: 100%;
+
+      &:hover {
+        overflow: visible;
+        width: 300%;
+        cursor: pointer;
+
+        li {
+          width: auto;
+        }
+
+        > a {
+          flex-basis: 200px;
+          flex-grow: 0;
+        }
+      }
+
+      a {
+        flex-grow: 1;
+        order: 0;
+        flex-basis: 100%;
+        display: inline-block;
+        padding: 1em;
+      }
+
+      li {
+        flex-basis: 0;
+        flex-shrink: 1;
+        flex-grow: 0;
+        width: 0;
+        order: 1;
+        box-sizing: border-box;
+        padding: 0;
+        background: white;
+
+        ul {
+          flex-flow: column nowrap;
+          padding: 0;
+          display: flex;
+          align-items: stretch;
+          list-style: none;
+          overflow: hidden;
+
+          a {
+            flex-basis: 100%;
+          }
+
+          li {
+            height: 0;
+
+            a, a.button {
+              display: block;
+            }
+          }
+
+          &:hover {
+            overflow: visible;
+
+            li {
+              height: auto;
+            }
+          }
+        }
+      }
+    }
+
     div.row {
       text-align: left;
       display: flex;
