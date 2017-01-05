@@ -34,9 +34,11 @@ class Cube extends SceneObject {
     this.growthTolerance = 5;
 
     this.destinationSize = null;
-    this.growthScalar = 0.0001;
-    this.buildRange = 200;
-    this.buildSpeed = 1;
+    this.growthScalar = 0.0001; // scalar that determines growth speed
+
+    this.buildRange = 200; // distance can build within
+    this.buildSpeed = 1; // scalar for amount to build
+    this.buildStep = 1; // amount to build per step
 
     this.movementTolerance = 200;
 
@@ -114,13 +116,44 @@ class Cube extends SceneObject {
     }
   }
 
+  /*
+    Automatically removes itself on completion
+    Pauses building if resources insufficient
+  */
   build(job) {
-    let buildCost = job.building.buildCost / 100;
-    if(window.game.player.resources.metal > buildCost) {
-      if(!job.building.build(this.buildSpeed)) {
+    let canBuild = true;
+    let buildAmt = this.buildSpeed * 1;
+    let buildCost = job.building.buildCost.map((resource) => {
+      return {
+        // charge (buildAmt * 1%) of resource
+        type: resource.type,
+        amt: resource.amt * (buildAmt/100)
+      };
+    });
+
+    // determine if player has sufficient resources
+    for(let i in buildCost) {
+      if(buildCost[i].amt > window.game.player.resources[buildCost[i].type]) {
+        // insufficient resources, pause build & break
+        canBuild = false;
+        break;
+      }
+    }
+
+    if(canBuild) {
+
+      let completion = job.building.build(buildAmt);
+
+      if(completion >= 100) {
+        // build complete
         this.removeJob(job);
       } else {
-        window.game.player.resources.metal -= buildCost;
+        // build still to go
+
+        // charge player resources
+        for(let i in buildCost) {
+            window.game.player.resources[buildCost[i].type] -= buildCost[i].amt;
+        }
       }
     } else {
       // player doesn't have enough resources; wait til they do before building

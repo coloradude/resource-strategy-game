@@ -25,7 +25,20 @@ class Building extends SceneObject {
     this.destination = null;
     this.buildSpeed = 1;
     this.buildQueue = 0;
-    this.buildCost = 1000; // total metal resources required to build
+
+    // total cost of building construction
+    this.buildCost = [
+      {
+        type: 'metal',
+        amt: 1000
+      }, {
+        type: 'gold',
+        amt: 200
+      }, {
+        type: 'food',
+        amt: 100
+      }
+    ];
 
     this.completeColor = 0x333333;
     this.incompleteColor = 0x999999;
@@ -74,12 +87,15 @@ class Building extends SceneObject {
     }
   }
 
-  build(buildSpeed) {
+  /*
+    returns current completion
+  */
+  build(buildAmt) {
     if(this.completion < 100) {
-      this.buildQueue += this.buildSpeed * buildSpeed;
-      return true;
+      this.buildQueue += this.buildSpeed * buildAmt;
+      return this.completion;
     } else {
-      return false;
+      return 100;
     }
   }
 

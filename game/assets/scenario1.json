@@ -31,5 +31,38 @@
         "name": "building1",
         "type": "mine"
     }
+}, {
+    "id": 2,
+    "type": "resourceNode",
+    "data": {
+        "coordinates": {
+            "x": 2000,
+            "y": 4000,
+            "z": 200
+        },
+        "type": "metal"
+    }
+}, {
+    "id": 2,
+    "type": "resourceNode",
+    "data": {
+        "coordinates": {
+            "x": 6000,
+            "y": 4000,
+            "z": 200
+        },
+        "type": "gold"
+    }
+}, {
+    "id": 2,
+    "type": "resourceNode",
+    "data": {
+        "coordinates": {
+            "x": 2000,
+            "y": 6000,
+            "z": 200
+        },
+        "type": "food"
+    }
 }
 ]

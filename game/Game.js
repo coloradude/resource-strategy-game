@@ -132,6 +132,9 @@ class Game{
       this.selectedUnits = [];
 
       this.player = new Player();
+      this.player.resources.metal = 2000;
+      this.player.resources.food = 2000;
+      this.player.resources.gold = 2000;
 
       this.addGround();
 
