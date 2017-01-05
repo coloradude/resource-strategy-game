@@ -51,9 +51,10 @@ class Building extends SceneObject {
   updateColorByCompletion() {
     if(this.completion === 100) {
       this.material.color.setHex(this.completeColor);
+    } else if (this.completion === 0) {
+      this.material.color.setHex(this.incompleteColor);
     } else {
       let newColor = this.completeColor / this.completion;
-
       this.material.color.setHex(newColor);
     }
   }
