@@ -156,6 +156,10 @@ class Game{
         for(let i in this.resourceNodes) {
           this.resourceNodes[i].update();
         }
+
+        for(let i in this.buildings) {
+          this.buildings[i].update();
+        }
     }
 
     render() {
@@ -840,7 +844,7 @@ class Game{
               undefined,
               undefined,
               'mine',
-              undefined
+              'incomplete'
             );
           }
           break;
