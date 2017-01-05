@@ -5,6 +5,7 @@ esversion: 6,
 browser: true
 */
 
+const THREE = require('three');
 const Menu = require('./Menu.js');
 
 class LeftMenu extends Menu {
@@ -49,9 +50,39 @@ class LeftMenu extends Menu {
         function: this.game.setRightTool,
         args: ['createBuilding']
       }, {
-        name: 'toolToAddCube',
+        name: 'toolToAddSmCube',
         function: this.game.setRightTool,
-        args: ['createCube']
+        args: [
+          'createCube', [
+            undefined,
+            new THREE.Vector3(100, 100, 100),
+            undefined
+          ]
+        ]
+      }, {
+        name: 'toolToAddMdCube',
+        function: this.game.setRightTool,
+        args: [
+          // tool type
+          'createCube', [
+            // addCube(args)
+            undefined,
+            new THREE.Vector3(250, 250, 250),
+            undefined
+          ]
+        ]
+      }, {
+        name: 'toolToAddLgCube',
+        function: this.game.setRightTool,
+        args: [
+          // tool type
+          'createCube', [
+            // addCube(args)
+            undefined,
+            new THREE.Vector3(500, 500, 500),
+            undefined
+          ]
+        ]
       }, {
         name: 'toolToBuildBuilding',
         function: this.game.setRightTool,
@@ -78,18 +109,6 @@ class LeftMenu extends Menu {
         }
       }
       // don't let click event bubble to game
-    }, true);
-
-    // don't let mouseMove bubble to game
-    this.element.addEventListener('mousemove', (event) => {
-    }, true);
-
-    // don't let mouseUp bubble to game
-    this.element.addEventListener('mouseup', () => {
-    }, true);
-
-    // don't let mouseUp bubble to game
-    this.element.addEventListener('mousedown', () => {
     }, true);
   }
 

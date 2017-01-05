@@ -216,20 +216,29 @@ class Game{
       @size: (x, y, z) vector
     */
     addCube(
-      coordinates = new THREE.Vector3(0, 0, 0),
+      coordinates = null,
       size = null,
       name = `cube${this.cubes.length}`
     ) {
-      let cube = new Cube(size);
+      if(coordinates !== null) {
+        console.log(`adding cube:`);
+        console.log(coordinates);
+        console.log(size);
+        console.log(name);
+        let cube = new Cube(size);
 
-      cube.name = name;
-      cube.position.set(coordinates.x, coordinates.y, coordinates.z);
+        cube.name = name;
+        cube.position.set(coordinates.x, coordinates.y, coordinates.z);
 
-      this.scene.add(cube);
-      this.cubes.push(cube);
+        this.scene.add(cube);
+        this.cubes.push(cube);
 
-      cube.setName(name);
-      cube.setSceneObject(this.scene.getObjectByName(name));
+        cube.setName(name);
+        cube.setSceneObject(this.scene.getObjectByName(name));
+      } else {
+        console.error(`addCube() detected null coordinates; exiting`);
+        // do nothing; invalid
+      }
     }
 
     addBuilding(
@@ -817,14 +826,17 @@ class Game{
 
           break;
         case 'createCube':
+
           // place a new cube at ground intersetion
-          groundIntersect = this.raycaster.intersectObjects([this.ground])[0];
+          groundIntersect = this.mouseIntersectPoint(this.ground);
 
           if(groundIntersect) {
-            this.addCube(
-              groundIntersect.point
-            );
+            this.rightToolArgs[0] = groundIntersect;
           }
+
+          // place new cube according to rightToolArgs
+          this.addCube.apply(this, this.rightToolArgs);
+
           break;
         case 'createBuilding':
           // place a new building at ground intersetion
@@ -875,8 +887,16 @@ class Game{
       }
     }
 
-    setRightTool(tool) {
+    setRightTool(tool, args = undefined) {
+      console.log(`args to setRightTool:`);
+      console.log(args);
       this.rightTool = tool;
+
+      if(args !== undefined) {
+          this.rightToolArgs = args;
+      } else {
+        this.rightToolArgs = [];
+      }
     }
 
     getRandomInt(min, max) {
