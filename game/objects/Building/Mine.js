@@ -18,9 +18,12 @@ class Mine extends Building {
     let model = './build/output/assets/models/orange-mine.dae';
     super(game, model, size, status);
 
-    this.type = 'building';
     this.buildingType = 'mine';
     this.game = game;
+
+    this.buildingHasNotBegunTexture = './build/output/assets/textures/Granite_Dark_Gray.jpg';
+    this.buildingInProgressTexture = './build/output/assets/textures/Stone_Marble.jpg';
+    this.buildingCompleteTexture = './build/output/assets/textures/Granite_Dark_Gray.jpg';
 
     // total cost of building construction
     this.buildCost = [
@@ -43,8 +46,62 @@ class Mine extends Building {
   }
 
   update() {
-    // console.log(this.scale);
     super.update();
+  }
+
+  onModelLoad() {
+    this.meshes = this.children[0].children[0].children;
+    this.baseMesh = this.meshes[0];
+    this.cubeMesh = this.meshes[1];
+    super.onModelLoad();
+  }
+
+  updateAppearanceByCompletion() {
+
+    if(this.completion >= 100) {
+      this.changeBaseTexture(this.buildingCompleteTexture);
+    } else if (this.completion === 0) {
+      this.changeBaseTexture(this.buildingHasNotBegunTexture);
+    } else {
+      this.changeBaseTexture(this.buildingInProgressTexture);
+      let color = 0xFFFFFF * (this.completion/100);
+      this.changeCubeColor(color);
+
+      // raise cube according to completion
+      this.changeCubeHeight(this.completion * 2);
+    }
+  }
+
+  changeCubeHeight(height) {
+    let boundingBox = new THREE.Box3().setFromObject(this.cubeMesh);
+
+    let myHeight = boundingBox.max.z - boundingBox.min.z;
+
+    this.cubeMesh.scale.z += (height - myHeight)/myHeight;
+  }
+
+  changeBaseTexture(texture) {
+    if(this.baseTexture !== texture) {
+      let tex = this.textureLoader.load(texture);
+
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(2, 2);
+
+      this.meshes = this.children[0].children[0].children;
+      this.meshes[0].material.map = tex;
+      this.meshes[0].material.needsUpdate = true;
+      this.baseTexture = texture;
+    }
+  }
+
+  changeCubeColor(color) {
+    if(this.cubeColor !== color) {
+      this.cubeMesh.material = new THREE.MeshLambertMaterial({
+        color: color
+      });
+      this.cubeMesh.material.needsUpdate = true;
+      this.cubeColor = color;
+    }
   }
 
   /*
@@ -53,8 +110,6 @@ class Mine extends Building {
     This is called whenever a player right-clicks on this object while selectedObjects.length > 0
   */
   assign(objArray, coords) {
-
-    console.log(`mine assign() called`);
 
     for(let i in objArray) {
       // assign any new jobs to selectedUnits

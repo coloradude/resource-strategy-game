@@ -24,7 +24,7 @@ class Model extends THREE.Object3D {
 
     this.loader = new THREE.ColladaLoader();
     this.isLoaded = false;
-    this.isAdded = false;
+    this.onModelLoadRun = false;
     this.load();
 
     // movement options
@@ -45,7 +45,6 @@ class Model extends THREE.Object3D {
   load() {
     // asyncronously load model
     this.loader.load(this.model, ((result) => {
-
       // attach loaded model as child of this
       this.add(result.scene);
 
@@ -73,12 +72,17 @@ class Model extends THREE.Object3D {
         this.size.z/2
       );
 
+      this.onModelLoad();
       this.isLoaded = true;
     }).bind(this));
   }
 
+  onModelLoad() {
+    this.onModelLoad = true;
+  }
+
   update() {
-    if(this.isLoaded) {
+    if(this.isLoaded && this.onModelLoadRun) {
       // main update loop
       this.moveTowardDestination(this.destination);
     } else {

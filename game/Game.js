@@ -528,10 +528,19 @@ class Game{
     }
 
     initializeLight() {
-      this.light = new THREE.DirectionalLight(0xffffff, 1);
-      this.light.position.set(0, 0, 1500);
-      this.light.castShadow = true;
-      this.light.shadowMapDarkness = 0.5;
+      // ambient light performs better
+      this.light = new THREE.AmbientLight(0xFFFFFF);
+      // this.light = new THREE.DirectionalLight(0xffffff, 1);
+      //
+      // this.lightTarget = new THREE.Object3D();
+      // this.scene.add(this.lightTarget);
+      // this.lightTarget.position.set(
+      //   0, 0, 0
+      // );
+      // this.light.target = this.lightTarget;
+      // this.light.position.set(4000, 4000, 0);
+      // this.light.castShadow = true;
+
       this.scene.add(this.light);
     }
 

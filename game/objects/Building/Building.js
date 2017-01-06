@@ -17,6 +17,8 @@ class Building extends Model {
   ) {
     super(game, model, size);
 
+    this.textureLoader = new THREE.TextureLoader();
+
     this.model = model;
     this.type = "building";
     this.buildingType = null;
@@ -56,22 +58,15 @@ class Building extends Model {
     }
   }
 
-  update() {
-    this.buildCheck();
-    super.update();
+  onModelLoad() {
+    super.onModelLoad();
   }
 
-  updateAppearanceByCompletion() {
-    if(this.completion === 100) {
-      // this.material.color.setHex(this.completeColor);
-      // console.log(`mine complete`);
-    } else if (this.completion === 0) {
-      // this.material.color.setHex(this.incompleteColor);
-    } else {
-      // let newColor = this.completeColor / this.completion;
-      // this.material.color.setHex(newColor);
-      console.log(`mine incomplete, completion = ${this.completion}`);
+  update() {
+    if(this.isLoaded) {
+      this.buildCheck();
     }
+    super.update();
   }
 
   buildCheck() {
