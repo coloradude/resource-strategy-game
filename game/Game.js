@@ -809,12 +809,38 @@ class Game{
           this.raycaster.setFromCamera(this.mouse, this.camera);
 
           // calculate objects intersecting the picking ray
-          let intersects = this.raycaster.intersectObjects(this.scene.children);
+          // build array of objects to check for
+          let objects = [];
+          objects.push.apply(objects, this.buildings);
+          objects.push.apply(objects, this.resourceNodes);
+          objects.push.apply(objects, this.cubes);
+          objects.push.call(objects, this.ground);
+
+          let intersects = this.raycaster.intersectObjects(objects, true);
+
+          // build list of interactable objects (those with assign() property)
+          let gameObjects = [];
+
+          for(let i in intersects) {
+            let obj = intersects[i].object;
+            while(obj.parent !== null) {
+              if(obj.canAssign === true) {
+                // push unique obj onto gameObjects
+                if(gameObjects.indexOf(obj) === -1) {
+                    obj.point = intersects[i].point;
+                    gameObjects.push(obj);
+                }
+                break;
+              } else {
+                obj = obj.parent;
+              }
+            }
+          }
 
           // iterate over click intersect objects, camera -> ground
-          for(let i in intersects) {
+          for(let i in gameObjects) {
 
-            let returnValue = intersects[i].object.assign(this.selectedUnits, intersects[i].point);
+            let returnValue = gameObjects[i].assign(this.selectedUnits, gameObjects[i].point);
 
             /*
               object.assign() returns null and bubbles by default;
@@ -824,7 +850,7 @@ class Game{
               // stop bubbling
               break;
             } {
-              // continue bubbling
+              // continue bubbling up gameObjects array
             }
           }
 

@@ -18,6 +18,7 @@ class Model extends THREE.Object3D {
 
     this.game = game;
     this.size = size;
+    this.canAssign = true;
 
     this.model = modelUrl;
 
@@ -47,6 +48,8 @@ class Model extends THREE.Object3D {
 
       // attach loaded model as child of this
       this.add(result.scene);
+
+      this.matrixWorldNeedsUpdate = true;
 
       let tempSize = this.getSize();
 

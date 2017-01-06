@@ -14,6 +14,7 @@ class SceneObject extends THREE.Mesh {
     // movement options
     this.speed = 0;
     this.velocity = new THREE.Vector3(0, 0, 0);
+    this.canAssign = true;
 
     this.castShadow = true;
     this.receiveShadow = true;
