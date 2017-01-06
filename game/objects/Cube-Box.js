@@ -6,44 +6,45 @@ browser: true
 */
 
 const THREE = require('three');
-const Model = require('./Model.js');
+const SceneObject = require('./SceneObject.js');
 
-class Cube extends Model {
-  constructor(
-    game,
-    model = './build/output/assets/models/inset-cube.dae',
-    size = new THREE.Vector3(100, 100, 100)
-  ){
+class Cube extends SceneObject {
+  constructor(size) {
+    if(!size) {
+      // defalt size
+      size = new THREE.Vector3(
+        100,
+        100,
+        100
+      );
+    }
+    let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+    let material = new THREE.MeshLambertMaterial({
+      color: 0xCC0000
+    });
 
-    super(game, model, size);
+    super(geometry, material);
 
-    this.model = model;
-
-    this.type = "cube";
+    this.type = "Cube";
     this.speed = 25;
     this.growSpeed = 100;
-
-    // distance can collect from resource within
-    this.resourceCollectionRange = new THREE.Vector3(size.x, size.y, size.z);
+    this.resourceCollectionRange = 200;
     this.resourceCollectionRate = 0.1;
+    this.minSize = new THREE.Vector3(100, 100, 100);
+    this.growthTolerance = 5;
 
     this.destinationSize = null;
-    this.growthTolerance = 5;
     this.growthScalar = 0.0001; // scalar that determines growth speed
-    this.minSize = new THREE.Vector3(100, 100, 100);
 
-    this.buildRange = new THREE.Vector3(size.x, size.y, size.z); // distance can build within
+    this.buildRange = 200; // distance can build within
     this.buildSpeed = 1; // scalar for amount to build
     this.buildStep = 1; // amount to build per step
 
-    this.movementTolerance = new THREE.Vector3(size.x, size.y, size.z);
+    this.movementTolerance = 200;
 
     this.growthVelocity = new THREE.Vector3(1, 1, 1);
 
-    this.innerCubeColor = 0xFFFF00;
-    this.outerCubeColor = 0x666666;
     this.selectedColor = 0xFFFFFF;
-    this.unselectedColor = this.innerCubeColor;
 
     this.jobPriorities = {
       'move': 8,
@@ -62,25 +63,11 @@ class Cube extends Model {
   }
 
   update() {
-    if(this.isLoaded) {
-      this.growTowardDestinationSize(this.destinationSize);
-      this.doJob(this.getHighestPriorityJob());
-    }
+    this.growTowardDestinationSize(this.destinationSize);
+
+    this.doJob(this.highestPriorityJob());
+
     super.update();
-  }
-
-  onModelLoad() {
-    this.meshes = this.children[0].children[0].children;
-
-    this.outerCubeMeshOutside = this.meshes[0];
-    this.outerCubeMeshInside = this.meshes[1];
-
-    this.innerCubeMesh = this.meshes[2];
-
-    this.setInnerCubeColor(this.innerCubeColor);
-    this.setOuterCubeColor(this.outerCubeColor);
-
-    super.onModelLoad();
   }
 
   doJob(job) {
@@ -93,7 +80,7 @@ class Cube extends Model {
         if(this.getDistanceFrom(job.building) < this.buildRange) {
           this.build(job);
         } else {
-          this.setDestination(job.building.position);
+          this.move(job.building.position);
         }
         break;
       case 'collectResource':
@@ -101,13 +88,13 @@ class Cube extends Model {
         if(this.getDistanceFrom(job.resourceNode) < this.resourceCollectionRange) {
           this.collectResource(job.resourceNode);
         } else {
-          this.setDestination(job.resourceNode.position);
+          this.move(job.resourceNode.position);
         }
         break;
       case 'move':
         // move til close enough, then cancel job
         if(this.getDistanceFrom(job.coordinates) > this.movementTolerance) {
-          this.setDestination(job.coordinates);
+          this.move(job.coordinates);
         } else {
           this.removeJob(job);
         }
@@ -173,18 +160,17 @@ class Cube extends Model {
     }
   }
 
-  setDestination(coords) {
+  move(coords) {
     this.destination = coords;
   }
 
-  /*
-    Called once (externally) when assigning new job
-  */
-  queueJob(job) {
+  stop() {
+    this.destination = this.position;
+  }
 
-    if(job.priority === undefined) {
-        job.priority = this.jobPriorities[job.job];
-    }
+  queueJob(job) {
+    // assign job priority
+    job.priority = this.jobPriorities[job.job];
 
     // process job
     switch(job.job) {
@@ -247,7 +233,7 @@ class Cube extends Model {
       case 'idle':
         // do nothing, idle not removable
         return;
-      case undefined:
+      case 'undefined':
         console.error(`job.job undefined- did you mean to pass a job obj?`);
         break;
       default:
@@ -291,7 +277,7 @@ class Cube extends Model {
     );
   }
 
-  getHighestPriorityJob() {
+  highestPriorityJob() {
     let priority = 0,
         highestPriorityJob;
     for(let i in this.queue) {
@@ -346,37 +332,6 @@ class Cube extends Model {
 
       this.size = this.getSize();
     }
-  }
-
-  select(selected = true) {
-    if(selected) {
-      this.setInnerCubeColor(this.selectedColor);
-    } else {
-      this.setInnerCubeColor(this.unselectedColor);
-    }
-  }
-
-  setInnerCubeColor(color) {
-    this.innerCubeMesh.material = new THREE.MeshLambertMaterial({
-      color: color
-    });
-    this.innerCubeMesh.material.needsUpdate = true;
-    this.innerCubeColor = color;
-  }
-
-  setOuterCubeColor(color) {
-    this.outerCubeMeshOutside.material = new THREE.MeshLambertMaterial({
-      color: color
-    });
-
-    this.outerCubeMeshInside.material = new THREE.MeshLambertMaterial({
-      color: Math.min(0, Math.max(color, 0xFFFFFF))
-    });
-
-    this.outerCubeMeshOutside.material.needsUpdate = true;
-    this.outerCubeMeshInside.material.needsUpdate = true;
-
-    this.outerCubeColor = color;
   }
 
 }

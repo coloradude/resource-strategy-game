@@ -11,7 +11,7 @@ const ColladaLoader = require('./ColladaLoader.js');
 class Model extends THREE.Object3D {
   constructor(
     game,
-    modelUrl,
+    model,
     size = new THREE.Vector3(100, 100, 100)
   ) {
     super();
@@ -20,9 +20,12 @@ class Model extends THREE.Object3D {
     this.size = size;
     this.canAssign = true;
 
-    this.model = modelUrl;
+    this.model = model;
 
     this.loader = new THREE.ColladaLoader();
+    this.textureLoader = new THREE.TextureLoader();
+
+    // load model asyncronously
     this.isLoaded = false;
     this.onModelLoadRun = false;
     this.load();
@@ -43,38 +46,42 @@ class Model extends THREE.Object3D {
   }
 
   load() {
-    // asyncronously load model
-    this.loader.load(this.model, ((result) => {
-      // attach loaded model as child of this
-      this.add(result.scene);
+    if(this.model !== null && this.model !== undefined) {
+      // asyncronously load model
+      this.loader.load(this.model, ((result) => {
+        // attach loaded model as child of this
+        this.add(result.scene);
 
-      this.matrixWorldNeedsUpdate = true;
+        this.matrixWorldNeedsUpdate = true;
 
-      let tempSize = this.getSize();
+        let tempSize = this.getSize();
 
-      // set initial scale
-      this.scale.set(
-        this.size.x / tempSize.x,
-        this.size.y / tempSize.y,
-        this.size.z / tempSize.z
-      );
+        // set initial scale
+        this.scale.set(
+          this.size.x / tempSize.x,
+          this.size.y / tempSize.y,
+          this.size.z / tempSize.z
+        );
 
-      // add this to game scene
-      this.game.scene.add(this);
+        // add this to game scene
+        this.game.scene.add(this);
 
-      // calculate size
-      this.size = this.getSize();
+        // calculate size
+        this.size = this.getSize();
 
-      // update ranges based on size
-      this.destinationRange = new THREE.Vector3(
-        this.size.x/2,
-        this.size.y/2,
-        this.size.z/2
-      );
+        // update ranges based on size
+        this.destinationRange = new THREE.Vector3(
+          this.size.x,
+          this.size.y,
+          this.size.z
+        );
 
-      this.onModelLoad();
-      this.isLoaded = true;
-    }).bind(this));
+        this.onModelLoad();
+        this.isLoaded = true;
+      }).bind(this));
+    } else {
+      console.error(`Model() tried loading a null or undefined model`);
+    }
   }
 
   onModelLoad() {
@@ -165,11 +172,11 @@ class Model extends THREE.Object3D {
 
   select(selected = true) {
     if(selected) {
-      // this.material.color.setHex(this.selectedColor);
-      console.log(`selected ${this.mine}, but haven't implemented appearance change yet`);
+      // need to figure out a universal 'selection' effect and put it here
+      // maybe something like a ring around them? or flag above them?
+      console.log(`Model(): selected ${this.mine}, but haven't implemented appearance change yet. Try overriding?`);
     } else {
-      // this.material.color.setHex(this.unselectedColor);
-      console.log(`deselected ${this.mine}, but haven't implemented appearance change yet`);
+      console.log(`Model(): deselected ${this.mine}, but haven't implemented appearance change yet. Try overriding?`);
     }
   }
 

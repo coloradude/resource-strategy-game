@@ -17,8 +17,6 @@ class Building extends Model {
   ) {
     super(game, model, size);
 
-    this.textureLoader = new THREE.TextureLoader();
-
     this.model = model;
     this.type = "building";
     this.buildingType = null;
@@ -58,15 +56,15 @@ class Building extends Model {
     }
   }
 
-  onModelLoad() {
-    super.onModelLoad();
-  }
-
   update() {
     if(this.isLoaded) {
       this.buildCheck();
     }
     super.update();
+  }
+
+  onModelLoad() {
+    super.onModelLoad();
   }
 
   buildCheck() {

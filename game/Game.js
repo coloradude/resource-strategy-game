@@ -231,16 +231,17 @@ class Game{
       name = `cube${this.cubes.length}`
     ) {
       if(coordinates !== null) {
-        let cube = new Cube(size);
+        let cube = new Cube(
+          this,
+          undefined, // model URL
+          new THREE.Vector3(250, 250, 250)
+        );
 
         cube.name = name;
         cube.position.set(coordinates.x, coordinates.y, coordinates.z);
 
         this.scene.add(cube);
         this.cubes.push(cube);
-
-        cube.setName(name);
-        cube.setSceneObject(this.scene.getObjectByName(name));
       } else {
         // do nothing; invalid location
       }
