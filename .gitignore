@@ -1,3 +1,4 @@
 build/
 node_modules
 public/stylesheets/*.css
+game/assets/models/*~.skp
