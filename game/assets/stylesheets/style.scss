@@ -22,6 +22,14 @@ html, body {
     margin-left: 200px;
   }
 
+  #rightMenu {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    background: white;
+    padding: 1em;
+  }
+
   #leftMenu {
     position: absolute;
     top: 0;
@@ -92,7 +100,7 @@ html, body {
           list-style: none;
           overflow: hidden;
 
-          a {
+          > a {
             background: white;
             color: #111;
             width: 100%;
@@ -137,24 +145,24 @@ html, body {
         text-align: right;
       }
     }
+  }
+}
 
-    a.button {
-      display: inline-block;
-      background: #333;
-      text-decoration: none;
-      color: white;
-      padding: 1em;
+a.button {
+  display: inline-block;
+  background: #333;
+  text-decoration: none;
+  color: white;
+  padding: 1em;
 
-      &:hover {
-        background: #555;
-      }
+  &:hover {
+    background: #555;
+  }
 
-      &.rightTool {
-        background: #777;
-        padding: 1em .5em;
-        font-size: 0.8em;
-        text-align: left;
-      }
-    }
+  &.rightTool {
+    background: #777;
+    padding: 1em .5em;
+    font-size: 0.8em;
+    text-align: left;
   }
 }

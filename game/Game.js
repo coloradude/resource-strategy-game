@@ -43,6 +43,7 @@ const Player = require('./objects/Player.js');
 const Camera = require('./objects/Camera.js');
 const Menu = require('./objects/Menu/Menu.js');
 const LeftMenu = require('./objects/Menu/LeftMenu.js');
+const RightMenu = require('./objects/Menu/RightMenu.js');
 const SceneObject = require('./objects/SceneObject.js');
 const InterfaceObject = require('./objects/InterfaceObject/InterfaceObject.js');
 const SelectionBox = require('./objects/InterfaceObject/SelectionBox.js');
@@ -152,6 +153,7 @@ class Game{
 
     update() {
         this.renderScore();
+        this.renderRightMenu();
 
         for(let i in this.selectedUnits) {
           this.selectedUnits[i].select(true);
@@ -187,10 +189,14 @@ class Game{
     }
 
     renderScore() {
-      this.menu.updateScore(this.player.score);
-      this.menu.updateGold(this.player.resources.gold);
-      this.menu.updateFood(this.player.resources.food);
-      this.menu.updateMetal(this.player.resources.metal);
+      this.leftMenu.updateScore(this.player.score);
+      this.leftMenu.updateGold(this.player.resources.gold);
+      this.leftMenu.updateFood(this.player.resources.food);
+      this.leftMenu.updateMetal(this.player.resources.metal);
+    }
+
+    renderRightMenu() {
+      this.rightMenu.render();
     }
 
     watchEvents() {
@@ -424,7 +430,8 @@ class Game{
     }
 
     addMenu() {
-      this.menu = new LeftMenu(this);
+      this.leftMenu = new LeftMenu(this);
+      this.rightMenu = new RightMenu(this);
     }
 
     addUnit(coords) {
