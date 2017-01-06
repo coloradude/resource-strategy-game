@@ -10,22 +10,40 @@ const Building = require('./Building.js');
 
 class Mine extends Building {
   constructor(
-    size = new THREE.Vector3(250, 250, 100),
+    game,
+    size = new THREE.Vector3(1000, 1000, 100),
     type = 'mine',
-    status = 'complete'
+    status = 'incomplete'
   ) {
-    let geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-
-    super(geometry, undefined, status);
+    let model = './build/output/assets/models/orange-mine.dae';
+    super(game, model, size, status);
 
     this.type = 'building';
     this.buildingType = 'mine';
+    this.game = game;
+
+    // total cost of building construction
+    this.buildCost = [
+      {
+        type: 'metal',
+        amt: 1000
+      }, {
+        type: 'gold',
+        amt: 200
+      }, {
+        type: 'food',
+        amt: 0
+      }
+    ];
 
     this.completeColor = 0xCCCC00;
     this.incompleteColor = 0x555500;
+
+    this.speed = 0;
   }
 
   update() {
+    // console.log(this.scale);
     super.update();
   }
 
@@ -36,13 +54,13 @@ class Mine extends Building {
   */
   assign(objArray, coords) {
 
+    console.log(`mine assign() called`);
+
     for(let i in objArray) {
       // assign any new jobs to selectedUnits
     }
 
-    super.assign(objArray, coords);
-
-    return true; // stop bubbling
+    return super.assign(objArray, coords);
   }
 }
 

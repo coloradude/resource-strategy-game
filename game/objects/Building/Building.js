@@ -6,19 +6,18 @@ browser: true
 */
 
 const THREE = require('three');
-const SceneObject = require('../SceneObject.js');
+const Model = require('../Model.js');
 
-class Building extends SceneObject {
+class Building extends Model {
   constructor(
-    geometry = new THREE.BoxGeometry(100, 100, 100),
-    material = new THREE.MeshLambertMaterial({
-      color: 0x333333
-    }),
+    game,
+    model = './build/output/assets/models/red-mine.dae',
+    size = new THREE.Vector3(500, 500, 250),
     status = null
   ) {
+    super(game, model, size);
 
-    super(geometry, material);
-
+    this.model = model;
     this.type = "building";
     this.buildingType = null;
     this.status = status;
@@ -30,13 +29,13 @@ class Building extends SceneObject {
     this.buildCost = [
       {
         type: 'metal',
-        amt: 1000
+        amt: 0
       }, {
         type: 'gold',
-        amt: 200
+        amt: 0
       }, {
         type: 'food',
-        amt: 100
+        amt: 0
       }
     ];
 
@@ -62,14 +61,16 @@ class Building extends SceneObject {
     super.update();
   }
 
-  updateColorByCompletion() {
+  updateAppearanceByCompletion() {
     if(this.completion === 100) {
-      this.material.color.setHex(this.completeColor);
+      // this.material.color.setHex(this.completeColor);
+      // console.log(`mine complete`);
     } else if (this.completion === 0) {
-      this.material.color.setHex(this.incompleteColor);
+      // this.material.color.setHex(this.incompleteColor);
     } else {
-      let newColor = this.completeColor / this.completion;
-      this.material.color.setHex(newColor);
+      // let newColor = this.completeColor / this.completion;
+      // this.material.color.setHex(newColor);
+      console.log(`mine incomplete, completion = ${this.completion}`);
     }
   }
 
@@ -78,12 +79,12 @@ class Building extends SceneObject {
       // do nothing
       this.completion = 100;
       this.status = 'complete';
-      this.updateColorByCompletion();
+      this.updateAppearanceByCompletion();
     } else {
       // build
       this.completion += this.buildQueue;
       this.buildQueue = 0;
-      this.updateColorByCompletion();
+      this.updateAppearanceByCompletion();
     }
   }
 

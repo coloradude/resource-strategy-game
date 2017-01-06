@@ -9,13 +9,17 @@ const THREE = require('three');
 const ColladaLoader = require('./ColladaLoader.js');
 
 class Model extends THREE.Object3D {
-  constructor(game) {
+  constructor(
+    game,
+    modelUrl,
+    size = new THREE.Vector3(100, 100, 100)
+  ) {
     super();
 
     this.game = game;
+    this.size = size;
 
-    this.model = './build/output/assets/models/orange-mine.dae';
-    this.modelScale = new THREE.Vector3(100, 100, 50);
+    this.model = modelUrl;
 
     this.loader = new THREE.ColladaLoader();
     this.isLoaded = false;
@@ -44,11 +48,13 @@ class Model extends THREE.Object3D {
       // attach loaded model as child of this
       this.add(result.scene);
 
+      let tempSize = this.getSize();
+
       // set initial scale
       this.scale.set(
-        this.modelScale.x,
-        this.modelScale.y,
-        this.modelScale.z
+        this.size.x / tempSize.x,
+        this.size.y / tempSize.y,
+        this.size.z / tempSize.z
       );
 
       // add this to game scene
@@ -152,9 +158,11 @@ class Model extends THREE.Object3D {
 
   select(selected = true) {
     if(selected) {
-      this.material.color.setHex(this.selectedColor);
+      // this.material.color.setHex(this.selectedColor);
+      console.log(`selected ${this.mine}, but haven't implemented appearance change yet`);
     } else {
-      this.material.color.setHex(this.unselectedColor);
+      // this.material.color.setHex(this.unselectedColor);
+      console.log(`deselected ${this.mine}, but haven't implemented appearance change yet`);
     }
   }
 
