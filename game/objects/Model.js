@@ -85,7 +85,7 @@ class Model extends THREE.Object3D {
   }
 
   onModelLoad() {
-    this.onModelLoad = true;
+    this.onModelLoadRun = true;
   }
 
   update() {
@@ -98,6 +98,7 @@ class Model extends THREE.Object3D {
   }
 
   moveTowardDestination(destination = null) {
+
     if(destination !== null) {
 
       let difX = destination.x - this.position.x;

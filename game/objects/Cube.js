@@ -36,11 +36,11 @@ class Cube extends Model {
     this.buildSpeed = 1; // scalar for amount to build
     this.buildStep = 1; // amount to build per step
 
-    this.movementTolerance = new THREE.Vector3(size.x, size.y, size.z);
+    this.movementTolerance = new THREE.Vector3(0, 0, 0);
 
     this.growthVelocity = new THREE.Vector3(1, 1, 1);
 
-    this.innerCubeColor = 0xFFFF00;
+    this.innerCubeColor = 0x8E1111;
     this.outerCubeColor = 0x666666;
     this.selectedColor = 0xFFFFFF;
     this.unselectedColor = this.innerCubeColor;
@@ -80,6 +80,8 @@ class Cube extends Model {
     this.setInnerCubeColor(this.innerCubeColor);
     this.setOuterCubeColor(this.outerCubeColor);
 
+    this.resourceCollectionRange = new THREE.Vector3(this.size.x, this.size.y, this.size.z);
+
     super.onModelLoad();
   }
 
@@ -98,7 +100,11 @@ class Cube extends Model {
         break;
       case 'collectResource':
         // move til close enough, then do job
-        if(this.getDistanceFrom(job.resourceNode) < this.resourceCollectionRange) {
+        if(
+          Math.abs(job.resourceNode.position.x - this.position.x) <= this.resourceCollectionRange.x &&
+          Math.abs(job.resourceNode.position.y - this.position.y) <= this.resourceCollectionRange.y &&
+          Math.abs(job.resourceNode.position.z - this.position.z) <= this.resourceCollectionRange.z
+        ) {
           this.collectResource(job.resourceNode);
         } else {
           this.setDestination(job.resourceNode.position);
@@ -106,7 +112,11 @@ class Cube extends Model {
         break;
       case 'move':
         // move til close enough, then cancel job
-        if(this.getDistanceFrom(job.coordinates) > this.movementTolerance) {
+        if(
+          Math.abs(job.coordinates.x - this.position.x) > this.movementTolerance.x ||
+          Math.abs(job.coordinates.y - this.position.y) > this.movementTolerance.y ||
+          Math.abs(job.coordinates.z - this.position.z) > this.movementTolerance.z
+        ) {
           this.setDestination(job.coordinates);
         } else {
           this.removeJob(job);
