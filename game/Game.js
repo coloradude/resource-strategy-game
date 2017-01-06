@@ -147,9 +147,7 @@ class Game{
 
       this.watchEvents();
 
-      this.model = new Model(this);
-
-      // this.loadScenario(LEVEL);
+      this.loadScenario(LEVEL);
     }
 
     update() {
@@ -255,10 +253,7 @@ class Game{
           building = new Mine(this);
           break;
         case null:
-          building = new Building(
-            undefined,
-            undefined
-          );
+          building = new Building(this);
           break;
         default:
           console.error(`unrecognized building type ${type}`);
@@ -266,13 +261,9 @@ class Game{
       }
 
       building.name = name;
-      // building.position.set(coordinates.x, coordinates.y, coordinates.z);
+      building.position.set(coordinates.x, coordinates.y, coordinates.z);
 
-      // this.scene.add(building);
       this.buildings.push(building);
-
-      // building.setName(name);
-      // building.setSceneObject(this.scene.getObjectByName(name));
     }
 
     removeBuilding(building) {
