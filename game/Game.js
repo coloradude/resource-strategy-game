@@ -651,7 +651,7 @@ class Game{
       if(event.which == CONTROLS.leftClick) {
           this.isMouseDown = false;
 
-          if(!this.shiftIsDown) {
+          if(!this.shiftIsDown && this.mouseIsOnGame(event)) {
             this.worldMouseCoordinatesEnd = this.mouseIntersectPoint(this.ground);
 
             // if not dragging, deselectAllUnits
@@ -922,10 +922,10 @@ class Game{
     }
 
     mouseIsOnGame(event) {
-      if(event.clientX < MENU_WIDTH) {
-        return false;
-      } else {
+      if(event.target == CANVAS) {
         return true;
+      } else {
+        return false;
       }
     }
 
