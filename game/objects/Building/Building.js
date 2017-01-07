@@ -11,9 +11,9 @@ const Model = require('../Model.js');
 class Building extends Model {
   constructor(
     game,
-    model = './build/output/assets/models/red-mine.dae',
-    size = new THREE.Vector3(500, 500, 250),
-    status = null
+    model,
+    size,
+    status
   ) {
     super(game, model, size);
 
@@ -51,9 +51,11 @@ class Building extends Model {
         this.completion = 100;
         break;
       default:
-        this.completion = 100;
+        console.error(`unrecognized status when constucting building`);
         break;
     }
+
+    this.speed = 0;
   }
 
   update() {
@@ -77,6 +79,7 @@ class Building extends Model {
       // build
       this.completion += this.buildQueue;
       this.buildQueue = 0;
+      this.status = 'incomplete';
       this.updateAppearanceByCompletion();
     }
   }
