@@ -7,42 +7,32 @@ browser: true
 
 const THREE = require('three');
 const Building = require('./Building.js');
+const GameSettings = require('../../GameSettings.js');
 
 class Mine extends Building {
   constructor(
     game,
-    size = new THREE.Vector3(1000, 1000, 100),
+    size = new THREE.Vector3(
+      GameSettings.mine.defaultSize.x,
+      GameSettings.mine.defaultSize.y,
+      GameSettings.mine.defaultSize.z
+    ),
     type = 'mine',
     status = 'incomplete'
   ) {
-    let model = './build/output/assets/models/orange-mine.dae';
+    let model = GameSettings.mine.model;
     super(game, model, size, status);
 
-    this.buildingType = 'mine';
-    this.game = game;
+    this.buildingType = GameSettings.mine.type;
 
-    this.buildingHasNotBegunTexture = './build/output/assets/textures/Granite_Dark_Gray.jpg';
-    this.buildingInProgressTexture = './build/output/assets/textures/Stone_Marble.jpg';
-    this.buildingCompleteTexture = './build/output/assets/textures/Granite_Dark_Gray.jpg';
+    this.buildingHasNotBegunTexture = GameSettings.mine.buildingHasNotBegunTexture;
+    this.buildingInProgressTexture = GameSettings.mine.buildingInProgressTexture;
+    this.buildingCompleteTexture = GameSettings.mine.buildingCompleteTexture;
 
-    // total cost of building construction
-    this.buildCost = [
-      {
-        type: 'metal',
-        amt: 1000
-      }, {
-        type: 'gold',
-        amt: 200
-      }, {
-        type: 'food',
-        amt: 0
-      }
-    ];
+    this.buildCost = GameSettings.mine.buildCost;
 
-    this.completeColor = 0xCCCC00;
-    this.incompleteColor = 0x555500;
-
-    this.speed = 0;
+    this.completeColor = GameSettings.mine.completeColor;
+    this.incompleteColor = GameSettings.mine.incompleteColor;
   }
 
   update() {
@@ -57,7 +47,6 @@ class Mine extends Building {
   }
 
   updateAppearanceByCompletion() {
-
     if(this.completion >= 100) {
       this.changeBaseTexture(this.buildingCompleteTexture);
     } else if (this.completion === 0) {

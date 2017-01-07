@@ -25,20 +25,6 @@ class Building extends Model {
     this.buildSpeed = 1;
     this.buildQueue = 0;
 
-    // total cost of building construction
-    this.buildCost = [
-      {
-        type: 'metal',
-        amt: 0
-      }, {
-        type: 'gold',
-        amt: 0
-      }, {
-        type: 'food',
-        amt: 0
-      }
-    ];
-
     this.completeColor = 0x333333;
     this.incompleteColor = 0x999999;
 
