@@ -11,8 +11,8 @@ const Model = require('./Model.js');
 class Cube extends Model {
   constructor(
     game,
-    model = './build/output/assets/models/inset-cube.dae',
-    size = new THREE.Vector3(100, 100, 100)
+    size,
+    model = './build/output/assets/models/inset-cube.dae'
   ){
 
     super(game, model, size);

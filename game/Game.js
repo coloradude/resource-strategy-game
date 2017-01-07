@@ -20,7 +20,7 @@ const MAPWIDTH = 10000;
 const MAPLENGTH = 10000;
 const MAPHEIGHT = 1000;
 const SHADOWS = true;
-const LEVEL = require('../output/assets/scenario1.json');
+const LEVEL = require('../../game/assets/scenario1.json');
 
 /* Camera Settings */
 const FOV = 90;
@@ -226,15 +226,15 @@ class Game{
       @size: (x, y, z) vector
     */
     addCube(
-      coordinates = null,
-      size = null,
+      coordinates,
+      size,
       name = `cube${this.cubes.length}`
     ) {
       if(coordinates !== null) {
         let cube = new Cube(
-          this,
-          undefined, // model URL
-          new THREE.Vector3(250, 250, 250)
+          this,     // game
+          size,
+          undefined // model
         );
 
         cube.name = name;
@@ -257,10 +257,12 @@ class Game{
       let building;
       switch(type) {
         case 'mine':
-          building = new Mine(this);
-          break;
-        case null:
-          building = new Building(this);
+          building = new Mine(
+            this,
+            size,
+            type,
+            status
+          );
           break;
         default:
           console.error(`unrecognized building type ${type}`);
@@ -892,7 +894,10 @@ class Game{
           if(groundIntersect) {
             this.addBuilding(
               groundIntersect.point,
-              new THREE.Vector3(500, 500, 500)
+              undefined,
+              undefined,
+              'mine',
+              'complete'
             );
           }
           break;
