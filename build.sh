@@ -7,7 +7,9 @@ mkdir build/intermediates
 mkdir build/output
 
 # Move assets directory from game to output directory
+echo "Copying assets..."
 cp -r game/assets build/output
+echo "Copying assets complete"
 
 # Compile source files to ES5
 babel game --out-dir build/intermediates --source-maps
