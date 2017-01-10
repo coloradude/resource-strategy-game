@@ -32,11 +32,11 @@ class Cube extends Model {
     this.growthScalar = 0.0001; // scalar that determines growth speed
     this.minSize = new THREE.Vector3(100, 100, 100);
 
-    this.buildRange = new THREE.Vector3(size.x, size.y, size.z); // distance can build within
+    this.buildRange = new THREE.Vector3(1, 1, 1); // distance can build within
     this.buildSpeed = 1; // scalar for amount to build
     this.buildStep = 1; // amount to build per step
 
-    this.movementTolerance = new THREE.Vector3(0, 0, 0);
+    this.movementTolerance = new THREE.Vector3(1, 1, 1);
 
     this.growthVelocity = new THREE.Vector3(1, 1, 1);
 
@@ -69,6 +69,9 @@ class Cube extends Model {
     super.update();
   }
 
+  /*
+    Function run one time once model has loaded
+  */
   onModelLoad() {
     this.meshes = this.children[0].children[0].children;
 
@@ -91,11 +94,14 @@ class Cube extends Model {
         this.idle();
         break;
       case 'build':
+        let collisionPont = this.getCollisionPointFrom(job.building);
+
         // move til close enough, then do job
-        if(this.getDistanceFrom(job.building) < this.buildRange) {
+        if( this.isWithinFrom(this.buildRange, job.building) ) {
+          console.log(`build`);
           this.build(job);
         } else {
-          this.setDestination(job.building.position);
+          this.setDestination(collisionPont);
         }
         break;
       case 'collectResource':
@@ -112,11 +118,7 @@ class Cube extends Model {
         break;
       case 'move':
         // move til close enough, then cancel job
-        if(
-          Math.abs(job.coordinates.x - this.position.x) > this.movementTolerance.x ||
-          Math.abs(job.coordinates.y - this.position.y) > this.movementTolerance.y ||
-          Math.abs(job.coordinates.z - this.position.z) > this.movementTolerance.z
-        ) {
+        if( !this.isWithinFrom(this.movementTolerance, job.coordinates) ) {
           this.setDestination(job.coordinates);
         } else {
           this.removeJob(job);
@@ -164,7 +166,7 @@ class Cube extends Model {
     }
 
     if(canBuild) {
-
+      // increase building completion & charge player resource cost
       let completion = job.building.build(buildAmt);
 
       if(completion >= 100) {
@@ -192,18 +194,26 @@ class Cube extends Model {
   */
   queueJob(job) {
 
+    // apply default job priority if undefined
     if(job.priority === undefined) {
         job.priority = this.jobPriorities[job.job];
     }
 
-    // process job
+    // process job addition
     switch(job.job) {
       case 'move':
         for(let i in this.queue) {
-          // at most 1 move instr, queuing updates existing job
-          if(this.queue[i].job === 'move') {
+          if(
+            this.queue[i].job === 'move'
+          ) {
+            // at most 1 move instr, queuing updates existing job
             this.queue[i].coordinates = job.coordinates;
-          } else if(this.queue[i].job == 'build' || this.queue[i].job == 'collectResource') {
+            return;
+          } else if(
+            // new move job destroys existing build, collectResource jobs
+            this.queue[i].job == 'build' ||
+            this.queue[i].job == 'collectResource'
+          ) {
             this.removeJob(this.queue[i]);
           }
         }
@@ -235,11 +245,17 @@ class Cube extends Model {
         break;
       case 'build':
         for(let i in this.queue) {
-          if(this.queue[i].building == job.building) {
+          if(
+            this.queue[i].building == job.building
+          ) {
             // don't queue build jobs on same building
             return;
-          } else if (this.queue[i].job == 'move' || this.queue[i].job == 'build' || this.queue[i].job == 'collectResource') {
-            // cancel any existing move and build jobs
+          } else if (
+            this.queue[i].job == 'move' ||
+            this.queue[i].job == 'build' ||
+            this.queue[i].job == 'collectResource'
+          ) {
+            // cancel any existing move, build, collectResource jobs
             this.removeJob(this.queue[i]);
           }
         }
@@ -262,11 +278,9 @@ class Cube extends Model {
         break;
       default:
         // remove job from queue
-        for(let i in this.queue) {
-          if(this.queue[i].job == job.job) {
-            this.queue.splice(i, 1);
-          }
-        }
+        this.queue = this.queue.filter((obj) => {
+          return obj.job !== job.job;
+        });
         break;
     }
   }
@@ -304,11 +318,13 @@ class Cube extends Model {
   getHighestPriorityJob() {
     let priority = 0,
         highestPriorityJob;
+
     for(let i in this.queue) {
-      if(this.queue[i].priority > priority) {
+      if( this.queue[i].priority > priority ) {
         highestPriorityJob = this.queue[i];
       }
     }
+
     return highestPriorityJob;
   }
 
