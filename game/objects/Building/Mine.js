@@ -104,7 +104,9 @@ class Mine extends Building {
       // assign any new jobs to selectedUnits
     }
 
-    return super.assign(objArray, coords);
+    super.assign(objArray, coords);
+
+    return true;
   }
 }
 
