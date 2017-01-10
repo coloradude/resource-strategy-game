@@ -42,7 +42,7 @@ class Model extends THREE.Object3D {
     this.selectedColor = 0xFFFFFF;
     this.unselectedColor = 0xCC0000;
 
-    this.destinationRange = new THREE.Vector3(25, 25, 25); // tolerance for how close an object must get before stopping
+    this.destinationTolerance = new THREE.Vector3(1, 1, 1); // tolerance for how close an object must get before stopping
   }
 
   load() {
@@ -69,13 +69,6 @@ class Model extends THREE.Object3D {
         // calculate size
         this.size = this.getSize();
 
-        // update ranges based on size
-        this.destinationRange = new THREE.Vector3(
-          this.size.x,
-          this.size.y,
-          this.size.z
-        );
-
         this.onModelLoad();
         this.isLoaded = true;
       }).bind(this));
@@ -101,37 +94,70 @@ class Model extends THREE.Object3D {
 
     if(destination !== null) {
 
-      let difX = destination.x - this.position.x;
-      let difY = destination.y - this.position.y;
-      let difZ = destination.z - this.position.z;
+      let dif = new THREE.Vector3(0, 0, 0);
 
-      // correct destination
-      difX -= Math.sign(difX) * this.size.x/2;
-      difY -= Math.sign(difY) * this.size.y/2;
-      difZ -= Math.sign(difZ) * this.size.z/2;
+      // define true dif distance (incoorperating size)
+      for(let i in {'x':null, 'y':null, 'z':null}) {
+        if(this.position[i] > destination[i]) {
+          dif[i] = destination[i] - this.position[i];
+        } else if (
+          this.position[i] <= destination[i] &&
+          this.position[i] + this.size[i] >= destination[i]
+        ) {
+          if(i == 'z') {
+            dif[i] = 0;
+          } else {
+            dif[i] = destination[i] - (this.position[i] + this.size[i]/2);
+          }
+        } else {
+          dif[i] = destination[i] - this.position[i] + this.size[i];
+        }
+      }
 
-      // only move if farther than this.destinationRange
-      if(Math.abs(difX) > this.destinationRange.x || Math.abs(difY) > this.destinationRange.y || Math.abs(difZ) > this.destinationRange.z) {
+      /*
+        dif is now the distance from the outer edge of model to destination point (3 dimensions)
+      */
 
-        let d = Math.sqrt(Math.pow(difX, 2) + Math.pow(difY, 2) + Math.pow(difZ, 2));
+      let absDif = new THREE.Vector3(
+        Math.abs(dif.x),
+        Math.abs(dif.y),
+        Math.abs(dif.z)
+      );
+
+      // only move if farther than this.destinationTolerance
+      if(
+        absDif.x > this.destinationTolerance.x ||
+        absDif.y > this.destinationTolerance.y ||
+        absDif.z > this.destinationTolerance.z
+      ) {
+
+        let d = Math.sqrt(Math.pow(dif.x, 2) + Math.pow(dif.y, 2) + Math.pow(dif.z, 2));
 
         // move at constant speed no matter the direction
-        this.velocity.x = (this.speed * difX) / d;
-        this.velocity.y = (this.speed * difY) / d;
-        this.velocity.z = (this.speed * difZ) / d;
+        this.velocity.x = (this.speed * dif.x) / d;
+        this.velocity.y = (this.speed * dif.y) / d;
+        this.velocity.z = (this.speed * dif.z) / d;
 
-        if(this.velocity.x !== 0 || this.velocity.y !== 0 || this.velocity.z !== 0) {
-
-          // update position
+        // update position
+        if(absDif.x > Math.abs(this.velocity.x)) {
           this.position.x += this.velocity.x;
-          this.position.y += this.velocity.y;
-          this.position.z += this.velocity.z;
-
-          // store local position
-          this.position.x = this.position.x;
-          this.position.y = this.position.y;
-          this.position.z = this.position.z;
+        } else {
+          this.position.x += dif.x;
         }
+
+        if(absDif.y > Math.abs(this.velocity.y)) {
+          this.position.y += this.velocity.y;
+        } else {
+          this.position.y += dif.y;
+        }
+
+        if(absDif.z > Math.abs(this.velocity.z)) {
+          this.position.z += this.velocity.z;
+        } else {
+          this.position.z += dif.z;
+        }
+      } else {
+        // close enough, don't moving
       }
     } else {
       // destination is null, don't move
@@ -146,6 +172,51 @@ class Model extends THREE.Object3D {
       boundingBox.max.y - boundingBox.min.y,
       boundingBox.max.z - boundingBox.min.z
     );
+  }
+
+  getCollisionPointFrom(obj) {
+
+    let destination = new THREE.Vector3();
+
+    for(let i in {'x': null, 'y':null, 'z':null}) {
+
+      if( this.position[i] > obj.position[i] + obj.size[i] ) { // obj to left of this
+        destination[i] = this.position[i] - obj.size[i];
+      } else if( this.position[i] + this.size[i] > obj.position[i] + obj.size[i] ) { // obj above/below this
+        destination[i] = obj.position[i];
+      } else { // obj to right of this
+        destination[i] = this.position[i] + this.size[i];
+      }
+    }
+
+    return destination;
+  }
+
+  /*
+    @distances: a Vector3 obj describing the bounds to check within
+    @obj: a scene object or Vector3 coordinate object to check how far we are
+  */
+  isWithinFrom(distances, obj) {
+
+    if(obj.position === undefined) {
+      obj.position = obj;
+      obj.size = new THREE.Vector3(0, 0, 0);
+    }
+
+    for(let i in {'x': null, 'y':null, 'z':null}) {
+
+      if(
+        this.position[i] - distances[i] <= obj.position[i] + obj.size[i] &&
+        this.position[i] + this.size[i] + distances[i] >= obj.position[i]
+      ) {
+        continue;
+      } else {
+        return false;
+      }
+
+    }
+
+    return true;
   }
 
   getDistanceFrom(obj) {
