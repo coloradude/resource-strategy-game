@@ -88,6 +88,7 @@ class Building extends Model {
     This is called whenever a player right-clicks on this object while selectedObjects.length > 0
   */
   assign(objArray, coords) {
+
     for(let i in objArray) {
       // if incomplete, build me
       if(this.status === 'incomplete') {
@@ -99,7 +100,7 @@ class Building extends Model {
         // move towards me
         objArray[i].queueJob({
           job: 'move',
-          coordinates: this.position
+          coordinates: this.getCollisionPointFrom(objArray[i])
         });
       }
     }
