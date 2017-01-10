@@ -175,9 +175,11 @@ class Model extends THREE.Object3D {
 
     let units = [];
 
-    // cast rays in circle, starting in center of this
     let pi = 3.14;
+
     let theta, x, y, collisions;
+
+    // cast rays in circle, starting in center of this
     for( let i = 0; i < numRays; i++ ) {
 
       theta = (i / numRays) * (pi * 2);
@@ -185,11 +187,7 @@ class Model extends THREE.Object3D {
       y = Math.sin(theta);
 
       // create normalized direction vector
-      let direction = new THREE.Vector3(
-        x,
-        y,
-        0 // z looks straight out
-      );
+      let direction = new THREE.Vector3(x, y, 0);
 
       raycaster.set(centerPoint, direction);
 
@@ -207,8 +205,6 @@ class Model extends THREE.Object3D {
               units.push(obj);
             }
           }
-      } else {
-        // console.log(`nothing from (${x}, ${y})`);
       }
     }
 

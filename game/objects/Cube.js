@@ -94,13 +94,15 @@ class Cube extends Model {
         this.idle();
         break;
       case 'build':
-        let collisionPont = this.getCollisionPointFrom(job.building);
-
         // move til close enough, then do job
         if( this.isWithinFrom(this.buildRange, job.building) ) {
           this.build(job);
         } else {
-          this.setDestination(collisionPont);
+          this.setDestination(new THREE.Vector3(
+            job.building.position.x + job.building.size.x/2,
+            job.building.position.y + job.building.size.y/2,
+            job.building.position.z + job.building.size.z/2
+          ));
         }
         break;
       case 'collectResource':
@@ -208,11 +210,12 @@ class Cube extends Model {
             // at most 1 move instr, queuing updates existing job
             this.queue[i].coordinates = job.coordinates;
             return;
-          } else if(
+          } else if (
             // new move job destroys existing build, collectResource jobs
             this.queue[i].job == 'build' ||
             this.queue[i].job == 'collectResource'
           ) {
+            // cancel any existing build, collectResource jobs
             this.removeJob(this.queue[i]);
           }
         }

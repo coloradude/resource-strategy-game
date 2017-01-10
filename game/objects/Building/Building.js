@@ -100,7 +100,11 @@ class Building extends Model {
         // move towards me
         objArray[i].queueJob({
           job: 'move',
-          coordinates: this.getCollisionPointFrom(objArray[i])
+          coordinates: new THREE.Vector3(
+            this.position.x + this.size.x/2,
+            this.position.y + this.size.y/2,
+            this.position.z + this.size.z/2
+          )
         });
       }
     }
