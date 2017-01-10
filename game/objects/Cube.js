@@ -98,7 +98,6 @@ class Cube extends Model {
 
         // move til close enough, then do job
         if( this.isWithinFrom(this.buildRange, job.building) ) {
-          console.log(`build`);
           this.build(job);
         } else {
           this.setDestination(collisionPont);

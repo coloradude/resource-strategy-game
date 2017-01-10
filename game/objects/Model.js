@@ -96,27 +96,16 @@ class Model extends THREE.Object3D {
 
       let dif = new THREE.Vector3(0, 0, 0);
 
-      // define true dif distance (incoorperating size)
-      for(let i in {'x':null, 'y':null, 'z':null}) {
-        if(this.position[i] > destination[i]) {
-          dif[i] = destination[i] - this.position[i];
-        } else if (
-          this.position[i] <= destination[i] &&
-          this.position[i] + this.size[i] >= destination[i]
-        ) {
-          if(i == 'z') {
-            dif[i] = 0;
-          } else {
-            dif[i] = destination[i] - (this.position[i] + this.size[i]/2);
-          }
-        } else {
-          dif[i] = destination[i] - this.position[i] + this.size[i];
-        }
-      }
+      let centerPoint = new THREE.Vector3(
+        this.position.x + this.size.x/2,
+        this.position.y + this.size.y/2,
+        this.position.z // we want the floor of the model to determine its position
+      );
 
-      /*
-        dif is now the distance from the outer edge of model to destination point (3 dimensions)
-      */
+      // calculate distance from center of floor of model to destination
+      for(let i in {'x':null, 'y':null, 'z':null}) {
+        dif[i] = destination[i] - centerPoint[i];
+      }
 
       let absDif = new THREE.Vector3(
         Math.abs(dif.x),
@@ -133,35 +122,97 @@ class Model extends THREE.Object3D {
 
         let d = Math.sqrt(Math.pow(dif.x, 2) + Math.pow(dif.y, 2) + Math.pow(dif.z, 2));
 
-        // move at constant speed no matter the direction
-        this.velocity.x = (this.speed * dif.x) / d;
-        this.velocity.y = (this.speed * dif.y) / d;
-        this.velocity.z = (this.speed * dif.z) / d;
+        for(let i in {'x':null, 'y':null, 'z':null}) {
+          // move at constant speed no matter the direction
+          this.velocity[i] = (this.speed * dif[i]) / d;
 
-        // update position
-        if(absDif.x > Math.abs(this.velocity.x)) {
-          this.position.x += this.velocity.x;
-        } else {
-          this.position.x += dif.x;
-        }
-
-        if(absDif.y > Math.abs(this.velocity.y)) {
-          this.position.y += this.velocity.y;
-        } else {
-          this.position.y += dif.y;
-        }
-
-        if(absDif.z > Math.abs(this.velocity.z)) {
-          this.position.z += this.velocity.z;
-        } else {
-          this.position.z += dif.z;
+          // update position, but don't move more than the difference
+          if(absDif[i] > Math.abs(this.velocity[i])) {
+            this.position[i] += this.velocity[i];
+          } else {
+            this.position[i] += dif[i];
+          }
         }
       } else {
-        // close enough, don't moving
+        // already within destinationTolerance, don't move
       }
     } else {
       // destination is null, don't move
     }
+  }
+
+  getClosebyEverything() {
+    return this.getClosebyUnits(
+      this.game.scene.children,
+      0,
+      500,
+      100
+    );
+  }
+
+  /*
+    Collision detection within @radius over @intersectObjects
+
+    @radius: radius to check for colliosion from center of this
+    @intersectObjects: array of objects to check for collision
+    @near: min distance collions can occur
+    @far: max distance collisions can occur
+  */
+  getClosebyUnits(
+    intersectObjects = this.game.cubes.concat(this.game.resourceNodes),
+    near = 0,
+    far = 500,
+    numRays = 100
+  ) {
+
+    let centerPoint = new THREE.Vector3(
+      this.position.x + this.size.x/2,
+      this.position.y + this.size.y/2,
+      this.position.z + this.size.z/2
+    );
+
+    let raycaster = new THREE.Raycaster(centerPoint, new THREE.Vector3(0, 0, 0), near, far);
+
+    let units = [];
+
+    // cast rays in circle, starting in center of this
+    let pi = 3.14;
+    let theta, x, y, collisions;
+    for( let i = 0; i < numRays; i++ ) {
+
+      theta = (i / numRays) * (pi * 2);
+      x = Math.cos(theta);
+      y = Math.sin(theta);
+
+      // create normalized direction vector
+      let direction = new THREE.Vector3(
+        x,
+        y,
+        0 // z looks straight out
+      );
+
+      raycaster.set(centerPoint, direction);
+
+      collisions = raycaster.intersectObjects(intersectObjects, true);
+
+      if(collisions.length > 0) {
+
+          for(let i in collisions) {
+            let obj = collisions[i].object;
+            while(obj.parent !== this.game.scene) {
+              obj = obj.parent;
+            }
+
+            if(obj !== this && units.indexOf(obj) < 0) {
+              units.push(obj);
+            }
+          }
+      } else {
+        // console.log(`nothing from (${x}, ${y})`);
+      }
+    }
+
+    return units;
   }
 
   getSize() {
@@ -176,7 +227,7 @@ class Model extends THREE.Object3D {
 
   getCollisionPointFrom(obj) {
 
-    let destination = new THREE.Vector3();
+    let destination = new THREE.Vector3(0, 0, 0);
 
     for(let i in {'x': null, 'y':null, 'z':null}) {
 

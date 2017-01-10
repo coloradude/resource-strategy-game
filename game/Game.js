@@ -228,7 +228,7 @@ class Game{
     addCube(
       coordinates,
       size,
-      name = `cube${this.cubes.length}`
+      name
     ) {
       if(coordinates !== null) {
         let cube = new Cube(
@@ -236,6 +236,14 @@ class Game{
           size,
           undefined // model
         );
+
+        if(name === undefined) {
+          if(this.cubes.length > 0) {
+            name = `cube` + (parseInt(this.cubes[this.cubes.length - 1].name.match(/\d+/)) + 1);
+          } else {
+            name = `cube0`;
+          }
+        }
 
         cube.name = name;
         cube.position.set(coordinates.x, coordinates.y, coordinates.z);
@@ -382,6 +390,12 @@ class Game{
 
     listSelectedUnits() {
       console.log(this.selectedUnits);
+    }
+
+    listNearbyToSelectedUnits() {
+      for(let i in this.selectedUnits) {
+        console.log(this.selectedUnits[i].getClosebyUnits());
+      }
     }
 
     loadScenario(jsonFile) {
@@ -538,19 +552,23 @@ class Game{
     }
 
     initializeLight() {
-      // ambient light performs better
-      this.light = new THREE.AmbientLight(0xFFFFFF);
-      // this.light = new THREE.DirectionalLight(0xffffff, 1);
-      //
-      // this.lightTarget = new THREE.Object3D();
-      // this.scene.add(this.lightTarget);
-      // this.lightTarget.position.set(
-      //   0, 0, 0
-      // );
-      // this.light.target = this.lightTarget;
-      // this.light.position.set(4000, 4000, 0);
-      // this.light.castShadow = true;
 
+      this.ambientLight = new THREE.AmbientLight(0xaaaaaa);
+
+      this.light = new THREE.DirectionalLight(0xffffff, 1);
+
+      this.lightTarget = new THREE.Object3D();
+      this.lightTarget.position.set(
+        MAPWIDTH / 2,
+        MAPLENGTH / 2,
+        0
+      );
+      this.scene.add(this.lightTarget);
+      this.light.target = this.lightTarget;
+      this.light.castShadow = true;
+      this.light.position.set(0, 0, 2000);
+
+      this.scene.add(this.ambientLight);
       this.scene.add(this.light);
     }
 

@@ -17,8 +17,10 @@ class RightMenu extends Menu {
       function: this.game.removeSelectedCubes
     }, {
       name: 'listSelected',
-      function: this.game.listSelectedUnits,
-      args: undefined
+      function: this.game.listSelectedUnits
+    }, {
+      name: 'listNearbyUnits',
+      function: this.game.listNearbyToSelectedUnits
     }];
 
     this.assignElements();
