@@ -43,30 +43,32 @@ class Mine extends Building {
     this.meshes = this.children[0].children[0].children;
     this.baseMesh = this.meshes[0];
     this.cubeMesh = this.meshes[1];
+    this.setCubeHeight(0);
     super.onModelLoad();
   }
 
   updateAppearanceByCompletion() {
     if(this.completion >= 100) {
+      this.changeCubeColor(this.completeColor);
       this.changeBaseTexture(this.buildingCompleteTexture);
     } else if (this.completion === 0) {
+      this.changeCubeColor(this.incompleteColor);
       this.changeBaseTexture(this.buildingHasNotBegunTexture);
     } else {
       this.changeBaseTexture(this.buildingInProgressTexture);
-      let color = 0xFFFFFF * (this.completion/100);
-      this.changeCubeColor(color);
+      this.changeCubeColor(this.incompleteColor);
 
       // raise cube according to completion
-      this.changeCubeHeight(this.completion * 2);
+      this.setCubeHeight(2 * this.completion);
     }
   }
 
-  changeCubeHeight(height) {
+  setCubeHeight(height) {
     let boundingBox = new THREE.Box3().setFromObject(this.cubeMesh);
-
     let myHeight = boundingBox.max.z - boundingBox.min.z;
+    let myZScale = this.cubeMesh.scale.z;
 
-    this.cubeMesh.scale.z += (height - myHeight)/myHeight;
+    this.cubeMesh.scale.z = Math.max((myZScale * height)/myHeight, 0.1);
   }
 
   changeBaseTexture(texture) {
