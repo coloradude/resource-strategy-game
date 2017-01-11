@@ -107,14 +107,14 @@ class Cube extends Model {
         break;
       case 'collectResource':
         // move til close enough, then do job
-        if(
-          Math.abs(job.resourceNode.position.x - this.position.x) <= this.resourceCollectionRange.x &&
-          Math.abs(job.resourceNode.position.y - this.position.y) <= this.resourceCollectionRange.y &&
-          Math.abs(job.resourceNode.position.z - this.position.z) <= this.resourceCollectionRange.z
-        ) {
+        if(this.isWithinFrom(this.resourceCollectionRange, job.resourceNode)) {
           this.collectResource(job.resourceNode);
         } else {
-          this.setDestination(job.resourceNode.position);
+          this.setDestination(new THREE.Vector3(
+            job.resourceNode.position.x + job.resourceNode.size.x/2,
+            job.resourceNode.position.y + job.resourceNode.size.y/2,
+            job.resourceNode.position.z + job.resourceNode.size.z/2
+          ));
         }
         break;
       case 'move':
