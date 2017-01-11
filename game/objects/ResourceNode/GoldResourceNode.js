@@ -7,14 +7,20 @@ browser: true
 
 const THREE = require('three');
 const ResourceNode = require('./ResourceNode.js');
+const GameSettings = require('../../GameSettings.js');
 
 class GoldResourceNode extends ResourceNode {
-  constructor() {
-    let geometry = null;
-    let material = new THREE.MeshLambertMaterial({
-      color: 0xFFFF00
-    });
-    super(geometry, material);
+  constructor(
+    game,
+    size,
+    resourceRemaining
+  ) {
+    let model = GameSettings.goldResourceNode.model;
+    super(game, model, size, resourceRemaining);
+
+    this.baseColor = GameSettings.goldResourceNode.baseColor;
+    this.topColor = GameSettings.goldResourceNode.topColor;
+
     this.resourceType = "gold";
   }
 }

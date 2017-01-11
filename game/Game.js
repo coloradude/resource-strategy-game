@@ -305,23 +305,37 @@ class Game{
     /*
       @coordinates: (x, y, z) vector
       @size: (x, y, z) vector
+      @type: i.e. 'metal'
     */
     addResourceNode(
-      coordinates = new THREE.Vector3(0, 0, 0),
-      size = new THREE.Vector3(100, 100, 100),
-      type = "metal"
+      coordinates,
+      size,
+      type
     ) {
       if(coordinates !== null) {
         let resourceNode;
+
         switch(type) {
           case "metal":
-            resourceNode = new MetalResourceNode();
+            resourceNode = new MetalResourceNode(
+              this,
+              new THREE.Vector3(500, 500, 125),
+              1000
+            );
             break;
           case "food":
-            resourceNode = new FoodResourceNode();
+            resourceNode = new FoodResourceNode(
+              this,
+              new THREE.Vector3(500, 500, 125),
+              1000
+            );
             break;
           case "gold":
-            resourceNode = new GoldResourceNode();
+            resourceNode = new GoldResourceNode(
+              this,
+              new THREE.Vector3(500, 500, 125),
+              1000
+            );
             break;
           default:
             console.error('invalid resourceNode type');
@@ -335,9 +349,6 @@ class Game{
 
         this.scene.add(resourceNode);
         this.resourceNodes.push(resourceNode);
-
-        resourceNode.setName(name);
-        resourceNode.setSceneObject(this.scene.getObjectByName(name));
       }
     }
 

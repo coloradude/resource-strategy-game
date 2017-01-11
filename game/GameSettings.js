@@ -32,6 +32,21 @@ const GameSettings = {
       "buildingHasNotBegunTexture": "./build/output/assets/textures/Granite_Dark_Gray.jpg",
       "buildingInProgressTexture": "./build/output/assets/textures/Stone_Marble.jpg",
       "buildingCompleteTexture": "./build/output/assets/textures/Stone_Marble.jpg"
+    },
+    "metalResourceNode": {
+      "model": "./build/output/assets/models/resource-node.dae",
+      "baseColor": "#332706",
+      "topColor": "#4f471f"
+    },
+    "goldResourceNode": {
+      "model": "./build/output/assets/models/resource-node.dae",
+      "baseColor": "#a37a01",
+      "topColor": "#dbab1c"
+    },
+    "foodResourceNode": {
+      "model": "./build/output/assets/models/resource-node.dae",
+      "baseColor": "#417c25",
+      "topColor": "#329903"
     }
 };
 

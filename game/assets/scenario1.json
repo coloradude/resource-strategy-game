@@ -43,26 +43,26 @@
         "type": "metal"
     }
 }, {
-    "id": 2,
+    "id": 3,
     "type": "resourceNode",
     "data": {
         "coordinates": {
-            "x": 6000,
+            "x": 2500,
+            "y": 4000,
+            "z": 0
+        },
+        "type": "food"
+    }
+}, {
+    "id": 4,
+    "type": "resourceNode",
+    "data": {
+        "coordinates": {
+            "x": 3000,
             "y": 4000,
             "z": 0
         },
         "type": "gold"
-    }
-}, {
-    "id": 2,
-    "type": "resourceNode",
-    "data": {
-        "coordinates": {
-            "x": 2000,
-            "y": 6000,
-            "z": 0
-        },
-        "type": "food"
     }
 }
 ]
