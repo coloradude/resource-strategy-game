@@ -141,15 +141,6 @@ class Model extends THREE.Object3D {
     }
   }
 
-  getClosebyEverything() {
-    return this.getClosebyUnits(
-      this.game.scene.children,
-      0,
-      500,
-      100
-    );
-  }
-
   /*
     Collision detection within @radius over @intersectObjects
 
