@@ -75,7 +75,7 @@ class Building extends Model {
       // end of loading action
       if(!this.queuedUnits[i].timeLeft) {
         switch(this.queuedUnits[i].unit) {
-          case 'Cube':
+          case 'cube':
             let size = new THREE.Vector3(
               200,
               200,
@@ -169,7 +169,7 @@ class Building extends Model {
 
   getBuildTime(unit) {
     unit = unit.toLowerCase();
-    let buildTime = GameSettings[this.buildingType].unitBuildTimes[unit];
+    let buildTime = GameSettings[this.buildingType].units[unit].buildTime;
 
     console.log(buildTime);
 

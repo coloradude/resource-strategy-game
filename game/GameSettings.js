@@ -48,8 +48,15 @@ const GameSettings = {
           "type": "food",
           "amt": 500
       }],
-      "unitBuildTimes": {
-        "cube": 100
+      "units": {
+        "cube": {
+          "buildTime": 100,
+          "buildCost": {
+            "metal": 0,
+            "gold": 0,
+            "food": 100
+          }
+        }
       },
       "model": "./build/output/assets/models/cube-building.dae",
       "completeColor": 0x8E1111,
