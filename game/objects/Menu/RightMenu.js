@@ -31,15 +31,53 @@ class RightMenu extends Menu {
     // update # of selected units
     let numSelectedUnits = 0;
     let typeMap = {};
+    let selectedUnitInterfaces = [];
+    let parent = window.document.getElementById('selectedUnitInterfaces');
+
     for(let i in this.game.selectedUnits) {
       numSelectedUnits++;
 
+      // build selected unit interfaces
+      let elem = document.createElement('div');
+      elem.innerHTML = this.game.selectedUnits[i].name;
+      elem.setAttribute('data-unitName', this.game.selectedUnits[i].name);
+      selectedUnitInterfaces.push(elem);
+
       let type = this.game.selectedUnits[i].type;
 
+      // save number of each type for later rendering
       if(typeMap[type]) {
         typeMap[type]++;
       } else {
         typeMap[type] = 1;
+      }
+
+      // attach interface or update existing interface
+      for(let i = 0; i < selectedUnitInterfaces.length; i++) {
+        // update existing if exists
+        let existingElem = parent.querySelector(`[data-unitName="${this.game.selectedUnits[i].name}"]`);
+        if(existingElem) {
+          // found matching, do nothing
+        } else {
+          parent.appendChild(elem);
+        }
+      }
+    }
+
+    // remove interfaces of no longer selected units
+    let oldMenu = parent.querySelectorAll('*');
+    for(let i =0; i < oldMenu.length; i++) {
+      // check if it existing in selectedUnits
+      let len = this.game.selectedUnits.length;
+      let exists = false;
+      for(let i=0; i < len; i++) {
+        if(oldMenu[i].getAttribute('data-unitName') == this.game.selectedUnits[i].name) {
+          exists = true;
+        }
+      }
+      // if not, remove from DOM
+      if(!exists) {
+        oldMenu[i].remove();
       }
     }
 
@@ -53,6 +91,8 @@ class RightMenu extends Menu {
       elem.innerHTML = `${typeMap[i]} ${i}`;
       selectedTypes.appendChild(elem);
     }
+
+
   }
 
   assignElements() {

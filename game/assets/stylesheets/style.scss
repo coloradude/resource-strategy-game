@@ -17,9 +17,33 @@ html, body {
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
+  position: relative;
 
   #game {
     margin-left: 200px;
+  }
+
+  #selectedUnitInterfaces {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    max-height: 50%;
+    max-width: 50%;
+    display: flex;
+    flex-flow: row-reverse wrap;
+    overflow: scroll;
+
+    div {
+      background: rgba(255,255,255,0.6);
+      padding: 1em;
+      font-size: 1em;
+      margin: 0;
+      border: 1px solid rgba(0,0,0,.1);
+
+      &:hover {
+        background: rgba(255,255,255,1);
+      }
+    }
   }
 
   #rightMenu {

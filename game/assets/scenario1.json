@@ -64,5 +64,17 @@
         },
         "type": "gold"
     }
-}
+}, {
+    "id": 5,
+    "type": "building",
+    "data": {
+        "coordinates": {
+            "x": 5000,
+            "y": 4000,
+            "z": 0
+        },
+        "name": "colony1",
+        "type": "colony"
+    }
+},
 ]
