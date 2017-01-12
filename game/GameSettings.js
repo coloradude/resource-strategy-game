@@ -48,6 +48,9 @@ const GameSettings = {
           "type": "food",
           "amt": 500
       }],
+      "unitBuildTimes": {
+        "cube": 100
+      },
       "model": "./build/output/assets/models/cube-building.dae",
       "completeColor": 0x8E1111,
       "incompleteColor": 0x2E1111,

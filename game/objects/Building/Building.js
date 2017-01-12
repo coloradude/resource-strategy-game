@@ -9,6 +9,7 @@ browser: true,
 const THREE = require('three');
 const Model = require('../Model.js');
 const Cube = require('../Cube.js');
+const GameSettings = require('../../GameSettings.js');
 
 class Building extends Model {
   constructor(
@@ -166,10 +167,21 @@ class Building extends Model {
     this.selected = selected;
   }
 
+  getBuildTime(unit) {
+    unit = unit.toLowerCase();
+    let buildTime = GameSettings[this.buildingType].unitBuildTimes[unit];
+
+    console.log(buildTime);
+
+    return buildTime;
+  }
+
   queueUnit(unit) {
+    let timeLeft = this.getBuildTime(unit);
+
     this.queuedUnits.push({
       'unit': unit,
-      'timeLeft': 100
+      'timeLeft': timeLeft
     });
   }
 

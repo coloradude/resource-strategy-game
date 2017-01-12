@@ -184,7 +184,7 @@ class Colony extends Building {
       <p>${this.name} : ${this.type}</p>
       <ul class="actions">
         <li><a href="#" onclick="window.game.removeBuilding('${this.name}');">Destroy</a></li>
-        <li><a href="#" onclick="window.game.queueUnit('Cube', '${this.name}')">Queue Unit: Cube</a></li>
+        <li><a href="#" onclick="window.game.queueUnit('cube', '${this.name}')">Queue Unit: Cube</a></li>
       </ul>
       <ul class="queuedUnits">
       </ul>
