@@ -91,8 +91,6 @@ class RightMenu extends Menu {
       elem.innerHTML = `${typeMap[i]} ${i}`;
       selectedTypes.appendChild(elem);
     }
-
-
   }
 
   assignElements() {

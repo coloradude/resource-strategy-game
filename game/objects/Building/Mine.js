@@ -43,7 +43,6 @@ class Mine extends Building {
     this.meshes = this.children[0].children[0].children;
     this.baseMesh = this.meshes[0];
     this.cubeMesh = this.meshes[1];
-    this.setCubeHeight(0);
     super.onModelLoad();
   }
 
@@ -53,7 +52,7 @@ class Mine extends Building {
         this.changeCubeColor(this.completeColor);
         this.changeBaseTexture(this.buildingCompleteTexture);
       } else if (this.completion === 0) {
-        this.changeCubeColor(this.incompleteColor);
+        this.changeCubeColor(this.buildingNotStartedColor);
         this.changeBaseTexture(this.buildingHasNotBegunTexture);
       } else {
         this.changeBaseTexture(this.buildingInProgressTexture);

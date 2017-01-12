@@ -297,6 +297,9 @@ class Game{
     }
 
     removeBuilding(building) {
+      if(building.name === undefined) {
+        building = this.scene.getObjectByName(building);
+      }
       // remove from this.scene
       this.scene.remove(building);
 
@@ -483,6 +486,17 @@ class Game{
       }
 
       this.addCube(coords);
+    }
+
+    /*
+      Send @unit queue job to @building
+    */
+    queueUnit(
+      unit,
+      building
+    ) {
+      building = this.scene.getObjectByName(building);
+      building.queueUnit(unit);
     }
 
     removeCube(sceneObject) {

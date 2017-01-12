@@ -7,6 +7,7 @@ browser: true
 
 const THREE = require('three');
 const Model = require('../Model.js');
+const Cube = require('../Cube.js');
 
 class Building extends Model {
   constructor(
@@ -24,7 +25,7 @@ class Building extends Model {
     this.destination = null;
     this.buildSpeed = 1;
     this.buildQueue = 0;
-
+    this.buildingNotStartedColor = 0x666666;
     this.completeColor = 0x333333;
     this.incompleteColor = 0x999999;
 
@@ -41,18 +42,58 @@ class Building extends Model {
         break;
     }
 
+    this.queuedUnits = [];
+
     this.speed = 0;
   }
 
   update() {
     if(this.isLoaded) {
       this.buildCheck();
+
+      this.processQueuedUnits();
     }
     super.update();
   }
 
   onModelLoad() {
     super.onModelLoad();
+  }
+
+  processQueuedUnits() {
+    for(let i in this.queuedUnits) {
+      console.log(this.queuedUnits[i]);
+      this.queuedUnits[i].timeLeft -= 1;
+      if(!this.queuedUnits[i].timeLeft) {
+        switch(this.queuedUnits[i].unit) {
+          case 'Cube':
+            let size = new THREE.Vector3(
+              200,
+              200,
+              100
+            );
+
+            let coordinates = new THREE.Vector3(
+              this.position.x - size.x,
+              this.position.y - size.y,
+              this.position.z
+            );
+
+            this.game.addCube(
+              coordinates,
+              size,
+              undefined // name
+            );
+
+            // remove this unit
+            this.queuedUnits.splice(i, 1);
+
+            break;
+          default:
+            console.error(`processQueuedUnits(): unknown unit type ${this.queuedUnits[i].unit}`);
+        }
+      }
+    }
   }
 
   buildCheck() {
@@ -116,11 +157,25 @@ class Building extends Model {
     this.selected = selected;
   }
 
+  queueUnit(unit) {
+    switch(unit) {
+      case 'Cube':
+        break;
+      default:
+        console.error(`queueUnit(): unknown unit type`);
+        break;
+    }
+    this.queuedUnits.push({
+      'unit': unit,
+      'timeLeft': 100
+    });
+  }
+
   getInterfaceHtml() {
     let html = `
       <p>${this.name} : ${this.type}</p>
       <ul>
-        <li><a href="#" onclick="alert('test');">Test</a></li>
+        <li><a href="#" onclick="window.game.removeBuilding('${this.name}');">Destroy</a></li>
       </ul>
     `;
 

@@ -79,8 +79,8 @@ class Colony extends Building {
         this.setCubesColor(this.completeColor);
         this.setWallTexture(this.buildingCompleteTexture);
       } else if (this.completion === 0) {
-        this.setCenterCubeColor(this.incompleteColor);
-        this.setCubesColor(this.incompleteColor);
+        this.setCenterCubeColor(this.buildingNotStartedColor);
+        this.setCubesColor(this.buildingNotStartedColor);
       } else {
         this.setCenterCubeColor(this.incompleteColor);
         this.setWallTexture(this.buildingInProgressTexture);
@@ -177,6 +177,18 @@ class Colony extends Building {
     super.assign(objArray, coords);
 
     return true;
+  }
+
+  getInterfaceHtml() {
+    let html = `
+      <p>${this.name} : ${this.type}</p>
+      <ul>
+        <li><a href="#" onclick="window.game.removeBuilding('${this.name}');">Destroy</a></li>
+        <li><a href="#" onclick="window.game.queueUnit('Cube', '${this.name}')">Queue Unit: Cube</a></li>
+      </ul>
+    `;
+
+    return html;
   }
 }
 
