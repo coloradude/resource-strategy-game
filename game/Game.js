@@ -35,7 +35,7 @@ const SCROLL_SCALE = 1;
 /* Interface Settings */
 const MAXZOOM = 3500;
 const MINZOOM = 1000;
-const MOUSEDRAGSENSITIVITY = 5;
+const MOUSEDRAGSENSITIVITY = 0.005;
 const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue('width'));
 
 /* Import Objects */
@@ -602,6 +602,8 @@ class Game{
       this.mouseDownPosition = new THREE.Vector2();
       this.raycaster = new THREE.Raycaster();
 
+      this.lastMousePosition = new THREE.Vector2();
+
       this.leftTool = 'select';
       this.rightTool = 'createNode';
     }
@@ -717,17 +719,19 @@ class Game{
 
           if(!this.shiftIsDown && this.mouseIsOnGame(event)) {
 
-            // if ground is under mouse
             if(ground) {
                 this.worldMouseCoordinatesEnd = ground.point;
             }
 
             let mouseChangeSinceDown = new THREE.Vector2(
-              this.mouseDownPosition.x - event.offsetX,
-              this.mouseDownPosition.y - event.offsetY
+              this.mouseDownPosition.x - this.mouse.x,
+              this.mouseDownPosition.y - this.mouse.y
             );
 
-            if(Math.abs(mouseChangeSinceDown.x) < this.mouseDragSensitivity && Math.abs(mouseChangeSinceDown.y) < this.mouseDragSensitivity){
+            if(
+              Math.abs(mouseChangeSinceDown.x) < this.mouseDragSensitivity &&
+              Math.abs(mouseChangeSinceDown.y) < this.mouseDragSensitivity
+            ){
 
               this.deselectAllUnits();
 
@@ -741,8 +745,8 @@ class Game{
             }
           }
 
-          this.mouseDownPosition.x = event.offsetX;
-          this.mouseDownPosition.y = event.offsetY;
+          this.mouseDownPosition.x = this.mouse.x;
+          this.mouseDownPosition.y = this.mouse.y;
       }
       else if (event.which == CONTROLS.rightClick) {
           this.isRightMouseDown = false;
@@ -766,8 +770,8 @@ class Game{
         if(event.which == CONTROLS.leftClick) {
             this.isMouseDown = true;
 
-            this.mouseDownPosition.x = event.offsetX;
-            this.mouseDownPosition.y = event.offsetY;
+            this.mouseDownPosition.x = this.mouse.x;
+            this.mouseDownPosition.y = this.mouse.y;
 
             if(!this.shiftIsDown) {
               this.worldMouseCoordinatesStart = this.mouseIntersectPoint(this.ground);
@@ -799,19 +803,14 @@ class Game{
 
         // move camera along X-Y axis if shift held
         if(this.shiftIsDown) {
-          let deltaX = this.event.clientX - this.mouseDownPosition.x,
-              deltaY = this.event.clientY - this.mouseDownPosition.y;
 
-          let screenPercentageX = deltaX / this.gameElem.computedWidth,
-              screenPercentageY = deltaY / this.gameElem.detectedHeight;
-
-          let worldDistanceToMoveX = MAPWIDTH * screenPercentageX,
-              worldDistanceToMoveY = MAPLENGTH * screenPercentageY;
+          let deltaX = (this.lastMousePosition.x - event.offsetX),
+              deltaY = (this.lastMousePosition.y - event.offsetY);
 
           // move camera along X-Y plane accordingly
           let newCoords = new THREE.Vector3(
-            this.camera.position.x - worldDistanceToMoveX,
-            this.camera.position.y + worldDistanceToMoveY,
+            this.camera.position.x + (deltaX * 10),
+            this.camera.position.y - (deltaY * 10),
             this.camera.position.z
           );
 
@@ -827,8 +826,11 @@ class Game{
 
         this.camera.updateMatrix();
       }
-      else if (this.isRightMouseDown && this.mouseIsOnGame(event)) {
-      }
+
+      this.lastMousePosition = new THREE.Vector2(
+        event.offsetX,
+        event.offsetY
+      );
 
       this.raycaster.setFromCamera(this.mouse, this.camera);
     }
