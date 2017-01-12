@@ -35,6 +35,7 @@ const SCROLL_SCALE = 1;
 /* Interface Settings */
 const MAXZOOM = 3500;
 const MINZOOM = 1000;
+const MOUSEDRAGSENSITIVITY = 5;
 const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue('width'));
 
 /* Import Objects */
@@ -49,8 +50,10 @@ const InterfaceObject = require('./objects/InterfaceObject/InterfaceObject.js');
 const SelectionBox = require('./objects/InterfaceObject/SelectionBox.js');
 const Ground = require('./objects/Ground.js');
 const Cube = require('./objects/Cube.js');
+const WorkerUnit = require('./objects/Units/Worker.js');
 const Building = require('./objects/Building/Building.js');
 const Mine = require('./objects/Building/Mine.js');
+const Colony = require('./objects/Building/Colony.js');
 const ResourceNode = require('./objects/ResourceNode/ResourceNode.js');
 const MetalResourceNode = require('./objects/ResourceNode/MetalResourceNode.js');
 const GoldResourceNode = require('./objects/ResourceNode/GoldResourceNode.js');
@@ -129,6 +132,8 @@ class Game{
       this.worldMouseCoordinatesEnd = new THREE.Vector3(0, 0, 0);
 
       this.rightTool = 'createRandomNode';
+
+      this.mouseDragSensitivity = MOUSEDRAGSENSITIVITY;
 
       this.cubes = [];
       this.buildings = [];
@@ -266,6 +271,14 @@ class Game{
       switch(type) {
         case 'mine':
           building = new Mine(
+            this,
+            size,
+            type,
+            status
+          );
+          break;
+        case 'colony':
+          building = new Colony(
             this,
             size,
             type,
@@ -680,12 +693,51 @@ class Game{
       if(event.which == CONTROLS.leftClick) {
           this.isMouseDown = false;
 
-          if(!this.shiftIsDown && this.mouseIsOnGame(event)) {
-            this.worldMouseCoordinatesEnd = this.mouseIntersectPoint(this.ground);
+          let intersects = this.getObjectsUnderMouse();
+          let ground;
+          let building;
+          let resourceNode;
 
-            // if not dragging, deselectAllUnits
-            if(this.mouseDownPosition.x == event.offsetX && this.mouseDownPosition.y == event.offsetY){
+          // iterate over all objects under mouse
+          for(let i in intersects) {
+
+            if(intersects[i].type == 'building') {
+              building = intersects[i];
+            }
+
+            if(intersects[i].type == 'resourceNode') {
+              resourceNode = intersects[i];
+            }
+
+            // cache ground for later reference
+            if(intersects[i].object == this.ground) {
+              ground = intersects[i];
+            }
+          }
+
+          if(!this.shiftIsDown && this.mouseIsOnGame(event)) {
+
+            // if ground is under mouse
+            if(ground) {
+                this.worldMouseCoordinatesEnd = ground.point;
+            }
+
+            let mouseChangeSinceDown = new THREE.Vector2(
+              this.mouseDownPosition.x - event.offsetX,
+              this.mouseDownPosition.y - event.offsetY
+            );
+
+            if(Math.abs(mouseChangeSinceDown.x) < this.mouseDragSensitivity && Math.abs(mouseChangeSinceDown.y) < this.mouseDragSensitivity){
+
               this.deselectAllUnits();
+
+              if(building) {
+                this.selectedUnits.push(building);
+              }
+
+              if(resourceNode) {
+                this.selectedUnits.push(resourceNode);
+              }
             }
           }
 
@@ -742,18 +794,13 @@ class Game{
       this.mouse.x = (event.offsetX / window.innerWidth) * 2 - 1;
       this.mouse.y = -(event.offsetY / window.innerHeight) * 2 + 1;
 
-      // left click down
+      // click down
       if (this.isMouseDown && this.mouseIsOnGame(event)) {
-        let oldX = this.mouseDownPosition.x,
-            oldY = this.mouseDownPosition.y;
-
-        this.mouseDownPosition.x = event.clientX;
-        this.mouseDownPosition.y = event.clientY;
 
         // move camera along X-Y axis if shift held
         if(this.shiftIsDown) {
-          let deltaX = this.mouseDownPosition.x - oldX,
-              deltaY = this.mouseDownPosition.y - oldY;
+          let deltaX = this.event.clientX - this.mouseDownPosition.x,
+              deltaY = this.event.clientY - this.mouseDownPosition.y;
 
           let screenPercentageX = deltaX / this.gameElem.computedWidth,
               screenPercentageY = deltaY / this.gameElem.detectedHeight;
@@ -799,6 +846,10 @@ class Game{
     mouseIntersectPoint(obj) {
       // update the picking ray with the camera and mouse position
       this.raycaster.setFromCamera(this.mouse, this.camera);
+
+      /*
+        TODO: arg to intersectObjects should just be obj.
+      */
 
       // calculate objects intersecting the picking ray
       let intersects = this.raycaster.intersectObjects(this.scene.children);
@@ -864,26 +915,7 @@ class Game{
           objects.push.apply(objects, this.cubes);
           objects.push.call(objects, this.ground);
 
-          let intersects = this.raycaster.intersectObjects(objects, true);
-
-          // build list of interactable objects (those with assign() property)
-          let gameObjects = [];
-
-          for(let i in intersects) {
-            let obj = intersects[i].object;
-            while(obj.parent !== null) {
-              if(obj.canAssign === true) {
-                // push unique obj onto gameObjects
-                if(gameObjects.indexOf(obj) === -1) {
-                    obj.point = intersects[i].point;
-                    gameObjects.push(obj);
-                }
-                break;
-              } else {
-                obj = obj.parent;
-              }
-            }
-          }
+          let gameObjects = this.getObjectsUnderMouse(objects, true);
 
           // iterate over click intersect objects, camera -> ground
           for(let i in gameObjects) {
@@ -956,6 +988,38 @@ class Game{
       } else {
         return false;
       }
+    }
+
+    getObjectsUnderMouse(
+      objects = this.scene.children,
+      recursive = true
+    ) {
+      // update the picking ray with the camera and mouse position
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+
+      // calculate objects intersecting the picking ray
+      let intersects = this.raycaster.intersectObjects(objects, recursive);
+
+      let gameObjects = [];
+
+      for(let i in intersects) {
+        let obj = intersects[i].object;
+        while(obj.parent !== null) {
+          // only looking for game models
+          if(obj.parent == this.scene) {
+            // push unique obj onto gameObjects
+            if(gameObjects.indexOf(obj) === -1) {
+                obj.point = intersects[i].point;
+                gameObjects.push(obj);
+            }
+            break;
+          } else {
+            obj = obj.parent;
+          }
+        }
+      }
+
+      return gameObjects;
     }
 
     resetScore() {

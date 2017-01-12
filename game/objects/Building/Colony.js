@@ -73,22 +73,26 @@ class Colony extends Building {
   }
 
   updateAppearanceByCompletion() {
-    if(this.completion >= 100) {
-      this.setCenterCubeColor(this.completeColor);
-      this.setCubesColor(this.completeColor);
-      this.setWallHeight(100 * this.wallHeightProportion);
-      this.setWallTexture(this.buildingCompleteTexture);
-    } else if (this.completion === 0) {
-      this.setCenterCubeColor(this.incompleteColor);
-      this.setWallHeight(0);
-      this.setCubesColor(this.incompleteColor);
+    if(!this.selected) {
+      if(this.completion >= 100) {
+        this.setCenterCubeColor(this.completeColor);
+        this.setCubesColor(this.completeColor);
+        this.setWallTexture(this.buildingCompleteTexture);
+      } else if (this.completion === 0) {
+        this.setCenterCubeColor(this.incompleteColor);
+        this.setCubesColor(this.incompleteColor);
+      } else {
+        this.setCenterCubeColor(this.incompleteColor);
+        this.setWallTexture(this.buildingInProgressTexture);
+        this.setCubesColor(this.incompleteColor);
+      }
     } else {
-      this.setCenterCubeColor(this.incompleteColor);
-      this.setWallTexture(this.buildingInProgressTexture);
-      this.setCubesColor(this.incompleteColor);
-      // raise cube according to completion
-      this.setWallHeight(this.completion * this.wallHeightProportion);
+      this.setCenterCubeColor(0xFFFFFF);
+      this.setCubesColor(0xFFFFFF);
     }
+
+    // raise cube according to completion
+    this.setWallHeight(this.completion * this.wallHeightProportion);
   }
 
   setWallHeight(height) {

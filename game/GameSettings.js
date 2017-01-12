@@ -33,6 +33,35 @@ const GameSettings = {
       "buildingInProgressTexture": "./build/output/assets/textures/Stone_Marble.jpg",
       "buildingCompleteTexture": "./build/output/assets/textures/Stone_Marble.jpg"
     },
+    "colony": {
+      "name": "colony",
+      "type": "colony",
+      "expiration": "null",
+      "collectionSpeed": 0,
+      "buildCost": [{
+          "type": "metal",
+          "amt": 500
+      }, {
+          "type": "gold",
+          "amt": 500
+      }, {
+          "type": "food",
+          "amt": 500
+      }],
+      "model": "./build/output/assets/models/cube-building.dae",
+      "completeColor": 0x8E1111,
+      "incompleteColor": 0x2E1111,
+      "defaultSize": {
+        "x": 1000,
+        "y": 1000,
+        "z": 100
+      },
+      "buildingHasNotBegunTexture": "./build/output/assets/textures/Granite_Dark_Gray.jpg",
+      "buildingInProgressTexture": "./build/output/assets/textures/Stone_Marble.jpg",
+      "buildingCompleteTexture": "./build/output/assets/textures/Stone_Marble.jpg",
+      "floorTexture": "./build/output/assets/textures/Stone_Marble.jpg",
+      "cubesColor": 0xFF0000
+    },
     "metalResourceNode": {
       "model": "./build/output/assets/models/resource-node.dae",
       "baseColor": "#332706",

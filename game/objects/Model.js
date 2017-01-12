@@ -18,7 +18,8 @@ class Model extends THREE.Object3D {
 
     this.game = game;
     this.size = size;
-    this.canAssign = true;
+    this.isModel = true;
+
 
     this.model = model;
 

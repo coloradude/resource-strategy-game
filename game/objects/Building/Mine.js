@@ -48,19 +48,23 @@ class Mine extends Building {
   }
 
   updateAppearanceByCompletion() {
-    if(this.completion >= 100) {
-      this.changeCubeColor(this.completeColor);
-      this.changeBaseTexture(this.buildingCompleteTexture);
-    } else if (this.completion === 0) {
-      this.changeCubeColor(this.incompleteColor);
-      this.changeBaseTexture(this.buildingHasNotBegunTexture);
+    if(!this.selected) {
+      if(this.completion >= 100) {
+        this.changeCubeColor(this.completeColor);
+        this.changeBaseTexture(this.buildingCompleteTexture);
+      } else if (this.completion === 0) {
+        this.changeCubeColor(this.incompleteColor);
+        this.changeBaseTexture(this.buildingHasNotBegunTexture);
+      } else {
+        this.changeBaseTexture(this.buildingInProgressTexture);
+        this.changeCubeColor(this.incompleteColor);
+      }
     } else {
-      this.changeBaseTexture(this.buildingInProgressTexture);
-      this.changeCubeColor(this.incompleteColor);
-
-      // raise cube according to completion
-      this.setCubeHeight(2 * this.completion);
+      this.changeCubeColor(0xFFFFFF);
     }
+
+    // raise cube according to completion
+    this.setCubeHeight(2 * this.completion);
   }
 
   setCubeHeight(height) {

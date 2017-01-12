@@ -111,6 +111,10 @@ class Building extends Model {
 
     return true; // stop bubbling
   }
+
+  select(selected = true) {
+    this.selected = selected;
+  }
 }
 
 module.exports = Building;

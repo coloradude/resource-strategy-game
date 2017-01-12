@@ -30,6 +30,10 @@ class ResourceNode extends Model {
     this.collectionSpeed = 1;
     this.resourceRemaining = 1;
     this.speed = 0;
+    this.selected = false;
+  }
+
+  update() {
   }
 
   onModelLoad() {
@@ -66,6 +70,18 @@ class ResourceNode extends Model {
 
     }
     return true; // stop bubbling
+  }
+
+  select(selected = true) {
+    this.selected = selected;
+
+    if(selected) {
+      this.setBaseColor(0xFFFFFF);
+      this.setTopColor(0xFFFFFF);
+    } else {
+      this.setBaseColor(this.baseColor);
+      this.setTopColor(this.topColor);
+    }
   }
 }
 
