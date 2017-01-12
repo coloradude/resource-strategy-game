@@ -171,18 +171,32 @@ class Building extends Model {
     unit = unit.toLowerCase();
     let buildTime = GameSettings[this.buildingType].units[unit].buildTime;
 
-    console.log(buildTime);
-
     return buildTime;
   }
 
   queueUnit(unit) {
     let timeLeft = this.getBuildTime(unit);
+    let buildCost = GameSettings[this.buildingType].units[unit].buildCost;
 
-    this.queuedUnits.push({
-      'unit': unit,
-      'timeLeft': timeLeft
-    });
+    let canAfford = true;
+
+    for(let i in buildCost) {
+      if(this.game.player.resources[i] < buildCost[i]) {
+        canAfford = false;
+      }
+    }
+
+    // charge player unit creation fee
+    if(canAfford) {
+      for(let i in buildCost) {
+        this.game.player.resources[i] -= buildCost[i];
+      }
+
+      this.queuedUnits.push({
+        'unit': unit,
+        'timeLeft': timeLeft
+      });
+    }
   }
 
   getInterfaceHtml() {
