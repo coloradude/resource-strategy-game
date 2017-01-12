@@ -24,7 +24,7 @@ class Cube extends Model {
     this.growSpeed = 100;
 
     // distance can collect from resource within
-    this.resourceCollectionRange = new THREE.Vector3(size.x, size.y, size.z);
+    this.resourceCollectionRange = new THREE.Vector3(1, 1, 1);
     this.resourceCollectionRate = 0.1;
 
     this.destinationSize = null;
@@ -82,8 +82,6 @@ class Cube extends Model {
 
     this.setInnerCubeColor(this.innerCubeColor);
     this.setOuterCubeColor(this.outerCubeColor);
-
-    this.resourceCollectionRange = new THREE.Vector3(this.size.x, this.size.y, this.size.z);
 
     super.onModelLoad();
   }
