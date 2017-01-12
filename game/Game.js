@@ -24,7 +24,7 @@ const LEVEL = require('../../game/assets/scenario1.json');
 
 /* Camera Settings */
 const FOV = 90;
-const MAXFRAMERATE = 1000 / 60; // 30fps
+const MAXFRAMERATE = 1000 / 60; // 60fps
 const NEARFRUSTRAM = 0.1;
 const FAFRUSTRAM = 10000;
 const CAMERA_START_X = MAPWIDTH / 2;
@@ -173,12 +173,6 @@ class Game{
     }
 
     render() {
-      // perform game updates
-      this.update();
-      // move camera according to keyboard controls
-      this.keyboardCameraControls();
-      this.renderer.render(this.scene, this.camera);
-
       // limit animation request to FRAMERATE
       setTimeout(() => {
         let that = this;
@@ -186,6 +180,12 @@ class Game{
           that.render();
         });
       }, MAXFRAMERATE);
+
+      // perform game updates
+      this.update();
+      // move camera according to keyboard controls
+      this.keyboardCameraControls();
+      this.renderer.render(this.scene, this.camera);
     }
 
     renderScore() {
