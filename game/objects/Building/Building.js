@@ -180,9 +180,14 @@ class Building extends Model {
 
     let canAfford = true;
 
+    if(this.completion < 100) {
+      canAfford = false;
+    }
+
     for(let i in buildCost) {
       if(this.game.player.resources[i] < buildCost[i]) {
         canAfford = false;
+        break;
       }
     }
 
