@@ -125,6 +125,7 @@ class Game{
       this.initializeCamera();
       this.initializeLight();
       this.initializeMouse();
+      this.onWindowResize();
 
       this.theta = 45;
       this.phi = 60;
@@ -242,6 +243,7 @@ class Game{
           undefined // model
         );
 
+        // automatically get unique name
         if(name === undefined) {
           if(this.cubes.length > 0) {
             name = `cube` + (parseInt(this.cubes[this.cubes.length - 1].name.match(/\d+/)) + 1);
