@@ -2,7 +2,8 @@
 jshint
 node: true,
 esversion: 6,
-browser: true
+browser: true,
+-W041: false
 */
 
 const THREE = require('three');
@@ -62,8 +63,15 @@ class Building extends Model {
 
   processQueuedUnits() {
     for(let i in this.queuedUnits) {
-      console.log(this.queuedUnits[i]);
-      this.queuedUnits[i].timeLeft -= 1;
+
+      if(i == 0) {
+        // reduce time left in queue for first object
+        this.queuedUnits[i].timeLeft -= 1;
+      }
+
+      // do something while not done
+
+      // end of loading action
       if(!this.queuedUnits[i].timeLeft) {
         switch(this.queuedUnits[i].unit) {
           case 'Cube':
@@ -73,6 +81,7 @@ class Building extends Model {
               100
             );
 
+            // put new object just southwest of building
             let coordinates = new THREE.Vector3(
               this.position.x - size.x,
               this.position.y - size.y,
@@ -158,13 +167,6 @@ class Building extends Model {
   }
 
   queueUnit(unit) {
-    switch(unit) {
-      case 'Cube':
-        break;
-      default:
-        console.error(`queueUnit(): unknown unit type`);
-        break;
-    }
     this.queuedUnits.push({
       'unit': unit,
       'timeLeft': 100
@@ -174,12 +176,36 @@ class Building extends Model {
   getInterfaceHtml() {
     let html = `
       <p>${this.name} : ${this.type}</p>
-      <ul>
+      <ul class="actions">
         <li><a href="#" onclick="window.game.removeBuilding('${this.name}');">Destroy</a></li>
+      </ul>
+      <ul class="queuedUnits">
       </ul>
     `;
 
     return html;
+  }
+
+  getQueueHTML() {
+    let html = ``;
+
+    for(let i in this.queuedUnits) {
+      html += `
+      <div class="queue">
+        <span class="unitType">${this.queuedUnits[i].unit}</span>
+        <span class="timeLeft">${this.queuedUnits[i].timeLeft}</span>
+      </div>`;
+    }
+
+    return html;
+  }
+
+  getTimeLeftOfQueue(i) {
+    if(this.queuedUnits[i]) {
+      return this.queuedUnits[i].timeLeft;
+    } else {
+      return null;
+    }
   }
 }
 

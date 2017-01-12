@@ -309,10 +309,14 @@ class Model extends THREE.Object3D {
   getInterfaceHtml() {
     return `
     <p>${this.name} : ${this.type}</p>
-    <ul>
+    <ul class="actions">
       <li><span>No actions available.</span></li>
     </ul>
     `;
+  }
+
+  getQueueHTML() {
+    return ``;
   }
 }
 

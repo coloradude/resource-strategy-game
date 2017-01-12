@@ -35,15 +35,18 @@ class RightMenu extends Menu {
     let parent = window.document.getElementById('selectedUnitInterfaces');
 
     for(let i in this.game.selectedUnits) {
+      let unit = this.game.selectedUnits[i];
+
       numSelectedUnits++;
 
       // build selected unit interfaces
       let elem = document.createElement('div');
-      elem.innerHTML = this.game.selectedUnits[i].getInterfaceHtml();
-      elem.setAttribute('data-unitName', this.game.selectedUnits[i].name);
+
+      elem.innerHTML = unit.getInterfaceHtml();
+      elem.setAttribute('data-unitName', unit.name);
       selectedUnitInterfaces.push(elem);
 
-      let type = this.game.selectedUnits[i].type;
+      let type = unit.type;
 
       // save number of each type for later rendering
       if(typeMap[type]) {
@@ -55,11 +58,31 @@ class RightMenu extends Menu {
       // attach interface or update existing interface
       for(let i = 0; i < selectedUnitInterfaces.length; i++) {
         // update existing if exists
-        let existingElem = parent.querySelector(`[data-unitName="${this.game.selectedUnits[i].name}"]`);
+        let existingElem = parent.querySelector(`[data-unitName="${unit.name}"]`);
+
         if(existingElem) {
-          // found matching, do nothing
+
+          // update any queues on that elem
+          let queues = existingElem.querySelectorAll('.queuedUnits');
+
+          for(let i = 0; i < queues.length; i++) {
+            let timeLeftElem = queues[i].querySelector('.timeLeft');
+            let timeLeft = unit.getTimeLeftOfQueue(i);
+            if(timeLeftElem && timeLeft) {
+              timeLeftElem.innerHTML = unit.getTimeLeftOfQueue(i);
+            }
+          }
+
+          let queuedUnitsElement = existingElem.querySelector('.queuedUnits');
+
+          if(queuedUnitsElement) {
+            queuedUnitsElement.innerHTML = unit.getQueueHTML();
+          }
+
         } else {
+
           parent.appendChild(elem);
+
         }
       }
     }

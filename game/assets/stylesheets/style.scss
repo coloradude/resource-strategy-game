@@ -34,7 +34,7 @@ html, body {
     overflow: scroll;
 
     div {
-      background: rgba(255,255,255,0.6);
+      background: transparent;
       padding: 0;
       font-size: 1em;
       margin: 0;
@@ -43,10 +43,13 @@ html, body {
       flex-direction: column-reverse;
 
       &:hover {
-        background: rgba(255,255,255,1);
         cursor: default;
 
-        ul {
+        p {
+          background: rgba(255, 255, 255, 0.8);
+        }
+
+        ul.actions {
           display: flex;
         }
       }
@@ -54,10 +57,11 @@ html, body {
       p {
         display: block;
         padding: 1em;
+        background: rgba(255, 255, 255, 0.6);
+        margin: 0;
       }
 
       ul {
-        display: none;
         flex-flow: column nowrap;
         justify-content: flex-start;
         align-items: stretch;
@@ -92,6 +96,26 @@ html, body {
 
             &:hover {
               background: #666;
+            }
+          }
+        }
+
+        &.actions {
+          display: none;
+        }
+
+        &.queuedUnits {
+          display: flex;
+          background: rgba(255, 255, 255, 0.25);
+
+          div {
+            display: block;
+
+            span {
+              display: inline-block;
+              width: 50%;
+              float: left;
+              padding: .25em;
             }
           }
         }
