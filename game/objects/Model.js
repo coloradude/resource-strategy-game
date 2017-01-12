@@ -301,6 +301,19 @@ class Model extends THREE.Object3D {
     // otherwise, the click stops bubbling down
     return null;
   }
+
+  /*
+    HTML to display inside the selectedUnitsInterface div
+    Intended to be ovverridden with "menu actions" for units/buildings/etc
+  */
+  getInterfaceHtml() {
+    return `
+    <p>${this.name} : ${this.type}</p>
+    <ul>
+      <li><span>No actions available.</span></li>
+    </ul>
+    `;
+  }
 }
 
 module.exports = Model;

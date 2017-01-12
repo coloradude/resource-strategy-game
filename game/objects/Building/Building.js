@@ -115,6 +115,17 @@ class Building extends Model {
   select(selected = true) {
     this.selected = selected;
   }
+
+  getInterfaceHtml() {
+    let html = `
+      <p>${this.name} : ${this.type}</p>
+      <ul>
+        <li><a href="#" onclick="alert('test');">Test</a></li>
+      </ul>
+    `;
+
+    return html;
+  }
 }
 
 module.exports = Building;

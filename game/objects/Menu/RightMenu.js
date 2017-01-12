@@ -39,7 +39,7 @@ class RightMenu extends Menu {
 
       // build selected unit interfaces
       let elem = document.createElement('div');
-      elem.innerHTML = this.game.selectedUnits[i].name;
+      elem.innerHTML = this.game.selectedUnits[i].getInterfaceHtml();
       elem.setAttribute('data-unitName', this.game.selectedUnits[i].name);
       selectedUnitInterfaces.push(elem);
 

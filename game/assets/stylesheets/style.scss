@@ -35,13 +35,65 @@ html, body {
 
     div {
       background: rgba(255,255,255,0.6);
-      padding: 1em;
+      padding: 0;
       font-size: 1em;
       margin: 0;
-      border: 1px solid rgba(0,0,0,.1);
+      display: flex;
+      flex-flow: column nowrap;
+      flex-direction: column-reverse;
 
       &:hover {
         background: rgba(255,255,255,1);
+
+        ul {
+          display: flex;
+        }
+      }
+
+      p {
+        display: block;
+        padding: 1em;
+      }
+
+      ul {
+        display: none;
+        flex-flow: column nowrap;
+        justify-content: flex-start;
+        align-items: stretch;
+        padding: 0;
+        list-style: none;
+        overflow: hidden;
+        margin: 0;
+        width: 100%;
+        flex-grow: 0;
+
+        &:hover {
+          overflow: visible;
+          cursor: pointer;
+        }
+
+        li {
+          text-align: left;
+
+          span {
+            display: block;
+            padding: 1em;
+            background: #666;
+            cursor: default;
+          }
+
+          a {
+            display: block;
+            background: #333;
+            color: #ffffff;
+            padding: 1em;
+            text-decoration: none;
+
+            &:hover {
+              background: #666;
+            }
+          }
+        }
       }
     }
   }

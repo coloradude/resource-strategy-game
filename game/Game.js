@@ -804,6 +804,7 @@ class Game{
         // move camera along X-Y axis if shift held
         if(this.shiftIsDown) {
 
+          // calculate movement since first clicked
           let deltaX = (this.lastMousePosition.x - event.offsetX),
               deltaY = (this.lastMousePosition.y - event.offsetY);
 
@@ -854,7 +855,7 @@ class Game{
       */
 
       // calculate objects intersecting the picking ray
-      let intersects = this.raycaster.intersectObjects(this.scene.children);
+      let intersects = this.raycaster.intersectObjects(this.scene.children, true);
 
       for(let i in intersects) {
         if(intersects[i].object == obj) {
