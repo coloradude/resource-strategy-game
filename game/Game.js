@@ -136,6 +136,9 @@ class Game{
 
       this.mouseDragSensitivity = MOUSEDRAGSENSITIVITY;
 
+      this.loader = new THREE.ColladaLoader();
+      this.textureLoader = new THREE.TextureLoader();
+
       this.cubes = [];
       this.buildings = [];
       this.resourceNodes = [];

@@ -23,8 +23,8 @@ class Model extends THREE.Object3D {
 
     this.model = model;
 
-    this.loader = new THREE.ColladaLoader();
-    this.textureLoader = new THREE.TextureLoader();
+    this.loader = this.game.loader;
+    this.textureLoader = this.game.textureLoader;
 
     // load model asyncronously
     this.isLoaded = false;
@@ -48,8 +48,10 @@ class Model extends THREE.Object3D {
 
   load() {
     if(this.model !== null && this.model !== undefined) {
+
       // asyncronously load model
       this.loader.load(this.model, ((result) => {
+
         // attach loaded model as child of this
         this.add(result.scene);
 
@@ -72,7 +74,9 @@ class Model extends THREE.Object3D {
 
         this.onModelLoad();
         this.isLoaded = true;
+
       }).bind(this));
+
     } else {
       console.error(`Model() tried loading a null or undefined model`);
     }
