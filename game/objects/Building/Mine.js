@@ -31,6 +31,9 @@ class Mine extends Building {
 
     this.buildCost = GameSettings.mine.buildCost;
 
+    this.collectionSpeed = GameSettings.mine.collectionSpeed;
+    this.resourceType = GameSettings.mine.resourceType;
+
     this.completeColor = GameSettings.mine.completeColor;
     this.incompleteColor = GameSettings.mine.incompleteColor;
   }
@@ -105,11 +108,16 @@ class Mine extends Building {
   */
   assign(objArray, coords) {
 
-    for(let i in objArray) {
-      // assign any new jobs to selectedUnits
+    if(this.completion >= 100) {
+      for(let i in objArray) {
+        objArray[i].queueJob({
+          job: 'collectResource',
+          resourceNode: this
+        });
+      }
+    } else {
+      super.assign(objArray, coords);
     }
-
-    super.assign(objArray, coords);
 
     return true;
   }

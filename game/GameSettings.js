@@ -10,7 +10,6 @@ const GameSettings = {
       "name": "mine",
       "type": "mine",
       "expiration": "null",
-      "collectionSpeed": 0.5,
       "buildCost": [{
           "type": "metal",
           "amt": 1000
@@ -21,6 +20,8 @@ const GameSettings = {
           "type": "food",
           "amt": 0
       }],
+      "resourceType": "metal",
+      "collectionSpeed": 0.25,
       "model": "./build/output/assets/models/orange-mine.dae",
       "completeColor": 0xCCCC00,
       "incompleteColor": 0x555500,
