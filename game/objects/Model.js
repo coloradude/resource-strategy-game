@@ -154,32 +154,36 @@ class Model extends THREE.Object3D {
           let unit = collisionChecklist[i];
 
           if(
-            (this.boundingBox.min.x + this.velocity.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x) &&
-            (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y)
+            (this.boundingBox.min.x + this.velocity.x <= unit.boundingBox.max.x && this.boundingBox.max.x >= unit.boundingBox.min.x) &&
+            (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y) &&
+            this.velocity.x < 0
           ) {
             // moving -x collision
             col.x = -1;
           }
 
           if(
-            (this.boundingBox.max.x + this.velocity.x > unit.boundingBox.min.x && this.boundingBox.min.x + this.velocity.x < unit.boundingBox.max.x) &&
-            (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y)
+            (this.boundingBox.max.x + this.velocity.x >= unit.boundingBox.min.x && this.boundingBox.min.x + this.velocity.x <= unit.boundingBox.max.x) &&
+            (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y) &&
+            this.velocity.x > 0
           ) {
             // moving +x collision
             col.x = 1;
           }
 
           if(
-            (this.boundingBox.min.y + this.velocity.y < unit.boundingBox.max.y && this.boundingBox.max.y + this.velocity.y > unit.boundingBox.min.y) &&
-            (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x)
+            (this.boundingBox.min.y + this.velocity.y <= unit.boundingBox.max.y && this.boundingBox.max.y + this.velocity.y >= unit.boundingBox.min.y) &&
+            (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x) &&
+            this.velocity.y < 0
           ) {
             // moving -y collision
             col.y = -1;
           }
 
           if(
-            (this.boundingBox.max.y + this.velocity.y > unit.boundingBox.min.y && this.boundingBox.min.y + this.velocity.y < unit.boundingBox.max.y) &&
-            (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x)
+            (this.boundingBox.max.y + this.velocity.y >= unit.boundingBox.min.y && this.boundingBox.min.y + this.velocity.y <= unit.boundingBox.max.y) &&
+            (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x) &&
+            this.velocity.y > 0
           ) {
             // moving +y collision
             col.y = 1;
@@ -199,6 +203,8 @@ class Model extends THREE.Object3D {
             }
           }
 
+          this.momentum.x = 0;
+
           this.velocity.y = this.momentum.y * this.speed;
 
         }
@@ -214,6 +220,8 @@ class Model extends THREE.Object3D {
               this.momentum.x = 1;
             }
           }
+
+          this.momentum.y = 0;
 
           this.velocity.x = this.momentum.x * this.speed;
 
