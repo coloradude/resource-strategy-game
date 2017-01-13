@@ -19,8 +19,6 @@ class Model extends THREE.Object3D {
     this.game = game;
     this.size = size;
     this.isModel = true;
-
-
     this.model = model;
 
     this.loader = this.game.loader;
@@ -31,10 +29,13 @@ class Model extends THREE.Object3D {
     this.onModelLoadRun = false;
     this.load();
 
+    this.raycaster = new THREE.Raycaster();
+
     // movement options
     this.speed = 0;
     this.velocity = new THREE.Vector3(0, 0, 0);
     this.destination = null;
+    this.momentum = new THREE.Vector3(0, 0, 0);
 
     // render options
     this.castShadow = true;
@@ -83,6 +84,7 @@ class Model extends THREE.Object3D {
   }
 
   onModelLoad() {
+    this.boundingBox = new THREE.Box3().setFromObject(this);
     this.onModelLoadRun = true;
   }
 
@@ -118,28 +120,119 @@ class Model extends THREE.Object3D {
         Math.abs(dif.z)
       );
 
-      // only move if farther than this.destinationTolerance
+      // create collision detection bounding box for this
+      this.boundingBox = new THREE.Box3().setFromObject(this);
+
+      // only move if not already there
       if(
-        absDif.x > this.destinationTolerance.x ||
-        absDif.y > this.destinationTolerance.y ||
-        absDif.z > this.destinationTolerance.z
+        !this.boundingBox.expandByVector(this.destinationTolerance).containsPoint(this.destination)
       ) {
 
         let d = Math.sqrt(Math.pow(dif.x, 2) + Math.pow(dif.y, 2) + Math.pow(dif.z, 2));
 
+        // determine 3d velocity
         for(let i in {'x':null, 'y':null, 'z':null}) {
           // move at constant speed no matter the direction
           this.velocity[i] = (this.speed * dif[i]) / d;
 
           // update position, but don't move more than the difference
-          if(absDif[i] > Math.abs(this.velocity[i])) {
-            this.position[i] += this.velocity[i];
-          } else {
-            this.position[i] += dif[i];
+          if(absDif[i] <= Math.abs(this.velocity[i])) {
+            this.velocity[i] = dif[i];
           }
         }
+
+        let col = new THREE.Vector3(0, 0, 0);
+
+        // create list of collision-eligable units to check for
+        let collisionChecklist = [].concat(
+          this.game.buildings,
+          this.game.resourceNodes
+        );
+
+        // check for potential collision, storing result in col
+        for(let i in collisionChecklist) {
+          let unit = collisionChecklist[i];
+
+          if(
+            (this.boundingBox.min.x + this.velocity.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x) &&
+            (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y)
+          ) {
+            // moving -x collision
+            col.x = -1;
+          }
+
+          if(
+            (this.boundingBox.max.x + this.velocity.x > unit.boundingBox.min.x && this.boundingBox.min.x + this.velocity.x < unit.boundingBox.max.x) &&
+            (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y)
+          ) {
+            // moving +x collision
+            col.x = 1;
+          }
+
+          if(
+            (this.boundingBox.min.y + this.velocity.y < unit.boundingBox.max.y && this.boundingBox.max.y + this.velocity.y > unit.boundingBox.min.y) &&
+            (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x)
+          ) {
+            // moving -y collision
+            col.y = -1;
+          }
+
+          if(
+            (this.boundingBox.max.y + this.velocity.y > unit.boundingBox.min.y && this.boundingBox.min.y + this.velocity.y < unit.boundingBox.max.y) &&
+            (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x)
+          ) {
+            // moving +y collision
+            col.y = 1;
+          }
+        }
+
+        // apply movement correction according to col
+        if(col.x) {
+
+          this.velocity.x = 0;
+
+          if(!this.momentum.y) {
+            if(this.velocity.y < 0) {
+              this.momentum.y = -1;
+            } else {
+              this.momentum.y = 1;
+            }
+          }
+
+          this.velocity.y = this.momentum.y * this.speed;
+
+        }
+
+        if(col.y) {
+
+          this.velocity.y = 0;
+
+          if(!this.momentum.x) {
+            if(this.velocity.x < 0) {
+              this.momentum.x = -1;
+            } else {
+              this.momentum.x = 1;
+            }
+          }
+
+          this.velocity.x = this.momentum.x * this.speed;
+
+        }
+
+        if(!col.y && !col.x || col.y && col.x) {
+          this.momentum.x = 0;
+          this.momentum.y = 0;
+        }
+
+        // do the movement
+        for(let i in {'x':null, 'y':null, 'z':null}) {
+          this.position[i] += this.velocity[i];
+        }
+
       } else {
         // already within destinationTolerance, don't move
+        this.momentum.x = 0;
+        this.momentum.y = 0;
       }
     } else {
       // destination is null, don't move
@@ -155,7 +248,7 @@ class Model extends THREE.Object3D {
     @far: max distance collisions can occur
   */
   getClosebyUnits(
-    intersectObjects = this.game.cubes.concat(this.game.resourceNodes),
+    intersectObjects = this.game.cubes.concat(this.game.resourceNodes).concat(this.game.buildings),
     near = 0,
     far = 500,
     numRays = 100
