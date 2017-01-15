@@ -24,7 +24,7 @@ class Cube extends Model {
     this.growSpeed = 100;
 
     // distance can collect from resource within
-    this.resourceCollectionRange = new THREE.Vector3(1, 1, 1);
+    this.resourceCollectionRange = new THREE.Vector3(25, 25, 25);
     this.resourceCollectionRate = 0.1;
 
     this.destinationSize = null;
@@ -32,7 +32,7 @@ class Cube extends Model {
     this.growthScalar = 0.0001; // scalar that determines growth speed
     this.minSize = new THREE.Vector3(100, 100, 100);
 
-    this.buildRange = new THREE.Vector3(1, 1, 1); // distance can build within
+    this.buildRange = new THREE.Vector3(25, 25, 25); // distance can build within
     this.buildSpeed = 1; // scalar for amount to build
     this.buildStep = 1; // amount to build per step
 
@@ -87,40 +87,50 @@ class Cube extends Model {
   }
 
   doJob(job) {
+    let box;
     switch(job.job) {
       case 'idle':
         this.idle();
         break;
       case 'build':
+        // create boundingBox for target building
+        box = new THREE.Box3().setFromObject(job.building);
+
         // move til close enough, then do job
-        if( this.isWithinFrom(this.buildRange, job.building) ) {
+        if( this.boundingBox.expandByVector(this.buildRange).intersectsBox(box) ) {
+          this.setDestination(this.position);
           this.build(job);
         } else {
           this.setDestination(new THREE.Vector3(
             job.building.position.x + job.building.size.x/2,
             job.building.position.y + job.building.size.y/2,
-            job.building.position.z + job.building.size.z/2
+            0
           ));
         }
         break;
       case 'collectResource':
+        // create boundingBox for target
+        box = new THREE.Box3().setFromObject(job.resourceNode);
+
         // move til close enough, then do job
-        if(this.isWithinFrom(this.resourceCollectionRange, job.resourceNode)) {
+        if(this.boundingBox.expandByVector(this.resourceCollectionRange).intersectsBox(box)) {
+          this.setDestination(this.position);
           this.collectResource(job.resourceNode);
         } else {
           this.setDestination(new THREE.Vector3(
             job.resourceNode.position.x + job.resourceNode.size.x/2,
             job.resourceNode.position.y + job.resourceNode.size.y/2,
-            job.resourceNode.position.z + job.resourceNode.size.z/2
+            0
           ));
         }
         break;
       case 'move':
         // move til close enough, then cancel job
-        if( !this.isWithinFrom(this.movementTolerance, job.coordinates) ) {
-          this.setDestination(job.coordinates);
-        } else {
+        if( this.boundingBox.expandByVector(this.movementTolerance).containsPoint(job.coordinates) ) {
+          this.setDestination(this.position);
           this.removeJob(job);
+        } else {
+          this.setDestination(job.coordinates);
         }
         break;
       default:
@@ -131,6 +141,7 @@ class Cube extends Model {
 
   collectResource(resourceNode) {
     if(resourceNode !== null) {
+      
       // add resources
       let resourceAmountGained = resourceNode.collectionSpeed * this.resourceCollectionRate;
 
@@ -192,6 +203,8 @@ class Cube extends Model {
     Called once (externally) when assigning new job
   */
   queueJob(job) {
+    // reset pathfinding momentum
+    this.momentum = new THREE.Vector3(0, 0, 0);
 
     // apply default job priority if undefined
     if(job.priority === undefined) {
