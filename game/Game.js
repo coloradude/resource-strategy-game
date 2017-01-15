@@ -534,23 +534,6 @@ class Game{
       this.selectionBox = null;
     }
 
-    drawRaycaster() {
-      let material = new THREE.LineBasicMaterial({
-      	color: 0x0000ff
-      });
-
-      let geometry = new THREE.Geometry();
-      geometry.vertices.push(
-      	new THREE.Vector3( -10, 0, 0 ),
-      	new THREE.Vector3( 0, 10, 0 ),
-      	new THREE.Vector3( 10, 0, 0 )
-      );
-      geometry.name = "raycaster";
-
-      var line = new THREE.Line( geometry, material );
-      this.scene.add( line );
-    }
-
     initializeRenderer() {
       this.gameElem = window.getComputedStyle(CANVAS, null);
       this.gameElem.offsetLeft = parseInt(this.gameElem.getPropertyValue('margin-left'));
