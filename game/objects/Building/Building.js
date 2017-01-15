@@ -46,6 +46,9 @@ class Building extends Model {
 
     this.queuedUnits = [];
 
+    this.unitSpawnLocation = this.position;
+    this.newUnitJob = null;
+
     this.speed = 0;
   }
 
@@ -89,14 +92,21 @@ class Building extends Model {
               this.position.z
             );
 
-            this.game.addCube(
+            let newCube = this.game.addCube(
               coordinates,
               size,
               undefined // name
             );
 
-            // remove this unit
+            // remove this unit from queuedUnits
             this.queuedUnits.splice(i, 1);
+
+            // assign unit to do this.newUnitJob
+            if(this.newUnitJob !== null) {
+              newCube.queueJob(this.newUnitJob);
+            } else {
+              // no assigned job, units will stack at spawn location
+            }
 
             break;
           default:
@@ -161,6 +171,32 @@ class Building extends Model {
     }
 
     return true; // stop bubbling
+  }
+
+  /*
+    Called once (externally) when assigning new job
+  */
+  queueJob(job) {
+    // process job addition
+    switch(job.job) {
+      case 'move':
+        // sets unit spawn position
+        this.newUnitJob = {
+          job: 'move',
+          coordinates: job.coordinates
+        };
+        break;
+      case 'collectResource':
+        // sets unit spawn position
+        this.newUnitJob = {
+          job: 'collectResource',
+          resourceNode: job.resourceNode
+        };
+        break;
+      default:
+        console.error(`unrecognized job ${job.job}`);
+        break;
+    }
   }
 
   select(selected = true) {

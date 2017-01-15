@@ -43,21 +43,7 @@ class Cube extends Model {
     this.innerCubeColor = 0x8E1111;
     this.outerCubeColor = 0x666666;
     this.selectedColor = 0xFFFFFF;
-    this.unselectedColor = this.innerCubeColor;
-
-    this.jobPriorities = {
-      'move': 8,
-      'build': 6,
-      'collectResource': 5,
-      'goToClosestResourceNode': 2,
-      'idle': 1
-    };
-
-     // priority queue of jobs
-    this.queue = [{
-      job: 'idle',
-      priority: 1
-    }];
+    this.unselectedColor = this.innerCubeColor
 
   }
 
@@ -141,7 +127,7 @@ class Cube extends Model {
 
   collectResource(resourceNode) {
     if(resourceNode !== null) {
-      
+
       // add resources
       let resourceAmountGained = resourceNode.collectionSpeed * this.resourceCollectionRate;
 
@@ -197,6 +183,24 @@ class Cube extends Model {
 
   setDestination(coords) {
     this.destination = coords;
+  }
+
+  removeJob(job) {
+    // process job removal
+    switch(job.job) {
+      case 'idle':
+        // do nothing, idle not removable
+        return;
+      case undefined:
+        console.error(`job.job undefined- did you mean to pass a job obj?`);
+        break;
+      default:
+        // remove job from queue
+        this.queue = this.queue.filter((obj) => {
+          return obj.job !== job.job;
+        });
+        break;
+    }
   }
 
   /*
@@ -276,24 +280,6 @@ class Cube extends Model {
         break;
       default:
         console.error(`unrecognized job ${job.job}`);
-        break;
-    }
-  }
-
-  removeJob(job) {
-    // process job removal
-    switch(job.job) {
-      case 'idle':
-        // do nothing, idle not removable
-        return;
-      case undefined:
-        console.error(`job.job undefined- did you mean to pass a job obj?`);
-        break;
-      default:
-        // remove job from queue
-        this.queue = this.queue.filter((obj) => {
-          return obj.job !== job.job;
-        });
         break;
     }
   }

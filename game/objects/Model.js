@@ -40,6 +40,20 @@ class Model extends THREE.Object3D {
     this.selectedColor = 0xFFFFFF;
     this.unselectedColor = 0xCC0000;
 
+    this.jobPriorities = {
+      'move': 8,
+      'build': 6,
+      'collectResource': 5,
+      'goToClosestResourceNode': 2,
+      'idle': 1
+    };
+
+    // priority queue of jobs
+    this.queue = [{
+      job: 'idle',
+      priority: 1
+    }];
+
     this.destinationTolerance = new THREE.Vector3(1, 1, 1); // tolerance for how close an object must get before stopping
   }
 
