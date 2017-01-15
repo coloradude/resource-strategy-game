@@ -96,11 +96,12 @@ class Model extends THREE.Object3D {
   /*
     Includes collision detection and automatic path correction
   */
-  moveTowardDestination(destination = null) {
+  moveTowardDestination(destination) {
 
-    if(destination !== null) {
+    if(destination !== null && destination !== undefined) {
 
-      let dif = new THREE.Vector3(0, 0, 0);
+      let dif = new THREE.Vector3(0, 0, 0),
+          absDif = new THREE.Vector3(0, 0, 0);
 
       let centerPoint = new THREE.Vector3(
         this.position.x + this.size.x/2,
@@ -111,22 +112,18 @@ class Model extends THREE.Object3D {
       // calculate distance from center of floor of model to destination
       for(let i in {'x':null, 'y':null, 'z':null}) {
         dif[i] = destination[i] - centerPoint[i];
+        absDif[i] = Math.abs(dif[i]);
       }
-
-      let absDif = new THREE.Vector3(
-        Math.abs(dif.x),
-        Math.abs(dif.y),
-        Math.abs(dif.z)
-      );
 
       // create collision detection bounding box for this
       this.boundingBox = new THREE.Box3().setFromObject(this);
 
-      // only move if not already there
-      if(
-        !this.boundingBox.expandByVector(this.destinationTolerance).containsPoint(this.destination)
-      ) {
+      let isWithinDestinationTolerance = this.boundingBox.expandByVector(this.destinationTolerance).containsPoint(this.destination);
 
+      // only move if not already there
+      if(!isWithinDestinationTolerance) {
+
+        // calculate euclidian speed (total 3d speed should be this.speed)
         let d = Math.sqrt(Math.pow(dif.x, 2) + Math.pow(dif.y, 2) + Math.pow(dif.z, 2));
 
         // determine 3d velocity
@@ -140,6 +137,7 @@ class Model extends THREE.Object3D {
           }
         }
 
+        // track collision detections
         let col = new THREE.Vector3(0, 0, 0);
 
         // create list of collision-eligable units to check for
