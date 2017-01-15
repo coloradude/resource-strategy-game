@@ -9,11 +9,7 @@ const THREE = require('three');
 const ColladaLoader = require('./ColladaLoader.js');
 
 class Model extends THREE.Object3D {
-  constructor(
-    game,
-    model,
-    size = new THREE.Vector3(100, 100, 100)
-  ) {
+  constructor(game, model, size) {
     super();
 
     this.game = game;
@@ -97,6 +93,9 @@ class Model extends THREE.Object3D {
     }
   }
 
+  /*
+    Includes collision detection and automatic path correction
+  */
   moveTowardDestination(destination = null) {
 
     if(destination !== null) {
@@ -153,44 +152,46 @@ class Model extends THREE.Object3D {
         for(let i in collisionChecklist) {
           let unit = collisionChecklist[i];
 
-          if(
-            (this.boundingBox.min.x + this.velocity.x <= unit.boundingBox.max.x && this.boundingBox.max.x >= unit.boundingBox.min.x) &&
-            (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y) &&
-            this.velocity.x < 0
-          ) {
-            // moving -x collision
-            col.x = -1;
-          }
+          if(unit != this) {
+            if(
+              (this.boundingBox.min.x + this.velocity.x <= unit.boundingBox.max.x && this.boundingBox.max.x >= unit.boundingBox.min.x) &&
+              (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y) &&
+              this.velocity.x < 0
+            ) {
+              // moving -x collision
+              col.x = -1;
+            }
 
-          if(
-            (this.boundingBox.max.x + this.velocity.x >= unit.boundingBox.min.x && this.boundingBox.min.x + this.velocity.x <= unit.boundingBox.max.x) &&
-            (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y) &&
-            this.velocity.x > 0
-          ) {
-            // moving +x collision
-            col.x = 1;
-          }
+            if(
+              (this.boundingBox.max.x + this.velocity.x >= unit.boundingBox.min.x && this.boundingBox.min.x + this.velocity.x <= unit.boundingBox.max.x) &&
+              (this.boundingBox.min.y < unit.boundingBox.max.y && this.boundingBox.max.y > unit.boundingBox.min.y) &&
+              this.velocity.x > 0
+            ) {
+              // moving +x collision
+              col.x = 1;
+            }
 
-          if(
-            (this.boundingBox.min.y + this.velocity.y <= unit.boundingBox.max.y && this.boundingBox.max.y + this.velocity.y >= unit.boundingBox.min.y) &&
-            (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x) &&
-            this.velocity.y < 0
-          ) {
-            // moving -y collision
-            col.y = -1;
-          }
+            if(
+              (this.boundingBox.min.y + this.velocity.y <= unit.boundingBox.max.y && this.boundingBox.max.y + this.velocity.y >= unit.boundingBox.min.y) &&
+              (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x) &&
+              this.velocity.y < 0
+            ) {
+              // moving -y collision
+              col.y = -1;
+            }
 
-          if(
-            (this.boundingBox.max.y + this.velocity.y >= unit.boundingBox.min.y && this.boundingBox.min.y + this.velocity.y <= unit.boundingBox.max.y) &&
-            (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x) &&
-            this.velocity.y > 0
-          ) {
-            // moving +y collision
-            col.y = 1;
+            if(
+              (this.boundingBox.max.y + this.velocity.y >= unit.boundingBox.min.y && this.boundingBox.min.y + this.velocity.y <= unit.boundingBox.max.y) &&
+              (this.boundingBox.min.x < unit.boundingBox.max.x && this.boundingBox.max.x > unit.boundingBox.min.x) &&
+              this.velocity.y > 0
+            ) {
+              // moving +y collision
+              col.y = 1;
+            }
           }
         }
 
-        // apply movement correction according to col
+        // horizontal collision
         if(col.x) {
 
           this.velocity.x = 0;
@@ -209,6 +210,7 @@ class Model extends THREE.Object3D {
 
         }
 
+        // vertical collision
         if(col.y) {
 
           this.velocity.y = 0;
@@ -227,7 +229,8 @@ class Model extends THREE.Object3D {
 
         }
 
-        if(!col.y && !col.x || col.y && col.x) {
+        // if freely moving, reset momentum
+        if(!col.y && !col.x) {
           this.momentum.x = 0;
           this.momentum.y = 0;
         }
@@ -255,12 +258,27 @@ class Model extends THREE.Object3D {
     @near: min distance collions can occur
     @far: max distance collisions can occur
   */
-  getClosebyUnits(
-    intersectObjects = this.game.cubes.concat(this.game.resourceNodes).concat(this.game.buildings),
-    near = 0,
-    far = 500,
-    numRays = 100
-  ) {
+  getClosebyUnits(intersectObjects, near, far, numRays) {
+
+    if(intersectObjects === undefined) {
+      intersectObjects = [].concat(
+        this.game.cubes,
+        this.game.resourceNodes,
+        this.game.buildings
+      );
+    }
+
+    if(near === undefined) {
+      near = 0;
+    }
+
+    if(far === undefined) {
+      far = 1000;
+    }
+
+    if(numRays === undefined) {
+      numRays = 100;
+    }
 
     let centerPoint = new THREE.Vector3(
       this.position.x + this.size.x/2,
