@@ -27,8 +27,8 @@ const FOV = 90;
 const MAXFRAMERATE = 1000 / 60; // 60fps
 const NEARFRUSTRAM = 0.1;
 const FAFRUSTRAM = 10000;
-const CAMERA_START_X = MAPWIDTH / 2;
-const CAMERA_START_Y = MAPLENGTH / 2;
+const CAMERA_START_X = 4000;
+const CAMERA_START_Y = 4000;
 const CAMERA_START_Z = 3000;
 const SCROLL_SCALE = 1;
 
@@ -234,11 +234,7 @@ class Game{
       @coordinates: (x, y, z) vector
       @size: (x, y, z) vector
     */
-    addCube(
-      coordinates,
-      size,
-      name
-    ) {
+    addCube(coordinates, size, name) {
       if(coordinates !== null) {
         let cube = new Cube(
           this,     // game
@@ -260,18 +256,23 @@ class Game{
 
         this.scene.add(cube);
         this.cubes.push(cube);
+
+        return(cube);
       } else {
         // do nothing; invalid location
       }
     }
 
-    addBuilding(
-      coordinates = new THREE.Vector3(0, 0, 0),
-      size = undefined,
-      name = `building${this.cubes.length}`,
-      type = null,
-      status = 'incomplete'
-    ) {
+    addBuilding(coordinates, size, name, type, status) {
+
+      if(name === undefined) {
+        name = `building${this.cubes.length}`;
+      }
+
+      if(status === undefined) {
+        status = 'incomplete';
+      }
+
       let building;
       switch(type) {
         case 'mine':
@@ -328,11 +329,7 @@ class Game{
       @size: (x, y, z) vector
       @type: i.e. 'metal'
     */
-    addResourceNode(
-      coordinates,
-      size,
-      type
-    ) {
+    addResourceNode(coordinates, size, type) {
       if(coordinates !== null) {
         let resourceNode;
 
@@ -376,9 +373,7 @@ class Game{
     /*
       Adds 100 randomly sized cubes in random places
     */
-    addRandomCubes(
-      number = 100
-    ) {
+    addRandomCubes(number) {
       for(let i = 0; i < number; i++) {
         let random = Math.random();
         let width = random * 100;
@@ -496,10 +491,7 @@ class Game{
     /*
       Send @unit queue job to @building
     */
-    queueUnit(
-      unit,
-      building
-    ) {
+    queueUnit(unit, building) {
       building = this.scene.getObjectByName(building);
       building.queueUnit(unit);
     }
@@ -572,6 +564,12 @@ class Game{
 
     initializeCamera() {
       this.camera = new Camera(FOV, ASPECT, NEARFRUSTRAM, FAFRUSTRAM, CAMERA_START_X, CAMERA_START_Y, CAMERA_START_Z, MAPWIDTH, MAPLENGTH, MAXZOOM, MINZOOM);
+
+      this.camera.lookAt(new THREE.Vector3(MAPWIDTH / 2, MAPLENGTH / 2, 0));
+
+      this.camera.rotation.x = -Math.cos(Math.PI * 0.55);
+      this.camera.rotation.y = 0;
+      this.camera.rotation.z = 0;
 
       this.cameraHelper = new THREE.CameraHelper(this.camera);
       this.camera.updateProjectionMatrix();
