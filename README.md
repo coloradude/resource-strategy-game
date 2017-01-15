@@ -64,7 +64,17 @@ Once running, `http://localhost:3000/` (assuming port 3000) displays the game
 
 Technology
 ---------------
-- nodeJS
-- Express
+- nodeJS / Express
 - ThreeJS
 - Firebase for DB? MongolDb?
+
+Game References/Influences
+---------------
+Age of Empires
+Starcraft
+Warcraft
+Dawn of War
+Company of Heroes
+Rise of Nations
+Sins of a Solar Empire
+etc
