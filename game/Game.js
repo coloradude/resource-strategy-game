@@ -640,6 +640,18 @@ class Game{
         case CONTROLS.shift:
           this.shiftIsDown = false;
           break;
+        case CONTROLS.w:
+          this.wIsDown = false;
+          break;
+        case CONTROLS.a:
+          this.aIsDown = false;
+          break;
+        case CONTROLS.s:
+          this.sIsDown = false;
+          break;
+        case CONTROLS.d:
+          this.dIsDown = false;
+          break;
         default:
           break;
       }
@@ -663,25 +675,46 @@ class Game{
         case CONTROLS.shift:
           this.shiftIsDown = true;
           break;
+        case CONTROLS.w:
+          this.wIsDown = true;
+          break;
+        case CONTROLS.a:
+          this.aIsDown = true;
+          break;
+        case CONTROLS.s:
+          this.sIsDown = true;
+          break;
+        case CONTROLS.d:
+          this.dIsDown = true;
+          break;
         default:
           break;
       }
     }
 
     keyboardCameraControls() {
-      if(this.leftArrowIsDown || this.rightArrowIsDown || this.upArrowIsDown || this.downArrowIsDown) {
+      if(
+        this.leftArrowIsDown ||
+        this.rightArrowIsDown ||
+        this.upArrowIsDown ||
+        this.downArrowIsDown ||
+        this.wIsDown ||
+        this.aIsDown ||
+        this.sIsDown ||
+        this.dIsDown
+      ) {
         let newCoords = this.camera.position;
 
-        if(this.leftArrowIsDown) {
+        if(this.leftArrowIsDown || this.aIsDown) {
           newCoords.x -= SCROLL_SCALE * 100;
         }
-        if(this.rightArrowIsDown) {
+        if(this.rightArrowIsDown || this.dIsDown) {
           newCoords.x += SCROLL_SCALE * 100;
         }
-        if(this.upArrowIsDown) {
+        if(this.upArrowIsDown || this.wIsDown) {
           newCoords.y += SCROLL_SCALE * 100;
         }
-        if(this.downArrowIsDown) {
+        if(this.downArrowIsDown || this.sIsDown) {
           newCoords.y -= SCROLL_SCALE * 100;
         }
 
@@ -993,10 +1026,14 @@ class Game{
       }
     }
 
-    getObjectsUnderMouse(
-      objects = this.scene.children,
-      recursive = true
-    ) {
+    getObjectsUnderMouse(objects, recursive) {
+      if(objects === undefined) {
+        objects = this.scene.children;
+      }
+      if(recursive === undefined) {
+        recursive = true;
+      }
+
       // update the picking ray with the camera and mouse position
       this.raycaster.setFromCamera(this.mouse, this.camera);
 
