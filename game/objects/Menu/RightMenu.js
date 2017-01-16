@@ -14,7 +14,7 @@ class RightMenu extends Menu {
 
     this.buttons = [{
       name: 'deleteSelected',
-      function: this.game.removeSelectedCubes
+      function: this.game.removeSelected
     }, {
       name: 'listSelected',
       function: this.game.listSelectedUnits

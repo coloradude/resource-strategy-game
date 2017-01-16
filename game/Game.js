@@ -232,6 +232,14 @@ class Game{
       });
     }
 
+    listObjectLocationsInScene() {
+      for(let i in this.scene.children) {
+        let unit = this.scene.children[i];
+        console.log(unit.name);
+        console.log(unit.position);
+      }
+    }
+
     /*
       @coordinates: (x, y, z) vector
       @size: (x, y, z) vector
@@ -319,6 +327,19 @@ class Game{
       }
     }
 
+    removeResourceNode(resourceNode) {
+
+      // remove from this.scene
+      this.scene.remove(resourceNode);
+
+      // remove from this.resourceNode
+      for(let i in this.resourceNodes) {
+        if(this.resourceNodes[i] == resourceNode) {
+          this.resourceNodes.splice(i, 1);
+        }
+      }
+    }
+
     removeAllBuildings() {
       let numDeleted = 0;
       for(let i = this.cubes.length - 1; i >= 0; i--) {
@@ -398,9 +419,22 @@ class Game{
       }
     }
 
-    removeSelectedCubes() {
+    removeSelected() {
       // could down to avoid skipping nodes
       for(let i = this.selectedUnits.length - 1; i >= 0; i-- ) {
+        switch(this.selectedUnits[i].type) {
+          case 'building':
+            this.removeBuilding(this.selectedUnits[i]);
+            break;
+          case 'cube':
+            this.removeCube(this.selectedUnits[i]);
+            break;
+          case 'resourceNode':
+            this.removeResourceNode(this.selectedUnits[i]);
+            break;
+          default:
+            console.error(`unknown unit type ${this.selectedUnits[i].type} when trying to removeSelected()`);
+        }
         this.removeCube(this.selectedUnits[i]);
       }
     }
