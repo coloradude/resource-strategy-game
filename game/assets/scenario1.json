@@ -14,8 +14,8 @@
     "type": "building",
     "data": {
         "coordinates": {
-            "x": 4000,
-            "y": 4000,
+            "x": 2656,
+            "y": 1764,
             "z": 0
         },
         "type": "mine"
@@ -25,8 +25,8 @@
     "type": "resourceNode",
     "data": {
         "coordinates": {
-            "x": 2000,
-            "y": 4000,
+            "x": 3880,
+            "y": 2440,
             "z": 0
         },
         "type": "metal"
@@ -36,8 +36,8 @@
     "type": "resourceNode",
     "data": {
         "coordinates": {
-            "x": 2500,
-            "y": 4000,
+            "x": 4457,
+            "y": 2653,
             "z": 0
         },
         "type": "food"
@@ -47,8 +47,8 @@
     "type": "resourceNode",
     "data": {
         "coordinates": {
-            "x": 3000,
-            "y": 4000,
+            "x": 3391,
+            "y": 2197,
             "z": 0
         },
         "type": "gold"
@@ -58,8 +58,8 @@
     "type": "building",
     "data": {
         "coordinates": {
-            "x": 5000,
-            "y": 4000,
+            "x": 2100,
+            "y": 1764,
             "z": 0
         },
         "name": "colony1",
