@@ -28,7 +28,7 @@ const GameSettings = {
       "defaultSize": {
         "x": 1000,
         "y": 1000,
-        "z": 100
+        "z": 200
       },
       "buildingHasNotBegunTexture": "./build/output/assets/textures/Granite_Dark_Gray.jpg",
       "buildingInProgressTexture": "./build/output/assets/textures/Stone_Marble.jpg",
@@ -65,7 +65,7 @@ const GameSettings = {
       "defaultSize": {
         "x": 1000,
         "y": 1000,
-        "z": 100
+        "z": 200
       },
       "buildingHasNotBegunTexture": "./build/output/assets/textures/Granite_Dark_Gray.jpg",
       "buildingInProgressTexture": "./build/output/assets/textures/Stone_Marble.jpg",

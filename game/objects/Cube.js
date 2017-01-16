@@ -43,8 +43,7 @@ class Cube extends Model {
     this.innerCubeColor = 0x8E1111;
     this.outerCubeColor = 0x666666;
     this.selectedColor = 0xFFFFFF;
-    this.unselectedColor = this.innerCubeColor
-
+    this.unselectedColor = this.innerCubeColor;
   }
 
   update() {

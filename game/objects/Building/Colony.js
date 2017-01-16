@@ -100,7 +100,8 @@ class Colony extends Building {
     let myHeight = boundingBox.max.z - boundingBox.min.z;
     let myZScale = this.walls.scale.z;
 
-    this.walls.scale.z = Math.max((myZScale * height)/myHeight, 0.001);
+    this.walls.scale.z = Math.max((myZScale * height)/myHeight, 0.01);
+    this.ceilingOfEntrance.scale.z = this.walls.scale.z / 2;
   }
 
   setCenterCubeColor(color) {
