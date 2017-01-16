@@ -123,6 +123,8 @@ class Model extends THREE.Object3D {
         this.position.z // we want the floor of the model to determine its position
       );
 
+      let mapHeight = this.game.ground.getHeight(centerPoint.x, centerPoint.y);
+
       // calculate distance from center of floor of model to destination
       for(let i in {'x':null, 'y':null, 'z':null}) {
         dif[i] = destination[i] - centerPoint[i];
@@ -248,9 +250,12 @@ class Model extends THREE.Object3D {
         }
 
         // do the movement
-        for(let i in {'x':null, 'y':null, 'z':null}) {
+        for(let i in {'x':null, 'y':null}) {
           this.position[i] += this.velocity[i];
         }
+
+        // snap to ground
+        this.position.z = mapHeight;
 
       } else {
         // already within destinationTolerance, don't move

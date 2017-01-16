@@ -21,6 +21,7 @@ const MAPLENGTH = 10000;
 const MAPHEIGHT = 1000;
 const SHADOWS = true;
 const LEVEL = require('../../game/assets/scenario1.json');
+const MAP = 'build/output/assets/map.png';
 
 /* Camera Settings */
 const FOV = 90;
@@ -29,7 +30,7 @@ const NEARFRUSTRAM = 0.1;
 const FAFRUSTRAM = 10000;
 const CAMERA_START_X = 4000;
 const CAMERA_START_Y = 4000;
-const CAMERA_START_Z = 3000;
+const CAMERA_START_Z = 3500; // 3000
 const SCROLL_SCALE = 1;
 
 /* Interface Settings */
@@ -150,7 +151,8 @@ class Game{
       this.player.resources.food = 2000;
       this.player.resources.gold = 2000;
 
-      this.addGround();
+      this.loadMap(MAP);
+
       this.addSelectionBox();
 
       this.addMenu();
@@ -337,22 +339,22 @@ class Game{
           case "metal":
             resourceNode = new MetalResourceNode(
               this,
-              new THREE.Vector3(500, 500, 125),
-              1000
+              undefined, // size
+              1000 // resourceLeft
             );
             break;
           case "food":
             resourceNode = new FoodResourceNode(
               this,
-              new THREE.Vector3(500, 500, 125),
-              1000
+              undefined, // size
+              1000 // resourceLeft
             );
             break;
           case "gold":
             resourceNode = new GoldResourceNode(
               this,
-              new THREE.Vector3(500, 500, 125),
-              1000
+              undefined, // size
+              1000 // resourceLeft
             );
             break;
           default:
@@ -444,6 +446,7 @@ class Game{
             this.addCube(coords, size, name);
             break;
           case 'building':
+
             this.addBuilding(
               obj.data.coordinates,
               obj.data.size,
@@ -466,11 +469,65 @@ class Game{
       }
     }
 
-    addGround() {
-      this.ground = new Ground(MAPWIDTH, MAPLENGTH);
-      this.ground.name = "ground";
-      this.ground.position.set(MAPWIDTH/2, MAPLENGTH/2, 0);
-      this.scene.add(this.ground);
+    snapUpToGround(objects) {
+
+      for(let i in objects) {
+        let height = this.ground.getHeight(objects[i].position.x, objects[i].position.y);
+
+        if(objects[i].position.z < height) {
+          objects[i].position.z = height;
+        }
+      }
+    }
+
+    /*
+      Loads image from @map, instantiates this.ground and applies the heightMap
+    */
+    loadMap(map) {
+
+      // need a canvas to getImageData()
+      let canvas = window.document.createElement('canvas');
+      let context = canvas.getContext('2d');
+
+      let img = new Image();
+
+      // assign async callback to do work on the image
+      img.onload = (e) => {
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // copy image data pixel-by-pixel onto canvas
+        context.drawImage(img, 0, 0);
+
+        // returns an array in RGBA order
+        let imgd = context.getImageData(0, 0, img.width, img.height);
+
+        // array of heights, where (0, 0) is top left and iterates collumn-major
+        let mapData = [];
+
+        // parse image RGBA data into data array
+        for(let i = 0; i < imgd.data.length; i += 4) {
+          let r = imgd.data[i];
+          let g = imgd.data[i+1];
+          let b = imgd.data[i+2];
+          let a = imgd.data[i+3];
+
+          let d = (r + b + g) / 3;
+
+          mapData.push(d);
+        }
+
+        this.ground = new Ground(this, MAPWIDTH, MAPLENGTH, mapData);
+
+        this.snapUpToGround([].concat(
+          this.cubes,
+          this.buildings,
+          this.resourceNodes
+        ));
+      };
+
+      img.src = map;
     }
 
     addMenu() {

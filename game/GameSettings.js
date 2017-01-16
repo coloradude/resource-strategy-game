@@ -26,9 +26,9 @@ const GameSettings = {
       "completeColor": 0xCCCC00,
       "incompleteColor": 0x555500,
       "defaultSize": {
-        "x": 1000,
-        "y": 1000,
-        "z": 200
+        "x": 500,
+        "y": 500,
+        "z": 125
       },
       "buildingHasNotBegunTexture": "./build/output/assets/textures/Granite_Dark_Gray.jpg",
       "buildingInProgressTexture": "./build/output/assets/textures/Stone_Marble.jpg",
@@ -63,15 +63,22 @@ const GameSettings = {
       "completeColor": 0x8E1111,
       "incompleteColor": 0x2E1111,
       "defaultSize": {
-        "x": 1000,
-        "y": 1000,
-        "z": 200
+        "x": 500,
+        "y": 500,
+        "z": 125
       },
       "buildingHasNotBegunTexture": "./build/output/assets/textures/Granite_Dark_Gray.jpg",
       "buildingInProgressTexture": "./build/output/assets/textures/Stone_Marble.jpg",
       "buildingCompleteTexture": "./build/output/assets/textures/Stone_Marble.jpg",
       "floorTexture": "./build/output/assets/textures/Stone_Marble.jpg",
       "cubesColor": 0xFF0000
+    },
+    "resourceNode": {
+      "defaultSize": {
+        "x": 300,
+        "y": 300,
+        "z": 100
+      }
     },
     "metalResourceNode": {
       "model": "./build/output/assets/models/resource-node.dae",
@@ -87,6 +94,13 @@ const GameSettings = {
       "model": "./build/output/assets/models/resource-node.dae",
       "baseColor": "#417c25",
       "topColor": "#329903"
+    },
+    "cube": {
+      "defaultSize": {
+        "x": 100,
+        "y": 100,
+        "z": 50
+      }
     }
 };
 

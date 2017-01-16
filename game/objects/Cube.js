@@ -7,11 +7,16 @@ browser: true
 
 const THREE = require('three');
 const Model = require('./Model.js');
+const GameSettings = require('../GameSettings.js');
 
 class Cube extends Model {
   constructor(
     game,
-    size,
+    size = new THREE.Vector3(
+      GameSettings.cube.defaultSize.x,
+      GameSettings.cube.defaultSize.y,
+      GameSettings.cube.defaultSize.z
+    ),
     model = './build/output/assets/models/inset-cube.dae'
   ){
 

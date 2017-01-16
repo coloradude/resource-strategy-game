@@ -7,6 +7,7 @@ browser: true
 
 const THREE = require('three');
 const Model = require('../Model.js');
+const GameSettings = require('../../GameSettings.js');
 
 /*
   Resource nodes give resources to miners/gatherers/etc.
@@ -19,8 +20,12 @@ class ResourceNode extends Model {
   constructor(
     game,
     model,
-    size,
-    resourceRemaining
+    size = new THREE.Vector3(
+      GameSettings.resourceNode.defaultSize.x,
+      GameSettings.resourceNode.defaultSize.y,
+      GameSettings.resourceNode.defaultSize.z
+    ),
+    resourceRemaining = 1
   ) {
     super(game, model, size);
 
@@ -28,7 +33,7 @@ class ResourceNode extends Model {
     this.type = "resourceNode";
     this.resourceType = null;
     this.collectionSpeed = 1;
-    this.resourceRemaining = 1;
+    this.resourceRemaining = resourceRemaining;
     this.speed = 0;
     this.selected = false;
   }
