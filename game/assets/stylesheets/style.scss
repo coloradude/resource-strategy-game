@@ -34,7 +34,7 @@ html, body {
     display: flex;
     flex-flow: row-reverse nowrap;
 
-    div {
+    div { // unit
       background: transparent;
       padding: 0;
       font-size: 1em;
@@ -45,6 +45,7 @@ html, body {
       flex-grow: 1;
       flex-shrink: 1;
       overflow: hidden;
+      align-items: flex-end;
 
       &:hover {
         cursor: default;
@@ -54,14 +55,16 @@ html, body {
           background: rgba(255, 255, 255, 0.8);
         }
 
-        ul.actions {
+        ul.actions,
+        ul.research {
           display: flex;
+          flex-flow: row-reverse nowrap;
         }
       }
 
       p {
         display: block;
-        padding: 0.5em;
+        padding: 1em;
         background: rgba(255, 255, 255, 0.6);
         margin: 0;
       }
@@ -80,6 +83,7 @@ html, body {
         &:hover {
           overflow: visible;
           cursor: pointer;
+          display: flex;
         }
 
         li {
@@ -105,8 +109,26 @@ html, body {
           }
         }
 
-        &.actions {
+        &.actions,
+        &.research {
           display: none;
+          flex-grow: 0;
+
+          &:hover {
+            overflow: visible;
+            cursor: pointer;
+            flex-grow: 1;
+
+            li {
+              display: inline-block;
+            }
+          }
+
+          li {
+            flex-grow: 0;
+            display: inline-block;
+            display: none;
+          }
         }
 
         &.queuedUnits {

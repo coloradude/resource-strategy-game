@@ -25,12 +25,12 @@ const MAP = 'build/output/assets/map.png';
 
 /* Camera Settings */
 const FOV = 90;
-const MAXFRAMERATE = 1000 / 60; // 60fps
+const MAXFRAMERATE = 1000 / 60;
 const NEARFRUSTRAM = 0.1;
 const FAFRUSTRAM = 10000;
 const CAMERA_START_X = 4000;
 const CAMERA_START_Y = 4000;
-const CAMERA_START_Z = 3500; // 3000
+const CAMERA_START_Z = 3500;
 const SCROLL_SCALE = 1;
 
 /* Interface Settings */
@@ -253,6 +253,7 @@ class Game{
         // automatically get unique name
         if(name === undefined) {
           if(this.cubes.length > 0) {
+            // get name of last cube in array
             name = `cube` + (parseInt(this.cubes[this.cubes.length - 1].name.match(/\d+/)) + 1);
           } else {
             name = `cube0`;

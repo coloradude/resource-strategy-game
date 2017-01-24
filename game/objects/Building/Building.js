@@ -244,6 +244,7 @@ class Building extends Model {
     let html = `
       <p>${this.name} : ${this.type}</p>
       <ul class="actions">
+        <p>Actions</p>
         <li><a href="#" onclick="window.game.removeBuilding('${this.name}');">Destroy</a></li>
       </ul>
       <ul class="queuedUnits">

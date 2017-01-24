@@ -184,8 +184,16 @@ class Colony extends Building {
     let html = `
       <p>${this.name} : ${this.type}</p>
       <ul class="actions">
+        <p>Actions</p>
         <li><a href="#" onclick="window.game.removeBuilding('${this.name}');">Destroy</a></li>
         <li><a href="#" onclick="window.game.queueUnit('cube', '${this.name}')">Queue Unit: Cube</a></li>
+      </ul>
+      <ul class="research">
+        <p>Tech Research</p>
+        <li><a href="#" onclick="alert('game');">Tech 1</a></li>
+        <li><a href="#" onclick="alert('game');">Tech 2</a></li>
+        <li><a href="#" onclick="alert('game');">Tech 3</a></li>
+        <li><a href="#" onclick="alert('game');">Tech 4</a></li>
       </ul>
       <ul class="queuedUnits">
       </ul>
