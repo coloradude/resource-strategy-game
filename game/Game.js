@@ -40,6 +40,7 @@ const MOUSEDRAGSENSITIVITY = 0.005;
 const MENU_WIDTH = parseInt(window.getComputedStyle(MENU, null).getPropertyValue('width'));
 
 /* Import Objects */
+const ColladaLoader = require('./objects/ColladaLoader.js');
 const Model = require('./objects/Model.js');
 const Player = require('./objects/Player.js');
 const Camera = require('./objects/Camera.js');
@@ -60,9 +61,6 @@ const MetalResourceNode = require('./objects/ResourceNode/MetalResourceNode.js')
 const GoldResourceNode = require('./objects/ResourceNode/GoldResourceNode.js');
 const FoodResourceNode = require('./objects/ResourceNode/FoodResourceNode.js');
 
-const ColladaLoader = require('./objects/ColladaLoader.js');
-
-/* Control Settings */
 const CONTROLS = {
   leftClick: 1,
   rightClick: 3,

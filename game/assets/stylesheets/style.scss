@@ -33,7 +33,6 @@ html, body {
     max-width: calc(100% - #{$leftMenuWidth});
     display: flex;
     flex-flow: row-reverse nowrap;
-    overflow: scroll;
 
     div {
       background: transparent;
