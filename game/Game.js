@@ -158,6 +158,12 @@ class Game{
       this.watchEvents();
 
       this.loadScenario(LEVEL);
+
+      // add grid
+      this.grid = new THREE.GridHelper(1000, 10);
+      this.grid.rotation.x = Math.PI / 2;
+      this.grid.position.set(0, 0, 0);
+      this.scene.add(this.grid);
     }
 
     update() {
@@ -240,7 +246,7 @@ class Game{
 
     /*
       @coordinates: (x, y, z) vector
-      @size: (x, y, z) vector
+      @size: (x, y, z) vector 
     */
     addCube(coordinates, size, name) {
       if(coordinates !== null) {
