@@ -36,9 +36,11 @@ class ResourceNode extends Model {
     this.resourceRemaining = resourceRemaining;
     this.speed = 0;
     this.selected = false;
+    this.matrixAutoUpdate = false;
   }
 
   update() {
+    this.updateMatrix();
   }
 
   onModelLoad() {
@@ -50,6 +52,7 @@ class ResourceNode extends Model {
     this.setTopColor(this.topColor);
 
     super.onModelLoad();
+    this.updateMatrix();
   }
 
   setBaseColor(color) {

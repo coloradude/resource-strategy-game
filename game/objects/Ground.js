@@ -41,8 +41,10 @@ class Ground extends THREE.Mesh {
     this.length = length;
     this.widthSegments = widthSegments;
     this.lengthSegments = lengthSegments;
+    this.matrixAutoUpdate = false;
 
     this.game.scene.add(this);
+    this.updateMatrix();
   }
 
   assignHeightMap(heightMap) {

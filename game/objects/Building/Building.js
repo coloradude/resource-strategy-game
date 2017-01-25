@@ -30,6 +30,7 @@ class Building extends Model {
     this.buildingNotStartedColor = 0x666666;
     this.completeColor = 0x333333;
     this.incompleteColor = 0x999999;
+    this.matrixAutoUpdate = false;
 
     // set this.completion based on status
     switch(this.status) {
@@ -62,6 +63,7 @@ class Building extends Model {
   }
 
   onModelLoad() {
+    this.updateMatrix();
     super.onModelLoad();
   }
 
@@ -122,12 +124,14 @@ class Building extends Model {
       this.completion = 100;
       this.status = 'complete';
       this.updateAppearanceByCompletion();
+      this.updateMatrix();
     } else {
       // build
       this.completion += this.buildQueue;
       this.buildQueue = 0;
       this.status = 'incomplete';
       this.updateAppearanceByCompletion();
+      this.updateMatrix();
     }
   }
 
