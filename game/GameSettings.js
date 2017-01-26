@@ -6,7 +6,33 @@ browser: true
 */
 
 const GameSettings = {
-    "mine": {
+  "base": {
+    "name": "base",
+    "type": "base",
+    "expiration": "null",
+    "buildCost": [{
+        "type": "metal",
+        "amt": 2000
+    }, {
+        "type": "gold",
+        "amt": 1000
+    }, {
+        "type": "food",
+        "amt": 0
+    }],
+    "model": "./build/output/assets/models/pyramid-building.dae",
+    "completeColor": 0x000000,
+    "incompleteColor": 0x333333,
+    "defaultSize": {
+      "x": 500,
+      "y": 500,
+      "z": 125
+    },
+    "buildingHasNotBegunTexture": "./build/output/assets/textures/Granite_Dark_Gray.jpg",
+    "buildingInProgressTexture": "./build/output/assets/textures/Stone_Marble.jpg",
+    "buildingCompleteTexture": "./build/output/assets/textures/Stone_Marble.jpg"
+  },
+  "mine": {
       "name": "mine",
       "type": "mine",
       "expiration": "null",

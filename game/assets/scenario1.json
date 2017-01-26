@@ -65,5 +65,17 @@
         "name": "colony1",
         "type": "colony"
     }
-},
+}, {
+    "id": 6,
+    "type": "building",
+    "data": {
+        "coordinates": {
+            "x": 2800,
+            "y": 3564,
+            "z": 0
+        },
+        "name": "base1",
+        "type": "base"
+    }
+}
 ]

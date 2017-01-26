@@ -56,6 +56,7 @@ const WorkerUnit = require('./objects/Units/Worker.js');
 const Building = require('./objects/Building/Building.js');
 const Mine = require('./objects/Building/Mine.js');
 const Colony = require('./objects/Building/Colony.js');
+const Base = require('./objects/Building/Base.js');
 const ResourceNode = require('./objects/ResourceNode/ResourceNode.js');
 const MetalResourceNode = require('./objects/ResourceNode/MetalResourceNode.js');
 const GoldResourceNode = require('./objects/ResourceNode/GoldResourceNode.js');
@@ -246,7 +247,7 @@ class Game{
 
     /*
       @coordinates: (x, y, z) vector
-      @size: (x, y, z) vector 
+      @size: (x, y, z) vector
     */
     addCube(coordinates, size, name) {
       if(coordinates !== null) {
@@ -300,6 +301,14 @@ class Game{
           break;
         case 'colony':
           building = new Colony(
+            this,
+            size,
+            type,
+            status
+          );
+          break;
+        case 'base':
+          building = new Base(
             this,
             size,
             type,
@@ -629,6 +638,7 @@ class Game{
       this.gameElem.detectedWidth = parseInt(this.gameElem.getPropertyValue('width'));
       this.gameElem.computedWidth = this.gameElem.detectedWidth - this.gameElem.offsetLeft;
 
+      // renderer
       this.renderer = new THREE.WebGLRenderer({
         antialias: true,
         canvas: CANVAS
@@ -637,9 +647,7 @@ class Game{
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.setSize(this.gameElem.computedWidth, this.gameElem.detectedHeight, false);
 
-      this.renderer.autoClear = false;
-
-      // enable shadows
+      // shadows
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = THREE.PCFShadowMap;
       this.renderer.shadowMapSoft = true; // false for better performance
@@ -1168,7 +1176,7 @@ class Game{
       }
     }
 
-    setRightTool(tool, args = undefined) {
+    setRightTool(tool, args) {
       this.rightTool = tool;
 
       if(args !== undefined) {
