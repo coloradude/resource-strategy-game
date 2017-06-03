@@ -161,10 +161,7 @@ class Game{
       this.loadScenario(LEVEL);
 
       // add grid
-      this.grid = new THREE.GridHelper(1000, 10);
-      this.grid.rotation.x = Math.PI / 2;
-      this.grid.position.set(0, 0, 0);
-      this.scene.add(this.grid);
+      this.addGrid(100);
     }
 
     update() {
@@ -243,6 +240,29 @@ class Game{
         console.log(unit.name);
         console.log(unit.position);
       }
+    }
+
+    addGrid(width) {
+      this.grid = new THREE.GridHelper(MAPWIDTH, width);
+      this.grid.cells = width;
+      this.grid.rotation.x = Math.PI / 2;
+      this.grid.position.set(0, 0, 0);
+      this.scene.add(this.grid);
+    }
+
+    /*
+      @mapCoordinates: (x, y, z) vector
+      Returns {x, y, z} vector of corresponding cell
+    */
+    getGridCoordinates(mapCoordinates) {
+      let xCells = MAPWIDTH / this.grid.cells;
+      let yCells = MAPLENGTH / this.grid.cells;
+
+      return new THREE.Vector3(
+        Math.floor((mapCoordinates.x * this.grid.cells) / MAPWIDTH),
+        Math.floor((mapCoordinates.y * this.grid.cells) / MAPLENGTH),
+        Math.floor((mapCoordinates.z * this.grid.cells) / MAPHEIGHT)
+      );
     }
 
     /*
@@ -622,6 +642,7 @@ class Game{
 
     addSelectionBox() {
       this.selectionBox = new SelectionBox();
+      this.selectionBox.material.depthTest = false;
       this.scene.add(this.selectionBox);
       this.selectionBox.setSceneObject(this.scene.getObjectByName('selectionBox'));
     }
@@ -849,7 +870,7 @@ class Game{
             }
 
             // cache ground for later reference
-            if(intersects[i].object == this.ground) {
+            if(intersects[i] == this.ground) {
               ground = intersects[i];
             }
           }
