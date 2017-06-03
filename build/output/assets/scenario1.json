@@ -1,0 +1,81 @@
+[{
+    "id": 0,
+    "type": "cube",
+    "data": {
+        "coordinates": {
+            "x": 3000,
+            "y": 3000,
+            "z": 0
+        },
+        "name": "soldier1"
+    }
+}, {
+    "id": 1,
+    "type": "building",
+    "data": {
+        "coordinates": {
+            "x": 2656,
+            "y": 1764,
+            "z": 0
+        },
+        "type": "mine"
+    }
+}, {
+    "id": 2,
+    "type": "resourceNode",
+    "data": {
+        "coordinates": {
+            "x": 3880,
+            "y": 2440,
+            "z": 0
+        },
+        "type": "metal"
+    }
+}, {
+    "id": 3,
+    "type": "resourceNode",
+    "data": {
+        "coordinates": {
+            "x": 4457,
+            "y": 2653,
+            "z": 0
+        },
+        "type": "food"
+    }
+}, {
+    "id": 4,
+    "type": "resourceNode",
+    "data": {
+        "coordinates": {
+            "x": 3391,
+            "y": 2197,
+            "z": 0
+        },
+        "type": "gold"
+    }
+}, {
+    "id": 5,
+    "type": "building",
+    "data": {
+        "coordinates": {
+            "x": 2100,
+            "y": 1764,
+            "z": 0
+        },
+        "name": "colony1",
+        "type": "colony"
+    }
+}, {
+    "id": 6,
+    "type": "building",
+    "data": {
+        "coordinates": {
+            "x": 2800,
+            "y": 3564,
+            "z": 0
+        },
+        "name": "base1",
+        "type": "base"
+    }
+}
+]

@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Resource Strategy Game</title>
+    <link rel='stylesheet' href='public/stylesheets/style.css' />
+    <style>
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+  <canvas id="game"></canvas>
+  <div id="leftMenu">
+    <div class="player-score row">
+      <span class="resourceLabel">Score:</span>
+      <span class="resourceAmount" id="player-score">0</span>
+    </div>
+    <div class="player-gold row">
+      <span class="resourceLabel">Gold:</span>
+      <span class="resourceAmount" id="player-gold">0</span>
+    </div>
+    <div class="player-metal row">
+      <span class="resourceLabel">Metal:</span>
+      <span class="resourceAmount" id="player-metal">0</span>
+    </div>
+    <div class="player-food row">
+      <span class="resourceLabel">Food:</span>
+      <span class="resourceAmount" id="player-food">0</span>
+    </div>
+    <ul>
+      <a>Place Object</a>
+      <li>
+        <ul>
+          <a>Units</a>
+          <li>
+            <a class="button" href="#" id="menu-toolToAddSmCube">Small Cube</a>
+          </li>
+          <li>
+            <a class="button" href="#" id="menu-toolToAddMdCube">Medium Cube</a>
+          </li>
+          <li>
+            <a class="button" href="#" id="menu-toolToAddLgCube">Large Cube</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <ul>
+          <a>Buildings</a>
+          <li>
+            <a class="button" href="#" id="menu-toolToBuildBuilding">Incomplete Building</a>
+          </li>
+          <li>
+            <a class="button" href="#" id="menu-toolToAddBuilding">Complete Building</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <ul>
+          <a>Resources</a>
+          <li>
+            <a class="button" id="menu-toolToAddRandomNode">Random</a>
+          </li>
+          <li>
+            <a class="button" href="#" id="menu-toolToAddGold">Gold</a>
+          </li>
+          <li>
+            <a class="button" href="#" id="menu-toolToAddMetal">Metal</a>
+          </li>
+          <li>
+            <a class="button" href="#" id="menu-toolToAddFood">Food</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <ul>
+      <a>Dev Tools</a>
+      <li>
+        <a class="button" href="#" id="menu-addCube">Add Random Cube</a>
+      </li>
+      <li>
+        <a class="button" href="#" id="menu-addRandomCubes">Add Random Cubes</a>
+      </li>
+      <li>
+        <a class="button" href="#" id="menu-removeAllCubes">Remove All Cubes</a>
+      </li>
+      <li>
+        <a class="button" href="#" id="menu-removeSelectedCubes">Remove Selected Cubes</a>
+      </li>
+      <li>
+        <a class="button" href="#" id="menu-listAllCubes">List All Cubes</a>
+      </li>
+      <li>
+        <a class="button" href="#" id="menu-listAllBuildings">List All Buildings</a>
+      </li>
+      <li>
+        <a class="button" href="#" id="menu-resetScore">Reset Score</a>
+      </li>
+      <li>
+        <a class="button" href="#" id="menu-resetResources">Reset Resources</a>
+      </li>
+      <li>
+        <a class="button" href="#" id="menu-listSelectedUnits">List Selected Units</a>
+      </li>
+    </ul>
+
+  </div>
+  <div id="rightMenu">
+    <p id="numSelected">
+      <span id="numSelectedNum">0</span> Selected
+    </p>
+    <p>
+      Of Type:
+    </p>
+    <div id="selectedTypes"></div>
+    <div class="buttons">
+      <a href="#" id="rightMenu-deleteSelected" class="button">Delete</a>
+      <a href="#" id="rightMenu-listSelected" class="button">List</a>
+      <a href="#" id="rightMenu-listNearbyUnits" class="button">Nearby</a>
+    </div>
+  </div>
+
+  <div id="selectedUnitInterfaces">
+  </div>
+</div>
+<script src="build/output/init.js"></script>
+
+  </body>
+</html>

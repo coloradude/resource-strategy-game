@@ -1,0 +1,81 @@
+[{
+    "id": 0,
+    "type": "cube",
+    "data": {
+        "coordinates": {
+            "x": 500,
+            "y": 300,
+            "z": 25
+        },
+        "size": {
+            "x": 200,
+            "y": 200,
+            "z": 200
+        },
+        "name": "soldier1"
+    }
+}, {
+    "id": 1,
+    "type": "cube",
+    "data": {
+        "coordinates": {
+            "x": 400,
+            "y": 3000,
+            "z": 25
+        },
+        "size": {
+            "x": 200,
+            "y": 200,
+            "z": 200
+        },
+        "name": "soldier2"
+    }
+}, {
+    "id": 2,
+    "type": "cube",
+    "data": {
+        "coordinates": {
+            "x": 5000,
+            "y": 3000,
+            "z": 25
+        },
+        "size": {
+            "x": 200,
+            "y": 200,
+            "z": 200
+        },
+        "name": "soldier3"
+    }
+}, {
+    "id": 3,
+    "type": "cube",
+    "data": {
+        "coordinates": {
+            "x": 6000,
+            "y": 4000,
+            "z": 25
+        },
+        "size": {
+            "x": 200,
+            "y": 200,
+            "z": 200
+        },
+        "name": "soldier4"
+    }
+}, {
+    "id": 4,
+    "type": "building",
+    "data": {
+        "coordinates": {
+            "x": 4000,
+            "y": 4000,
+            "z": 200
+        },
+        "size": {
+            "x": 400,
+            "y": 400,
+            "z": 400
+        },
+        "name": "building1"
+    }
+}]
