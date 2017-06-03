@@ -1,0 +1,211 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
+  font-family: "Lucida Console", Monaco, monospace; }
+
+* {
+  box-sizing: inherit; }
+
+#container {
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+  position: relative; }
+  #container #game {
+    margin-left: 200px; }
+  #container #selectedUnitInterfaces {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    max-height: 50%;
+    max-width: calc(100% - 200px);
+    display: flex;
+    flex-flow: row-reverse nowrap; }
+    #container #selectedUnitInterfaces div {
+      background: transparent;
+      padding: 0;
+      font-size: 1em;
+      margin: 0;
+      display: flex;
+      flex-flow: column nowrap;
+      flex-direction: column-reverse;
+      flex-grow: 1;
+      flex-shrink: 1;
+      overflow: hidden;
+      align-items: flex-end; }
+      #container #selectedUnitInterfaces div:hover {
+        cursor: default;
+        overflow: visible; }
+        #container #selectedUnitInterfaces div:hover p {
+          background: rgba(255, 255, 255, 0.8); }
+        #container #selectedUnitInterfaces div:hover ul.actions,
+        #container #selectedUnitInterfaces div:hover ul.research {
+          display: flex;
+          flex-flow: row-reverse nowrap; }
+      #container #selectedUnitInterfaces div p {
+        display: block;
+        padding: 1em;
+        background: rgba(255, 255, 255, 0.6);
+        margin: 0; }
+      #container #selectedUnitInterfaces div ul {
+        flex-flow: column nowrap;
+        justify-content: flex-start;
+        align-items: stretch;
+        padding: 0;
+        list-style: none;
+        overflow: hidden;
+        margin: 0;
+        width: 100%;
+        flex-grow: 0; }
+        #container #selectedUnitInterfaces div ul:hover {
+          overflow: visible;
+          cursor: pointer;
+          display: flex; }
+        #container #selectedUnitInterfaces div ul li {
+          text-align: left; }
+          #container #selectedUnitInterfaces div ul li span {
+            display: block;
+            padding: 1em;
+            background: #666;
+            cursor: default; }
+          #container #selectedUnitInterfaces div ul li a {
+            display: block;
+            background: #333;
+            color: #ffffff;
+            padding: 1em;
+            text-decoration: none; }
+            #container #selectedUnitInterfaces div ul li a:hover {
+              background: #666; }
+        #container #selectedUnitInterfaces div ul.actions, #container #selectedUnitInterfaces div ul.research {
+          display: none;
+          flex-grow: 0; }
+          #container #selectedUnitInterfaces div ul.actions:hover, #container #selectedUnitInterfaces div ul.research:hover {
+            overflow: visible;
+            cursor: pointer;
+            flex-grow: 1; }
+            #container #selectedUnitInterfaces div ul.actions:hover li, #container #selectedUnitInterfaces div ul.research:hover li {
+              display: inline-block; }
+          #container #selectedUnitInterfaces div ul.actions li, #container #selectedUnitInterfaces div ul.research li {
+            flex-grow: 0;
+            display: inline-block;
+            display: none; }
+        #container #selectedUnitInterfaces div ul.queuedUnits {
+          display: flex;
+          background: rgba(255, 255, 255, 0.25); }
+          #container #selectedUnitInterfaces div ul.queuedUnits div {
+            display: block; }
+            #container #selectedUnitInterfaces div ul.queuedUnits div span {
+              display: inline-block;
+              width: 50%;
+              float: left;
+              padding: .25em; }
+  #container #rightMenu {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    background: white;
+    padding: 1em; }
+  #container #leftMenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 100%;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: flex-start;
+    flex-flow: column nowrap;
+    text-align: center; }
+    #container #leftMenu > ul {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+      align-items: stretch;
+      padding: 0;
+      list-style: none;
+      overflow: hidden;
+      background: #333;
+      color: white;
+      margin: 0;
+      width: 100%;
+      flex-grow: 1; }
+      #container #leftMenu > ul:hover {
+        overflow: visible;
+        cursor: pointer;
+        background: #555; }
+        #container #leftMenu > ul:hover li {
+          width: auto; }
+        #container #leftMenu > ul:hover > a {
+          flex-basis: 200px;
+          flex-shrink: 0;
+          flex-grow: 0; }
+      #container #leftMenu > ul a {
+        flex-grow: 1;
+        order: 0;
+        flex-basis: 100%;
+        display: block;
+        margin: 0;
+        padding: 1em;
+        align-self: center; }
+      #container #leftMenu > ul li {
+        flex-basis: 0;
+        flex-shrink: 1;
+        flex-grow: 0;
+        width: 0;
+        order: 1;
+        box-sizing: border-box;
+        padding: 0;
+        background: transparent; }
+        #container #leftMenu > ul li ul {
+          flex-flow: column nowrap;
+          padding: 0;
+          display: flex;
+          align-items: stretch;
+          list-style: none;
+          overflow: hidden; }
+          #container #leftMenu > ul li ul > a {
+            background: white;
+            color: #111;
+            width: 100%; }
+          #container #leftMenu > ul li ul li {
+            flex-basis: 5em; }
+            #container #leftMenu > ul li ul li a, #container #leftMenu > ul li ul li a.button {
+              display: block;
+              padding: 2em 1em;
+              height: 100%; }
+          #container #leftMenu > ul li ul:hover {
+            overflow: visible; }
+            #container #leftMenu > ul li ul:hover > a {
+              background: #eeeeee; }
+            #container #leftMenu > ul li ul:hover li {
+              height: auto; }
+    #container #leftMenu div.row {
+      text-align: left;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      flex-grow: 1;
+      padding: .5em 1em; }
+      #container #leftMenu div.row span {
+        width: 50%;
+        display: inline-block;
+        text-align: right; }
+
+a.button {
+  display: inline-block;
+  background: #333;
+  text-decoration: none;
+  color: white;
+  padding: 1em; }
+  a.button:hover {
+    background: #555; }
+  a.button.rightTool {
+    background: #777;
+    padding: 1em .5em;
+    font-size: 0.8em;
+    text-align: left; }
